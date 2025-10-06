@@ -1,0 +1,77 @@
+# Proratio - AI-Driven Crypto Trading System
+# Requirements file for all modules
+
+# ============================================================================
+# CORE FRAMEWORK
+# ============================================================================
+freqtrade==2024.10
+ccxt>=4.4.0  # Use latest compatible version
+
+# ============================================================================
+# DATABASE
+# ============================================================================
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
+
+# ============================================================================
+# AI / LLM PROVIDERS
+# ============================================================================
+openai==1.54.0              # ChatGPT-4
+anthropic==0.39.0           # Claude
+google-generativeai==0.8.3  # Gemini
+langchain==0.3.7            # Optional: LLM orchestration
+langchain-openai==0.2.9
+langchain-anthropic==0.3.3
+
+# ============================================================================
+# DATA & ANALYSIS
+# ============================================================================
+pandas>=2.2.0
+numpy>=2.0.0
+pandas-ta>=0.3.14b0         # Technical indicators (use latest compatible)
+# TA-Lib requires separate binary installation:
+# Mac: brew install ta-lib && pip install TA-Lib
+# Linux: See https://github.com/mrjbq7/ta-lib
+
+# ============================================================================
+# MACHINE LEARNING (for future ML models)
+# ============================================================================
+torch>=2.5.0                # PyTorch (use latest compatible)
+scikit-learn>=1.5.0
+scipy>=1.14.0
+
+# ============================================================================
+# VISUALIZATION & DASHBOARDS
+# ============================================================================
+plotly==5.24.1
+matplotlib==3.9.2
+streamlit==1.40.1
+seaborn==0.13.2
+
+# ============================================================================
+# UTILITIES
+# ============================================================================
+python-dotenv==1.0.1
+requests==2.32.3
+pydantic==2.10.2            # Data validation
+python-telegram-bot==21.7   # Telegram alerts
+redis==5.2.0                # Caching (Freqtrade requirement)
+fastapi==0.115.5            # API server
+uvicorn==0.32.1             # ASGI server
+
+# ============================================================================
+# DEVELOPMENT & TESTING
+# ============================================================================
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-cov==6.0.0
+black==24.10.0              # Code formatting
+flake8==7.1.1               # Linting
+mypy==1.13.0                # Type checking
+
+# ============================================================================
+# JUPYTER & RESEARCH
+# ============================================================================
+jupyterlab==4.3.3
+ipywidgets==8.1.5
+notebook==7.3.1

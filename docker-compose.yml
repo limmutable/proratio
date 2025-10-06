@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for market data and trade history
+  postgres:
+    image: postgres:16-alpine
+    container_name: proratio_postgres
+    environment:
+      POSTGRES_USER: proratio
+      POSTGRES_PASSWORD: proratio_password
+      POSTGRES_DB: proratio
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis for caching and Freqtrade state
+  redis:
+    image: redis:7-alpine
+    container_name: proratio_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Freqtrade trading bot (will be configured in Week 1)
+  # Uncomment after Freqtrade setup is complete
+  # freqtrade:
+  #   image: freqtradeorg/freqtrade:stable
+  #   container_name: proratio_freqtrade
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #   volumes:
+  #     - ./user_data:/freqtrade/user_data
+  #     - ./proratio_core/config/freqtrade:/freqtrade/config
+  #   environment:
+  #     - FREQTRADE__CONFIG=/freqtrade/config/config.json
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
+  #   command: trade --config /freqtrade/config/config.json
+
+  # Streamlit Dashboard (Proratio TradeHub)
+  # Uncomment after dashboard is built in Week 3
+  # dashboard:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dashboard
+  #   container_name: proratio_dashboard
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "8501:8501"
+  #   volumes:
+  #     - ./proratio_tradehub/dashboard:/app
+  #   env_file:
+  #     - .env
+  #   restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
