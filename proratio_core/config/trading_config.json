@@ -1,0 +1,70 @@
+{
+  "risk": {
+    "max_loss_per_trade_pct": 2.0,
+    "max_position_size_pct": 10.0,
+    "min_position_size_pct": 1.0,
+    "max_total_drawdown_pct": 10.0,
+    "warning_drawdown_pct": 7.0,
+    "max_concurrent_positions": 3,
+    "max_positions_per_pair": 1,
+    "max_leverage": 1.0
+  },
+  "position_sizing": {
+    "method": "ai_weighted",
+    "base_risk_pct": 2.0,
+    "ai_confidence_min": 0.60,
+    "ai_confidence_multiplier_min": 0.8,
+    "ai_confidence_multiplier_max": 1.2,
+    "atr_period": 14,
+    "atr_multiplier": 2.0,
+    "kelly_fraction": 0.5
+  },
+  "strategy": {
+    "strategy_name": "AIEnhancedStrategy",
+    "timeframe": "1h",
+    "pairs": ["BTC/USDT", "ETH/USDT"],
+    "ema_fast_period": 20,
+    "ema_slow_period": 50,
+    "rsi_period": 14,
+    "rsi_buy_threshold": 30,
+    "rsi_sell_threshold": 70,
+    "atr_period": 14,
+    "adx_period": 14,
+    "adx_trend_threshold": 20.0,
+    "roi_levels": {
+      "0": 0.15,
+      "60": 0.08,
+      "120": 0.04
+    },
+    "stoploss_pct": -0.04,
+    "trailing_stop_enabled": true,
+    "trailing_stop_positive": 0.015,
+    "trailing_stop_positive_offset": 0.025,
+    "volume_min_multiplier": 1.0
+  },
+  "ai": {
+    "chatgpt_weight": 0.40,
+    "claude_weight": 0.35,
+    "gemini_weight": 0.25,
+    "min_consensus_score": 0.60,
+    "min_confidence": 0.60,
+    "require_all_providers": false,
+    "signal_cache_minutes": 60,
+    "lookback_candles": 50,
+    "chatgpt_model": null,
+    "claude_model": null,
+    "gemini_model": null
+  },
+  "execution": {
+    "trading_mode": "dry_run",
+    "exchange": "binance",
+    "entry_order_type": "limit",
+    "exit_order_type": "limit",
+    "stoploss_order_type": "market",
+    "stoploss_on_exchange": false,
+    "order_time_in_force": "GTC",
+    "starting_balance": 10000.0,
+    "stake_currency": "USDT",
+    "stake_amount": 100.0
+  }
+}

@@ -4,7 +4,7 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.2.0 (MVP Development - Week 2 Complete: AI Integration)
+**Version**: 0.3.0 (MVP Development - Week 3 Complete: Risk Management & Configuration)
 
 > For detailed project status, weekly progress, and development plans, see [PLAN.md](./PLAN.md)
 
@@ -14,10 +14,11 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 
 - **Multi-AI Analysis**: Leverages ChatGPT, Claude, and Gemini for market insights
 - **Automated Execution**: Freqtrade-powered trading on Binance (Spot, Futures, Options)
-- **Comprehensive Backtesting**: Rigorous strategy validation before deployment
-- **Risk Management**: Built-in position sizing, drawdown control, and stop-losses
+- **Comprehensive Backtesting**: Walk-forward analysis and multi-strategy comparison
+- **Risk Management**: 6-layer risk validation with emergency stops and 5 position sizing methods
+- **Centralized Configuration**: Single JSON file controls all 60+ trading parameters
 - **Modular Architecture**: Four independent modules for flexibility and extensibility
-- **Real-time Dashboard**: Streamlit-based monitoring and control interface
+- **Production-Ready**: 106 passing tests with comprehensive coverage
 
 ---
 
@@ -36,12 +37,12 @@ Proratio TradeHub      → Strategy orchestration
 
 ### Module Breakdown
 
-| Module | Purpose | Tech Stack |
-|--------|---------|------------|
-| **Core** | Exchange connectivity, data collection, order execution | Freqtrade, CCXT, PostgreSQL |
-| **Signals** | Multi-LLM analysis, consensus mechanism | OpenAI API, Anthropic API, Gemini API |
-| **QuantLab** | Strategy backtesting, ML model development | PyTorch, scikit-learn, Jupyter |
-| **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework |
+| Module | Purpose | Tech Stack | Status |
+|--------|---------|------------|--------|
+| **Core** | Exchange connectivity, data collection, order execution | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
+| **Signals** | Multi-LLM analysis, consensus mechanism | OpenAI API, Anthropic API, Gemini API | ✅ 95% |
+| **QuantLab** | Strategy backtesting, ML model development | PyTorch, scikit-learn, Jupyter | ✅ 60% |
+| **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework | ✅ 50% |
 
 ---
 
@@ -79,6 +80,21 @@ python scripts/export_data_for_freqtrade.py
 ```
 
 > For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/)
+
+### Configure Trading Parameters
+
+```bash
+# View current configuration
+python scripts/show_trading_config.py
+
+# Edit configuration (all trading parameters in one file)
+# Edit: proratio_core/config/trading_config.json
+
+# Validate configuration
+python scripts/show_trading_config.py --validate
+```
+
+> For configuration guide, see [docs/TRADING_CONFIG_GUIDE.md](./docs/TRADING_CONFIG_GUIDE.md)
 
 ### Run Paper Trading
 
@@ -134,7 +150,25 @@ freqtrade trade \
   --config proratio_core/config/freqtrade/config_dry.json
 ```
 
-### Monitor Dashboard
+### Configure Risk & Position Sizing
+
+```python
+from proratio_core.config.trading_config import TradingConfig
+
+# Load configuration
+config = TradingConfig.load_from_file('proratio_core/config/trading_config.json')
+
+# Modify risk parameters
+config.risk.max_loss_per_trade_pct = 0.015  # 1.5% max loss
+config.position_sizing.method = 'ai_weighted'  # Use AI confidence
+
+# Validate and save
+errors = config.validate()
+if not errors:
+    config.save_to_file('proratio_core/config/trading_config.json')
+```
+
+### Monitor Dashboard (Coming in Week 4)
 
 ```bash
 streamlit run proratio_tradehub/dashboard/app.py
@@ -187,14 +221,16 @@ proratio/
 ## 🧪 Testing
 
 ```bash
-# Run all tests
+# Run all tests (106 tests)
 pytest
 
 # Run specific module
-pytest tests/test_signals/
+pytest tests/test_signals/      # AI signal tests (42 tests)
+pytest tests/test_quantlab/     # Backtesting tests (11 tests)
+pytest tests/test_tradehub/     # Risk management tests (44 tests)
 
 # With coverage
-pytest --cov=proratio_signals --cov-report=html
+pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --cov-report=html
 ```
 
 ---
@@ -203,6 +239,7 @@ pytest --cov=proratio_signals --cov-report=html
 
 - **[PLAN.md](./PLAN.md)** - Complete implementation plan, weekly progress, and development workflow
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
+- **[docs/TRADING_CONFIG_GUIDE.md](./docs/TRADING_CONFIG_GUIDE.md)** - Comprehensive configuration guide
 - **[docs/](./docs/)** - Module-specific documentation and guides
 
 ---

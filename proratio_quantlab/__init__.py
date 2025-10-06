@@ -1,10 +1,15 @@
 """
-Proratio QuantLab - Backtesting & Model Development
+Proratio QuantLab
 
-This module provides strategy backtesting, ML model training,
-and performance analytics.
+Backtesting and quantitative analysis module.
 """
 
-__version__ = "0.1.0"
+from proratio_quantlab.backtesting.backtest_engine import (
+    BacktestEngine,
+    BacktestResults
+)
 
-__all__ = []
+__all__ = [
+    'BacktestEngine',
+    'BacktestResults',
+]
