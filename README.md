@@ -4,7 +4,7 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.1.0 (MVP Development - Week 1 Complete)
+**Version**: 0.2.0 (MVP Development - Week 2 Complete: AI Integration)
 
 > For detailed project status, weekly progress, and development plans, see [PLAN.md](./PLAN.md)
 
@@ -101,30 +101,37 @@ freqtrade trade \
 ```python
 from proratio_signals import SignalOrchestrator
 
+# Initialize with API keys from .env
 orchestrator = SignalOrchestrator()
-signal = orchestrator.generate_signal(pair="BTC/USDT")
 
-print(f"Direction: {signal.direction}")     # 'long', 'short', 'neutral'
-print(f"Confidence: {signal.confidence}")   # 0.0 - 1.0
-print(f"Reasoning: {signal.reasoning}")     # AI explanations
-```
-
-### Backtest a Strategy
-
-```python
-from proratio_quantlab.backtesting import BacktestEngine
-
-engine = BacktestEngine()
-results = engine.backtest_strategy(
-    strategy_class=TrendFollowingStrategy,
-    start_date='2023-01-01',
-    end_date='2024-01-01',
-    pairs=['BTC/USDT', 'ETH/USDT']
+# Generate consensus signal from ChatGPT, Claude, and Gemini
+signal = orchestrator.generate_signal(
+    pair="BTC/USDT",
+    timeframe="1h",
+    ohlcv_data=dataframe  # pandas DataFrame with OHLCV data
 )
 
-print(f"Sharpe Ratio: {results.sharpe_ratio}")
-print(f"Max Drawdown: {results.max_drawdown}")
-print(f"Total Return: {results.total_return}")
+print(f"Direction: {signal.direction}")           # 'long', 'short', 'neutral'
+print(f"Confidence: {signal.confidence:.1%}")     # AI confidence (0.0 - 1.0)
+print(f"Active Providers: {signal.active_providers}")  # ['claude', 'gemini']
+print(f"Reasoning: {signal.combined_reasoning}")  # AI explanations
+
+# Check if signal meets trading threshold
+if signal.should_trade():
+    print("✓ High-confidence signal - ready to trade")
+```
+
+### Run AI-Enhanced Trading Strategy
+
+```bash
+# Backtest AI-enhanced strategy vs baseline
+python scripts/backtest_ai_strategy.py --timeframe 1h --months 6
+
+# Start paper trading with AI signals
+freqtrade trade \
+  --strategy AIEnhancedStrategy \
+  --userdir user_data \
+  --config proratio_core/config/freqtrade/config_dry.json
 ```
 
 ### Monitor Dashboard

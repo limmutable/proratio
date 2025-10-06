@@ -47,7 +47,7 @@ nano .env  # or use your preferred editor
 - `BINANCE_API_SECRET` - Your Binance API secret
 - `OPENAI_API_KEY` - OpenAI API key for ChatGPT
 - `ANTHROPIC_API_KEY` - Anthropic API key for Claude
-- `GOOGLE_API_KEY` - Google API key for Gemini
+- `GEMINI_API_KEY` - Google API key for Gemini
 
 **Optional (for notifications):**
 - `TELEGRAM_BOT_TOKEN` - Telegram bot token (from @BotFather)

@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     # AI/LLM API Keys
     openai_api_key: str = Field(default="", env="OPENAI_API_KEY")
     anthropic_api_key: str = Field(default="", env="ANTHROPIC_API_KEY")
-    google_api_key: str = Field(default="", env="GOOGLE_API_KEY")
+    gemini_api_key: str = Field(default="", env="GEMINI_API_KEY")
 
     # Database
     database_url: str = Field(
