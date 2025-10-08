@@ -287,15 +287,25 @@ assert results.max_drawdown < 0.15
 
 ```
 proratio/
-   proratio_utilities/          # Execution & data engine
-   proratio_signals/       # AI signal generation
-   proratio_quantlab/      # Backtesting & ML
-   proratio_tradehub/      # Strategy orchestration
-   user_data/              # Freqtrade user data (volume mount)
-      strategies/         # Freqtrade strategies
-   scripts/                # Utility scripts
-   docs/                   # Documentation
+├── proratio_utilities/     # Execution & data engine
+├── proratio_signals/       # AI signal generation
+├── proratio_quantlab/      # Backtesting & ML
+├── proratio_tradehub/      # Strategy orchestration
+├── user_data/              # Freqtrade user data
+│   ├── strategies/         # Freqtrade strategies
+│   └── db/                 # SQLite databases (gitignored)
+├── temp_tests/             # Temporary testing (gitignored)
+│   ├── strategies/         # Test strategies
+│   ├── configs/            # Test configurations
+│   ├── scripts/            # Test scripts
+│   ├── docs/               # Test documentation
+│   └── results/            # Test results
+├── scripts/                # Utility scripts
+├── tests/                  # Unit tests (106 passing)
+└── docs/                   # Documentation
 ```
+
+> **Updated Oct 9, 2025**: Created `temp_tests/` directory for all temporary testing materials. This keeps production code clean and makes it easy to identify files that are only needed during development/testing phases.
 
 ## Key Technologies
 
@@ -314,9 +324,11 @@ proratio/
 - **CCXT Docs**: https://docs.ccxt.com/
 - **Binance API**: https://binance-docs.github.io/apidocs/spot/en/
 - **Project Documentation**: `docs/`
+- **Project Reorganization**: `CLEANUP_COMPLETE.md`, `PROJECT_STRUCTURE.md`
 
 ## Development Workflow
 
+### Production Strategy Development
 1. **Research** in `proratio_quantlab/research/notebooks/`
 2. **Develop strategy** in `proratio_tradehub/strategies/`
 3. **Backtest** using `proratio_quantlab/backtesting/`
@@ -324,6 +336,21 @@ proratio/
 5. **Paper trade** using `config_dry.json`
 6. **Validate** for 1-2 weeks
 7. **Deploy live** with small capital
+
+### Temporary Testing Workflow (New - Oct 2025)
+1. **Create test files** in `temp_tests/` directory
+   - Strategies → `temp_tests/strategies/`
+   - Configs → `temp_tests/configs/`
+   - Scripts → `temp_tests/scripts/`
+   - Results → `temp_tests/results/`
+2. **Run tests** using scripts in `temp_tests/scripts/`
+3. **Validate** performance and functionality
+4. **Decision point**:
+   - If successful → **Promote** to production (move to appropriate proratio_* module)
+   - If complete → **Delete** temp_tests/ directory
+   - If ongoing → **Keep** in temp_tests/ (gitignored)
+
+> **Note**: `temp_tests/` is gitignored and should be deleted when testing is complete. See `temp_tests/README.md` for detailed workflow.
 
 ## 🚫 Git Operations Policy
 

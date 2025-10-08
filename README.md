@@ -48,14 +48,39 @@ Proratio TradeHub      → Strategy orchestration
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: One-Command Startup (Recommended)
+
+```bash
+# Single command to start everything
+./start.sh
+```
+
+This unified script will:
+- ✅ Check environment and dependencies
+- ✅ Start Docker services (PostgreSQL, Redis)
+- ✅ Verify API keys and configuration
+- ✅ Check data integrity
+- ✅ Start Freqtrade trading bot
+- ✅ Launch Streamlit dashboard
+- ✅ Display system status and helpful information
+
+**Options:**
+- `./start.sh --skip-checks` - Skip environment checks (faster)
+- `./start.sh --no-dashboard` - Don't start dashboard
+- `./start.sh --help` - Show help
+
+### Option 2: Manual Setup
+
+If you need more control or are setting up for the first time:
+
+#### Prerequisites
 
 - Python 3.11+
 - Docker & Docker Compose
 - Binance account (testnet for development)
 - API keys for AI services (OpenAI, Anthropic, Google)
 
-### Installation
+#### Installation
 
 ```bash
 # Run setup script
@@ -84,7 +109,7 @@ uv run python scripts/export_data_for_freqtrade.py
 
 > **Important:** Always use `uv run python` to ensure you're using the correct Python environment with all dependencies.
 
-> For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/)
+> For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/) or [docs/README.md](./docs/README.md)
 
 ### Configure Trading Parameters
 
@@ -188,7 +213,7 @@ Open http://localhost:8501 in your browser.
 ```
 proratio/
 ├── proratio_utilities/          # Execution & data engine
-│   ├── config/             # Configuration files
+│   ├── config/             # Configuration files (trading_config.json)
 │   ├── data/               # Data collectors & loaders
 │   ├── execution/          # Order & position management
 │   └── utils/              # Logging, alerts
@@ -208,18 +233,28 @@ proratio/
 ├── proratio_tradehub/      # Strategy orchestration
 │   ├── strategies/         # Trading strategies
 │   ├── orchestration/      # Multi-strategy manager
-│   ├── risk/               # Risk management
+│   ├── risk/               # Risk management (risk_manager.py, position_sizer.py)
 │   └── dashboard/          # Streamlit UI
 │
-├── user_data/              # Freqtrade data (volume mount)
+├── user_data/              # Freqtrade data (version controlled)
 │   ├── strategies/         # Freqtrade strategy adapters
-│   ├── data/               # Market data
-│   └── logs/               # Log files
+│   ├── data/               # Market data (gitignored)
+│   ├── logs/               # Log files (gitignored)
+│   └── db/                 # SQLite databases (gitignored)
+│
+├── temp_tests/             # Temporary testing directory (gitignored)
+│   ├── strategies/         # Test strategies (MeanReversionTest5m.py, etc.)
+│   ├── configs/            # Test configurations
+│   ├── scripts/            # Test scripts (start_live_test_btc.sh)
+│   ├── docs/               # Test documentation
+│   └── results/            # Test results (logs, backtest_results, analysis)
 │
 ├── scripts/                # Utility scripts
-├── tests/                  # Unit tests
+├── tests/                  # Unit tests (106 tests passing)
 └── docs/                   # Documentation
 ```
+
+> **Note**: The `temp_tests/` directory contains temporary testing materials used during development. These files are gitignored and should be deleted after testing is complete or promoted to production when validated.
 
 ---
 

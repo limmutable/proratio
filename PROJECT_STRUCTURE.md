@@ -16,17 +16,22 @@ proratio/
 ├── 📄 README.md                    # Project overview
 ├── 📄 CLAUDE.md                    # AI assistant instructions
 ├── 📄 PLAN.md                      # Implementation roadmap
-├── 📄 CLEANUP_PLAN.md              # Cleanup strategy
-├── 📄 CLEANUP_COMPLETE.md          # Cleanup summary
 ├── 📄 PROJECT_STRUCTURE.md         # This file
+├── 📄 start.sh                     # 🆕 Unified startup script
 ├── 📄 .gitignore                   # Git exclusions
 ├── 📄 requirements.txt             # Python dependencies
 ├── 📄 docker-compose.yml           # Docker services
 │
 ├── 📁 docs/                        # Documentation
+│   ├── README.md                   # 🆕 Documentation index
 │   ├── backtesting_guide.md
+│   ├── dashboard_guide.md
 │   ├── 3hour_test_guide.md
-│   └── ... (permanent docs)
+│   ├── archive/                    # 🆕 Deprecated/old docs
+│   │   ├── streamlit_dashboard_summary.md
+│   │   ├── GEMINI.md
+│   │   └── PLANREVIEW.md
+│   └── ... (see docs/README.md)
 │
 ├── 📁 tests/                       # Unit Tests (pytest)
 │   ├── test_utilities/
@@ -238,6 +243,10 @@ ls temp_tests/results/backtest_results/
 
 ---
 
-**Structure Version**: 2.0 (after cleanup)
-**Last Updated**: 2025-10-08
-**Changes**: Reorganized to separate temp testing from production
+**Structure Version**: 2.1 (after documentation cleanup)
+**Last Updated**: 2025-10-09
+**Changes**:
+- Added unified start.sh startup script
+- Organized documentation with docs/README.md index
+- Moved outdated docs to docs/archive/
+- Removed duplicate tradesv3.* files from root
