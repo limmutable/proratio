@@ -43,14 +43,16 @@ env/
 .ipynb_checkpoints
 *.ipynb_checkpoints/
 
+# Temporary Testing Directory (ALL temporary test files)
+temp_tests/
+
 # Freqtrade
 user_data/data/
 user_data/logs/
 user_data/backtest_results/
 user_data/hyperopt_results/
 user_data/plot/
-user_data/*.sqlite
-user_data/*.db
+user_data/db/
 
 # Data
 *.csv
