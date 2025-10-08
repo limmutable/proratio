@@ -18,7 +18,7 @@ project_root = Path(__file__).resolve().parents[1]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from proratio_core.config.trading_config import get_trading_config, TradingConfig
+from proratio_utilities.config.trading_config import get_trading_config, TradingConfig
 
 
 def main():

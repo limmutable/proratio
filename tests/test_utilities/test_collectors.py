@@ -4,7 +4,7 @@ Tests for data collectors module.
 
 import pytest
 from datetime import datetime, timedelta
-from proratio_core.data.collectors import BinanceCollector
+from proratio_utilities.data.collectors import BinanceCollector
 
 
 class TestBinanceCollector:

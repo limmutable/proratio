@@ -86,7 +86,7 @@ echo ""
 # Start Freqtrade
 uv run freqtrade trade \
   --strategy AIEnhancedStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --logfile user_data/logs/freqtrade.log \
   --db-url sqlite:///user_data/tradesv3_dryrun.sqlite

@@ -96,7 +96,7 @@ echo ""
 # Run Freqtrade
 freqtrade trade \
   --strategy SimpleTestStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 
 # On exit
@@ -105,6 +105,6 @@ echo "=============================================="
 echo "Paper trading stopped."
 echo ""
 echo "View results:"
-echo "  freqtrade profit --config proratio_core/config/freqtrade/config_dry.json --userdir user_data"
-echo "  freqtrade performance --config proratio_core/config/freqtrade/config_dry.json --userdir user_data"
+echo "  freqtrade profit --config proratio_utilities/config/freqtrade/config_dry.json --userdir user_data"
+echo "  freqtrade performance --config proratio_utilities/config/freqtrade/config_dry.json --userdir user_data"
 echo "=============================================="

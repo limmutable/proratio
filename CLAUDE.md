@@ -10,7 +10,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Proratio follows a modular architecture with four main components:
 
-### 1. **Proratio Core** (`proratio_core/`)
+### 1. **Proratio Utilities** (`proratio_utilities/`)
 Execution engine and data infrastructure
 - **Purpose**: Exchange connectivity, data collection, order execution
 - **Tech**: Freqtrade (execution), CCXT (data), PostgreSQL (storage)
@@ -51,7 +51,7 @@ Strategy orchestration and risk management
 ## Data Flow
 
 ```
-Core (data) � Signals (AI analysis) � TradeHub (strategy) � Core (execution)
+Utilities (data) � Signals (AI analysis) � TradeHub (strategy) � Utilities (execution)
                                             �
                                     QuantLab (analytics)
 ```
@@ -89,13 +89,13 @@ freqtrade backtesting \
   --strategy ProRatioAdapter \
   --timeframe 4h \
   --userdir user_data \
-  --config proratio_core/config/freqtrade/config_dry.json
+  --config proratio_utilities/config/freqtrade/config_dry.json
 
 # Start dry-run (paper trading)
 freqtrade trade \
   --strategy ProRatioAdapter \
   --userdir user_data \
-  --config proratio_core/config/freqtrade/config_dry.json
+  --config proratio_utilities/config/freqtrade/config_dry.json
 
 # Hyperparameter optimization
 freqtrade hyperopt \
@@ -140,7 +140,7 @@ streamlit run proratio_tradehub/dashboard/app.py
 ```python
 # Good
 from proratio_signals.signal_generators import AISignalGenerator
-from proratio_core.data.loaders import DataLoader
+from proratio_utilities.data.loaders import DataLoader
 
 # Bad
 from ..signals.signal_generators import AISignalGenerator
@@ -155,9 +155,9 @@ from .signal_generators.ai_signal_generator import AISignalGenerator
 __all__ = ['SignalOrchestrator', 'AISignalGenerator']
 ```
 
-**3. Configuration is centralized in `proratio_core/config/settings.py`:**
+**3. Configuration is centralized in `proratio_utilities/config/settings.py`:**
 ```python
-from proratio_core.config.settings import get_settings
+from proratio_utilities.config.settings import get_settings
 
 settings = get_settings()  # Loads from .env
 api_key = settings.openai_api_key
@@ -251,13 +251,13 @@ assert results.max_drawdown < 0.15
 ### Dry-run (Paper Trading)
 - Uses real-time market data
 - Simulates trades without real money
-- Config: `proratio_core/config/freqtrade/config_dry.json`
+- Config: `proratio_utilities/config/freqtrade/config_dry.json`
 - Set `TRADING_MODE=dry_run` in `.env`
 
 ### Live Trading
 - Executes real trades with real money
 - Start with small capital (1-5% of intended amount)
-- Config: `proratio_core/config/freqtrade/config_live.json`
+- Config: `proratio_utilities/config/freqtrade/config_live.json`
 - Set `TRADING_MODE=live` in `.env`
 - **Only use after successful paper trading!**
 
@@ -287,7 +287,7 @@ assert results.max_drawdown < 0.15
 
 ```
 proratio/
-   proratio_core/          # Execution & data engine
+   proratio_utilities/          # Execution & data engine
    proratio_signals/       # AI signal generation
    proratio_quantlab/      # Backtesting & ML
    proratio_tradehub/      # Strategy orchestration

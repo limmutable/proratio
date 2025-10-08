@@ -13,7 +13,7 @@ from datetime import datetime
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from proratio_core.data.storage import DatabaseStorage
+from proratio_utilities.data.storage import DatabaseStorage
 
 
 def export_to_freqtrade_json(

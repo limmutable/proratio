@@ -12,7 +12,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from proratio_core.data.loaders import DataLoader
+from proratio_utilities.data.loaders import DataLoader
 
 
 def main():

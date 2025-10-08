@@ -3,7 +3,7 @@
 This project, "Proratio," is an AI-driven cryptocurrency trading system. It leverages multiple LLMs (ChatGPT, Claude, Gemini) to generate trading signals and automates execution on the Binance exchange. The system is designed for low-frequency, high-conviction trading and includes features for backtesting, risk management, and a real-time monitoring dashboard.
 
 The architecture is modular, consisting of four main components:
-- **Proratio Core:** Handles exchange connectivity, data collection, and order execution using Freqtrade.
+- **Proratio Utilities:** Handles exchange connectivity, data collection, and order execution using Freqtrade.
 - **Proratio Signals:** Generates trading signals using AI/LLM analysis.
 - **Proratio QuantLab:** Provides tools for backtesting strategies and developing machine learning models.
 - **Proratio TradeHub:** Orchestrates trading strategies and includes a Streamlit-based dashboard for monitoring.
@@ -51,7 +51,7 @@ To start the trading bot in paper trading mode, use the following command:
 freqtrade trade \
   --strategy ProRatioAdapter \
   --userdir user_data \
-  --config proratio_core/config/freqtrade/config_dry.json
+  --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 ### Dashboard

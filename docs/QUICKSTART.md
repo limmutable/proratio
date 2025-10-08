@@ -63,7 +63,7 @@ Initialize the PostgreSQL database schema:
 
 ```bash
 # Initialize database tables
-docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
 ```
 
 Download market data to PostgreSQL (custom Proratio data collector):
@@ -99,7 +99,7 @@ docker-compose ps
 # Should show postgres and redis as "Up"
 
 # Test Python environment
-python -c "from proratio_core.config import get_settings; print('✅ Config loaded')"
+python -c "from proratio_utilities.config import get_settings; print('✅ Config loaded')"
 
 # Run tests
 pytest tests/test_core/test_config.py
@@ -119,7 +119,7 @@ Create a new notebook and try:
 
 ```python
 # Test configuration
-from proratio_core.config import get_settings
+from proratio_utilities.config import get_settings
 
 settings = get_settings()
 print(f"Trading mode: {settings.trading_mode}")
@@ -133,7 +133,7 @@ print(f"Max open trades: {settings.max_open_trades}")
 freqtrade trade \
   --strategy ProRatioAdapter \
   --userdir user_data \
-  --config proratio_core/config/freqtrade/config_dry.json
+  --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 **Note:** The `ProRatioAdapter` strategy will be created in Week 2 of the development plan.
@@ -146,7 +146,7 @@ Now that your environment is set up, you can:
 
 1. **Review the architecture** in [CLAUDE.md](../CLAUDE.md)
 2. **Follow the development plan** in [PLAN.md](../PLAN.md)
-3. **Start with Week 1 tasks** (implement Proratio Core)
+3. **Start with Week 1 tasks** (implement Proratio Utilities)
 4. **Experiment in Jupyter notebooks**
 
 ---
@@ -171,7 +171,7 @@ docker-compose --version
 **Solution:**
 ```bash
 # Initialize database schema
-docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
 
 # Verify tables created
 docker exec -it proratio_postgres psql -U proratio -d proratio -c "\dt"
@@ -308,7 +308,7 @@ Before proceeding with development:
 
 Follow the **4-Week MVP Plan** in [PLAN.md](../PLAN.md):
 
-- **Week 1**: Build Proratio Core (data collection + execution)
+- **Week 1**: Build Proratio Utilities (data collection + execution)
 - **Week 2**: Build Proratio Signals (AI integration)
 - **Week 3**: Build QuantLab & TradeHub (backtesting + risk management)
 - **Week 4**: Integration testing and paper trading validation

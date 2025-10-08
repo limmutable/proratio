@@ -231,7 +231,7 @@ freqtrade backtesting \
   --strategy AIEnhancedStrategy \
   --timeframe 4h \
   --timerange 20250101-20251008 \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 
 # With specific pairs
@@ -240,7 +240,7 @@ freqtrade backtesting \
   --timeframe 1h \
   --pairs BTC/USDT ETH/USDT \
   --timerange 20250601-20251008 \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 ```
 
@@ -253,7 +253,7 @@ freqtrade backtesting \
 freqtrade backtesting \
   --strategy AIEnhancedStrategy \
   --timeframe 4h \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --export trades \
   --export-filename user_data/backtest-results/ai_enhanced_trades.json
@@ -271,7 +271,7 @@ freqtrade backtesting \
 # Plot strategy performance
 freqtrade plot-dataframe \
   --strategy AIEnhancedStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --pairs BTC/USDT \
   --timerange 20250601-20251008
@@ -292,7 +292,7 @@ freqtrade plot-dataframe \
 ```bash
 # Generate cumulative profit chart
 freqtrade plot-profit \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --timerange 20250601-20251008
 
@@ -435,7 +435,7 @@ cat user_data/backtest-results/.last_result.json | jq .
 # Generate plot
 freqtrade plot-dataframe \
   --strategy AIEnhancedStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --pairs BTC/USDT
 

@@ -3,7 +3,7 @@
 # Proratio Paper Trading Report Generator
 # Shows comprehensive trading performance report
 
-CONFIG="proratio_core/config/freqtrade/config_dry.json"
+CONFIG="proratio_utilities/config/freqtrade/config_dry.json"
 USERDIR="user_data"
 
 echo "=============================================="

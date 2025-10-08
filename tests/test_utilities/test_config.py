@@ -3,7 +3,7 @@ Tests for configuration management
 """
 
 import pytest
-from proratio_core.config.settings import Settings, get_settings
+from proratio_utilities.config.settings import Settings, get_settings
 
 
 def test_settings_defaults():

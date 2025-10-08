@@ -31,7 +31,7 @@ Build an intelligent crypto trading system that leverages multiple AI services (
 
 | Module | Purpose | Tech Stack | Status |
 |--------|---------|------------|--------|
-| **Core** | Data collection, order execution | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
+| **Utilities** | Data collection, config, execution | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
 | **Signals** | Multi-LLM analysis, consensus | OpenAI, Anthropic, Gemini APIs | ✅ 95% |
 | **QuantLab** | Backtesting, ML models | PyTorch, scikit-learn, Jupyter | ✅ 60% |
 | **TradeHub** | Strategy orchestration, risk mgmt | Streamlit, Custom framework | ✅ 50% |
@@ -112,7 +112,7 @@ Build an intelligent crypto trading system that leverages multiple AI services (
 
 ## 📊 4-Week MVP Timeline
 
-### ✅ Week 1: Foundation (Proratio Core) - 90% Complete
+### ✅ Week 1: Foundation (Proratio Utilities) - 90% Complete
 
 **Goal**: Working data pipeline + Freqtrade integration
 
@@ -308,7 +308,7 @@ Build an intelligent crypto trading system that leverages multiple AI services (
 ### Week 1 (Oct 5-6, 2025) - ✅ COMPLETE
 
 **Files Created** (18 total)
-- Core: `collectors.py`, `storage.py`, `loaders.py`, `schema.sql`
+- Utilities: `collectors.py`, `storage.py`, `loaders.py`, `schema.sql`
 - Scripts: `download_historical_data.py`, `export_data_for_freqtrade.py`, `test_*.py` (4 files)
 - Strategy: `SimpleTestStrategy.py`
 - Tests: `test_config.py`, `test_storage.py`, `test_collectors.py`

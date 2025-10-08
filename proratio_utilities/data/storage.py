@@ -8,7 +8,7 @@ from psycopg2.extras import execute_batch
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 import pandas as pd
-from proratio_core.config.settings import get_settings
+from proratio_utilities.config.settings import get_settings
 
 
 class DatabaseStorage:

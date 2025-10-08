@@ -114,7 +114,7 @@ python scripts/download_historical_data.py
 
 # OR update specific pair manually
 python -c "
-from proratio_core.data.loaders import DataLoader
+from proratio_utilities.data.loaders import DataLoader
 loader = DataLoader()
 loader.update_recent_data('BTC/USDT', '1h')
 "
@@ -164,7 +164,7 @@ freqtrade backtesting \
 | **Freqtrade data** | `user_data/data/binance/*.feather` | Feather | ~2 MB |
 | **Export script** | `scripts/export_data_for_freqtrade.py` | Python | - |
 | **Download script** | `scripts/download_historical_data.py` | Python | - |
-| **Data loader** | `proratio_core/data/loaders.py` | Python | - |
+| **Data loader** | `proratio_utilities/data/loaders.py` | Python | - |
 
 ---
 
@@ -224,7 +224,7 @@ Checks:
 ### Check Data Status
 ```bash
 python -c "
-from proratio_core.data.loaders import DataLoader
+from proratio_utilities.data.loaders import DataLoader
 loader = DataLoader()
 status = loader.get_data_status('binance', 'BTC/USDT', '1h')
 print(f\"Records: {status['total_records']}\")
@@ -248,7 +248,7 @@ psql $DATABASE_URL -c \
   "SELECT COUNT(*) FROM ohlcv WHERE pair='BTC/USDT' AND timeframe='1h';"
 
 # Check Freqtrade file
-freqtrade list-data --config proratio_core/config/freqtrade/config_dry.json
+freqtrade list-data --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 ---
@@ -321,7 +321,7 @@ freqtrade backtesting --strategy NewStrategy --timeframe 4h
 ### Scenario 4: Custom Analysis
 ```python
 # Query PostgreSQL directly (no Freqtrade needed)
-from proratio_core.data.storage import DatabaseStorage
+from proratio_utilities.data.storage import DatabaseStorage
 
 storage = DatabaseStorage()
 df = storage.get_ohlcv('binance', 'BTC/USDT', '1h', limit=None)

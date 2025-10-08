@@ -5,8 +5,8 @@ Coordinates between collectors (CCXT) and storage (PostgreSQL).
 
 from typing import List, Optional
 from datetime import datetime, timedelta
-from proratio_core.data.collectors import BinanceCollector
-from proratio_core.data.storage import DatabaseStorage
+from proratio_utilities.data.collectors import BinanceCollector
+from proratio_utilities.data.storage import DatabaseStorage
 
 
 class DataLoader:

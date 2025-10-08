@@ -7,7 +7,7 @@ import ccxt
 from typing import List, Tuple, Optional
 from datetime import datetime, timedelta
 import time
-from proratio_core.config.settings import get_settings
+from proratio_utilities.config.settings import get_settings
 
 
 class BinanceCollector:

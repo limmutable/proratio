@@ -19,7 +19,7 @@ from .llm_providers.chatgpt import ChatGPTProvider
 from .llm_providers.claude import ClaudeProvider
 from .llm_providers.gemini import GeminiProvider
 from .prompts import TECHNICAL_ANALYSIS_PROMPT, RISK_ASSESSMENT_PROMPT, SENTIMENT_ANALYSIS_PROMPT
-from proratio_core.config.settings import get_settings
+from proratio_utilities.config.settings import get_settings
 
 
 @dataclass

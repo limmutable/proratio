@@ -4,7 +4,7 @@ Tests for database storage module.
 
 import pytest
 from datetime import datetime
-from proratio_core.data.storage import DatabaseStorage
+from proratio_utilities.data.storage import DatabaseStorage
 
 
 class TestDatabaseStorage:

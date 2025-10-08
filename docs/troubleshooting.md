@@ -84,7 +84,7 @@ LINE 2: INSERT INTO ohlcv (exchange, pair, timeframe, ti...
 docker ps  # Should show proratio_postgres container
 
 # 2. Initialize database schema
-docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
 
 # 3. Verify tables were created
 docker exec -it proratio_postgres psql -U proratio -d proratio -c "\dt"
@@ -108,7 +108,7 @@ docker logs proratio_postgres
 docker-compose restart postgres
 
 # Try again
-docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
 ```
 
 ---
@@ -192,8 +192,8 @@ freqtrade download-data \
 
 **Symptom:**
 ```python
-from proratio_core.config import get_settings
-ModuleNotFoundError: No module named 'proratio_core'
+from proratio_utilities.config import get_settings
+ModuleNotFoundError: No module named 'proratio_utilities'
 ```
 
 **Solution:**
@@ -469,10 +469,10 @@ uv --version
 which uv
 
 # 5. Check project structure
-ls -la proratio_core/ proratio_signals/ proratio_quantlab/ proratio_tradehub/
+ls -la proratio_utilities/ proratio_signals/ proratio_quantlab/ proratio_tradehub/
 
 # 6. Run minimal test
-uv run python -c "from proratio_core.config.settings import get_settings; print('✅ Config loaded')"
+uv run python -c "from proratio_utilities.config.settings import get_settings; print('✅ Config loaded')"
 ```
 
 ---
@@ -516,7 +516,7 @@ uv run python -c "from proratio_core.config.settings import get_settings; print(
 
    # Start fresh
    docker-compose up -d postgres redis
-   docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+   docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
    uv run python scripts/download_historical_data.py
    ```
 

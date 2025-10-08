@@ -46,7 +46,7 @@ Freqtrade can run in dry-run mode using historical data without connecting to ex
 # Start paper trading with SimpleTestStrategy
 freqtrade trade \
   --strategy SimpleTestStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 ```
 
@@ -82,7 +82,7 @@ TRADING_MODE=dry_run
 ```bash
 freqtrade trade \
   --strategy SimpleTestStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 ```
 
@@ -125,10 +125,10 @@ Password: change_this_password
 
 ```bash
 # Show current status
-freqtrade show_config --config proratio_core/config/freqtrade/config_dry.json
+freqtrade show_config --config proratio_utilities/config/freqtrade/config_dry.json
 
 # Show open trades (while bot is running in another terminal)
-freqtrade show_trades --config proratio_core/config/freqtrade/config_dry.json
+freqtrade show_trades --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 ---
@@ -142,7 +142,7 @@ While paper trading is running, open a new terminal:
 ```bash
 # Generate performance report
 freqtrade performance \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 
 # Output:
@@ -157,7 +157,7 @@ freqtrade performance \
 ```bash
 # Show profit summary
 freqtrade profit \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 
 # Output:
@@ -172,12 +172,12 @@ freqtrade profit \
 ```bash
 # List all trades
 freqtrade list-trades \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 
 # Show only profitable trades
 freqtrade list-trades --profitable \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 ```
 
@@ -186,7 +186,7 @@ freqtrade list-trades --profitable \
 ```bash
 # Show detailed trade information
 freqtrade show_trades \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --print-json > paper_trading_report.json
 ```
@@ -197,7 +197,7 @@ freqtrade show_trades \
 # Generate trading chart with entry/exit points
 freqtrade plot-dataframe \
   --strategy SimpleTestStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data \
   --pairs BTC/USDT
 
@@ -210,7 +210,7 @@ freqtrade plot-dataframe \
 ```bash
 # Generate cumulative profit chart
 freqtrade plot-profit \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --userdir user_data
 
 # Output: user_data/plot/freqtrade-profit-plot.html
@@ -242,7 +242,7 @@ SELECT pair, AVG(profit_ratio) as avg_profit FROM trades GROUP BY pair;
 ```bash
 # Graceful shutdown (Ctrl+C in terminal)
 # Or send stop signal:
-freqtrade stop --config proratio_core/config/freqtrade/config_dry.json
+freqtrade stop --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 **What happens on stop:**
@@ -305,7 +305,7 @@ python scripts/export_data_for_freqtrade.py
 # Check if strategy is generating signals
 freqtrade backtesting \
   --strategy SimpleTestStrategy \
-  --config proratio_core/config/freqtrade/config_dry.json \
+  --config proratio_utilities/config/freqtrade/config_dry.json \
   --timerange 20241001-20241006
 
 # If backtest shows 0 trades, strategy needs adjustment
@@ -341,15 +341,15 @@ echo "Week: $(date +%Y-%m-%d)"
 echo ""
 
 echo "=== Performance Summary ==="
-freqtrade profit --config proratio_core/config/freqtrade/config_dry.json --userdir user_data
+freqtrade profit --config proratio_utilities/config/freqtrade/config_dry.json --userdir user_data
 
 echo ""
 echo "=== Top Performing Pairs ==="
-freqtrade performance --config proratio_core/config/freqtrade/config_dry.json --userdir user_data
+freqtrade performance --config proratio_utilities/config/freqtrade/config_dry.json --userdir user_data
 
 echo ""
 echo "=== Recent Trades ==="
-freqtrade list-trades --config proratio_core/config/freqtrade/config_dry.json --userdir user_data | tail -20
+freqtrade list-trades --config proratio_utilities/config/freqtrade/config_dry.json --userdir user_data | tail -20
 
 # Run:
 chmod +x scripts/weekly_report.sh

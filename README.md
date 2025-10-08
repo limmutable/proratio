@@ -29,7 +29,7 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 │              Proratio System                    │
 └─────────────────────────────────────────────────┘
 
-Proratio Core          → Execution & data engine
+Proratio Utilities          → Execution & data engine
 Proratio Signals       → AI alpha signal generation
 Proratio QuantLab      → Backtesting & ML models
 Proratio TradeHub      → Strategy orchestration
@@ -70,7 +70,7 @@ cp .env.example .env
 docker-compose up -d postgres redis
 
 # Initialize database schema
-docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
 
 # Install dependencies (use UV for proper environment)
 uv pip install -r requirements.txt
@@ -93,7 +93,7 @@ uv run python scripts/export_data_for_freqtrade.py
 python scripts/show_trading_config.py
 
 # Edit configuration (all trading parameters in one file)
-# Edit: proratio_core/config/trading_config.json
+# Edit: proratio_utilities/config/trading_config.json
 
 # Validate configuration
 python scripts/show_trading_config.py --validate
@@ -108,7 +108,7 @@ python scripts/show_trading_config.py --validate
 freqtrade trade \
   --strategy ProRatioAdapter \
   --userdir user_data \
-  --config proratio_core/config/freqtrade/config_dry.json
+  --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 > For complete development workflow, see [PLAN.md](./PLAN.md)
@@ -152,16 +152,16 @@ python scripts/backtest_ai_strategy.py --timeframe 1h --months 6
 freqtrade trade \
   --strategy AIEnhancedStrategy \
   --userdir user_data \
-  --config proratio_core/config/freqtrade/config_dry.json
+  --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
 ### Configure Risk & Position Sizing
 
 ```python
-from proratio_core.config.trading_config import TradingConfig
+from proratio_utilities.config.trading_config import TradingConfig
 
 # Load configuration
-config = TradingConfig.load_from_file('proratio_core/config/trading_config.json')
+config = TradingConfig.load_from_file('proratio_utilities/config/trading_config.json')
 
 # Modify risk parameters
 config.risk.max_loss_per_trade_pct = 0.015  # 1.5% max loss
@@ -170,7 +170,7 @@ config.position_sizing.method = 'ai_weighted'  # Use AI confidence
 # Validate and save
 errors = config.validate()
 if not errors:
-    config.save_to_file('proratio_core/config/trading_config.json')
+    config.save_to_file('proratio_utilities/config/trading_config.json')
 ```
 
 ### Monitor Dashboard (Coming in Week 4)
@@ -187,7 +187,7 @@ Open http://localhost:8501 in your browser.
 
 ```
 proratio/
-├── proratio_core/          # Execution & data engine
+├── proratio_utilities/          # Execution & data engine
 │   ├── config/             # Configuration files
 │   ├── data/               # Data collectors & loaders
 │   ├── execution/          # Order & position management

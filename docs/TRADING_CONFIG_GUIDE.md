@@ -3,8 +3,8 @@
 **Single source of truth for all trading parameters**
 
 All trading variables are centralized in:
-- **Code**: [`proratio_core/config/trading_config.py`](../proratio_core/config/trading_config.py)
-- **JSON**: [`proratio_core/config/trading_config.json`](../proratio_core/config/trading_config.json)
+- **Code**: [`proratio_utilities/config/trading_config.py`](../proratio_utilities/config/trading_config.py)
+- **JSON**: [`proratio_utilities/config/trading_config.json`](../proratio_utilities/config/trading_config.json)
 
 ---
 
@@ -13,7 +13,7 @@ All trading variables are centralized in:
 ### View Current Configuration
 
 ```python
-from proratio_core.config.trading_config import get_trading_config
+from proratio_utilities.config.trading_config import get_trading_config
 
 config = get_trading_config()
 config.print_summary()
@@ -23,9 +23,9 @@ config.print_summary()
 
 ```python
 from pathlib import Path
-from proratio_core.config.trading_config import TradingConfig
+from proratio_utilities.config.trading_config import TradingConfig
 
-config = TradingConfig.load_from_file(Path('proratio_core/config/trading_config.json'))
+config = TradingConfig.load_from_file(Path('proratio_utilities/config/trading_config.json'))
 config.print_summary()
 ```
 
@@ -42,7 +42,7 @@ config.risk.max_concurrent_positions = 5   # More positions
 config.ai.min_confidence = 0.70  # Higher confidence threshold
 
 # Save to file
-config.save_to_file(Path('proratio_core/config/my_config.json'))
+config.save_to_file(Path('proratio_utilities/config/my_config.json'))
 ```
 
 ---
@@ -314,7 +314,7 @@ else:
 ### In Strategies
 
 ```python
-from proratio_core.config.trading_config import get_trading_config
+from proratio_utilities.config.trading_config import get_trading_config
 
 class AIEnhancedStrategy(IStrategy):
     def __init__(self, config: dict):
@@ -332,7 +332,7 @@ class AIEnhancedStrategy(IStrategy):
 ### In Risk Manager
 
 ```python
-from proratio_core.config.trading_config import get_trading_config
+from proratio_utilities.config.trading_config import get_trading_config
 from proratio_tradehub.risk.risk_manager import RiskManager, RiskLimits
 
 trading_config = get_trading_config()
@@ -350,7 +350,7 @@ risk_manager = RiskManager(risk_limits)
 ### In Backtests
 
 ```python
-from proratio_core.config.trading_config import get_trading_config
+from proratio_utilities.config.trading_config import get_trading_config
 from proratio_quantlab import BacktestEngine
 
 config = get_trading_config()
@@ -383,8 +383,8 @@ results = engine.backtest(
 
 ## File Locations
 
-- **Python config**: [`proratio_core/config/trading_config.py`](../proratio_core/config/trading_config.py)
-- **JSON config**: [`proratio_core/config/trading_config.json`](../proratio_core/config/trading_config.json)
+- **Python config**: [`proratio_utilities/config/trading_config.py`](../proratio_utilities/config/trading_config.py)
+- **JSON config**: [`proratio_utilities/config/trading_config.json`](../proratio_utilities/config/trading_config.json)
 - **This guide**: [`docs/TRADING_CONFIG_GUIDE.md`](TRADING_CONFIG_GUIDE.md)
 
 ---
