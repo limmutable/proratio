@@ -9,7 +9,7 @@
 ### **Strengths (A+)**
 
 #### 1. Architecture & Design
-- **Modular separation** is textbook-perfect (Core/Signals/QuantLab/TradeHub)
+- **Modular separation** is textbook-perfect (Utilities/Signals/QuantLab/TradeHub)
 - **Technology choices** are battle-tested (Freqtrade, CCXT, PostgreSQL)
 - **Multi-AI consensus** is innovative
 - **Component swappability** built-in from day 1

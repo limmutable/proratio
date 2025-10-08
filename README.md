@@ -39,7 +39,7 @@ Proratio TradeHub      → Strategy orchestration
 
 | Module | Purpose | Tech Stack | Status |
 |--------|---------|------------|--------|
-| **Core** | Exchange connectivity, data collection, order execution | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
+| **Utilities** | Config, data collection, execution utilities | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
 | **Signals** | Multi-LLM analysis, consensus mechanism | OpenAI API, Anthropic API, Gemini API | ✅ 95% |
 | **QuantLab** | Strategy backtesting, ML model development | PyTorch, scikit-learn, Jupyter | ✅ 60% |
 | **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework | ✅ 50% |

@@ -5,7 +5,8 @@
       "Bash(find:*)",
       "Bash(uv run pytest:*)",
       "Bash(uv run:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(PYTHONPATH=/Users/jlim/Projects/proratio:$PYTHONPATH uv run python scripts/diagnose_mean_reversion.py)"
     ],
     "deny": [],
     "ask": []
