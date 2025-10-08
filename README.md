@@ -69,15 +69,20 @@ cp .env.example .env
 # Start infrastructure
 docker-compose up -d postgres redis
 
-# Install dependencies
-pip install -r requirements.txt
+# Initialize database schema
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+
+# Install dependencies (use UV for proper environment)
+uv pip install -r requirements.txt
 
 # Download historical data (to PostgreSQL)
-python scripts/download_historical_data.py
+uv run python scripts/download_historical_data.py
 
 # Export data for Freqtrade (when needed)
-python scripts/export_data_for_freqtrade.py
+uv run python scripts/export_data_for_freqtrade.py
 ```
+
+> **Important:** Always use `uv run python` to ensure you're using the correct Python environment with all dependencies.
 
 > For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/)
 
@@ -239,6 +244,11 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 - **[PLAN.md](./PLAN.md)** - Complete implementation plan, weekly progress, and development workflow
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
+- **[docs/QUICKSTART.md](./docs/QUICKSTART.md)** - Quick start guide for new users
+- **[docs/backtesting_guide.md](./docs/backtesting_guide.md)** - Complete backtesting guide and results
+- **[docs/paper_trading_guide.md](./docs/paper_trading_guide.md)** - Paper trading setup and monitoring
+- **[docs/week4_quickstart.md](./docs/week4_quickstart.md)** - Week 4 integration testing guide
+- **[docs/troubleshooting.md](./docs/troubleshooting.md)** - Troubleshooting common issues
 - **[docs/TRADING_CONFIG_GUIDE.md](./docs/TRADING_CONFIG_GUIDE.md)** - Comprehensive configuration guide
 - **[docs/](./docs/)** - Module-specific documentation and guides
 

@@ -57,13 +57,27 @@ nano .env  # or use your preferred editor
 
 ---
 
-## Step 3: Download Historical Data
+## Step 3: Initialize Database & Download Historical Data
 
-Download market data for backtesting:
+Initialize the PostgreSQL database schema:
 
 ```bash
-source venv/bin/activate  # Activate virtual environment
+# Initialize database tables
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+```
 
+Download market data to PostgreSQL (custom Proratio data collector):
+
+```bash
+# Download 24 months of OHLCV data
+uv run python scripts/download_historical_data.py
+```
+
+This downloads 24 months of data for BTC/USDT and ETH/USDT in multiple timeframes (1h, 4h, 1d) and stores it in PostgreSQL.
+
+**Alternative:** Download data using Freqtrade (for Freqtrade-only workflows):
+
+```bash
 freqtrade download-data \
   --exchange binance \
   --pairs BTC/USDT ETH/USDT \
@@ -71,8 +85,6 @@ freqtrade download-data \
   --days 180 \
   --userdir user_data
 ```
-
-This downloads 6 months of data for BTC and ETH.
 
 ---
 
@@ -141,6 +153,41 @@ Now that your environment is set up, you can:
 
 ## Common Issues & Solutions
 
+### Issue: `docker-compose: command not found`
+
+**Solution:**
+```bash
+# Install Docker Desktop (includes Docker Compose)
+brew install --cask docker
+
+# Open Docker Desktop from Applications to start the Docker daemon
+# Then verify installation:
+docker --version
+docker-compose --version
+```
+
+### Issue: Database error "relation 'ohlcv' does not exist"
+
+**Solution:**
+```bash
+# Initialize database schema
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_core/data/schema.sql
+
+# Verify tables created
+docker exec -it proratio_postgres psql -U proratio -d proratio -c "\dt"
+```
+
+### Issue: `ModuleNotFoundError: No module named 'ccxt'`
+
+**Solution:**
+```bash
+# Always use UV to run Python scripts in this project
+uv run python scripts/download_historical_data.py
+
+# NOT: python scripts/download_historical_data.py
+# (This uses system Python without the correct dependencies)
+```
+
 ### Issue: Docker services won't start
 
 **Solution:**
@@ -151,6 +198,9 @@ docker-compose down
 # Remove volumes and restart
 docker-compose down -v
 docker-compose up -d postgres redis
+
+# Verify containers are running
+docker ps
 ```
 
 ### Issue: Python version mismatch
@@ -262,5 +312,13 @@ Follow the **4-Week MVP Plan** in [PLAN.md](../PLAN.md):
 - **Week 2**: Build Proratio Signals (AI integration)
 - **Week 3**: Build QuantLab & TradeHub (backtesting + risk management)
 - **Week 4**: Integration testing and paper trading validation
+
+---
+
+## Need Help?
+
+For more detailed troubleshooting, see:
+- **[troubleshooting.md](./troubleshooting.md)** - Comprehensive troubleshooting guide
+- **[CLAUDE.md](../CLAUDE.md)** - Developer guide with common workflows
 
 Happy building! 🚀

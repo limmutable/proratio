@@ -389,4 +389,95 @@ After 1-2 weeks of successful paper trading:
 
 ---
 
-**Last Updated**: 2025-10-06
+---
+
+## Week 4: AI-Enhanced Paper Trading
+
+### New Scripts for Week 4
+
+#### 1. Start Paper Trading (with AI)
+
+```bash
+# Interactive start script with checks
+./scripts/start_paper_trading.sh
+```
+
+This script:
+- Verifies infrastructure is running
+- Checks database has sufficient data (>1000 records)
+- Shows AI provider status
+- Starts Freqtrade with AIEnhancedStrategy
+
+#### 2. Real-Time Monitoring
+
+```bash
+# Monitor with auto-refresh
+uv run python scripts/monitor_paper_trading.py
+
+# Custom refresh interval (seconds)
+uv run python scripts/monitor_paper_trading.py --interval 30
+
+# One-time snapshot
+uv run python scripts/monitor_paper_trading.py --once
+```
+
+Displays:
+- Performance summary (win rate, profit, trade count)
+- Open trades with current status
+- Recent closed trades with P&L
+- Auto-refreshes every 10 seconds
+
+#### 3. Weekly Performance Report
+
+```bash
+# Generate 7-day report
+uv run python scripts/generate_weekly_report.py
+
+# Custom period
+uv run python scripts/generate_weekly_report.py --days 14
+
+# Save to file
+uv run python scripts/generate_weekly_report.py \
+  --output reports/weekly_report_$(date +%Y%m%d).txt
+```
+
+Report includes:
+- Performance metrics
+- Exit reasons breakdown
+- Trade-by-trade details
+- AI provider status
+- Backtest comparison
+- Recommendations
+
+### AI Signal Behavior
+
+**Current Status:**
+- ✓ Claude (Sonnet 4) - Active
+- ✓ Gemini (2.0 Flash) - Active
+- ✗ ChatGPT (GPT-5 Nano) - Quota exceeded
+
+**Configuration:**
+- Consensus threshold: 60%
+- Dynamic reweighting: Enabled (2/3 providers = 100% weight)
+- Trade frequency: 1-2 per week (low-frequency strategy)
+
+**Expected Behavior:**
+- Fewer trades than backtest (AI filters low-confidence signals)
+- Higher win rate (quality over quantity)
+- "No trade" decisions are normal and expected
+
+### Week 4 Success Criteria
+
+After 5-7 days of paper trading:
+
+- [ ] No critical errors or crashes
+- [ ] Win rate > 50%
+- [ ] Total profit ≥ 0% (or small loss < 2%)
+- [ ] Max drawdown < 10%
+- [ ] AI consensus functioning correctly
+- [ ] Risk limits enforced properly
+- [ ] Performance within 20% of backtest expectations
+
+---
+
+**Last Updated**: 2025-10-08

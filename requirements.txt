@@ -4,74 +4,69 @@
 # ============================================================================
 # CORE FRAMEWORK
 # ============================================================================
-freqtrade==2024.10
-ccxt>=4.4.0  # Use latest compatible version
+freqtrade==2025.9.1
+ccxt==4.5.8
 
 # ============================================================================
 # DATABASE
 # ============================================================================
-psycopg2-binary==2.9.9
-sqlalchemy==2.0.23
+psycopg2-binary==2.9.10
+sqlalchemy==2.0.43
 
 # ============================================================================
 # AI / LLM PROVIDERS
 # ============================================================================
-openai==1.54.0              # ChatGPT-4
-anthropic==0.39.0           # Claude
-google-generativeai==0.8.3  # Gemini
-langchain==0.3.7            # Optional: LLM orchestration
-langchain-openai==0.2.9
-langchain-anthropic==0.3.3
+openai==2.2.0
+anthropic==0.69.0
+google-generativeai==0.8.5
 
 # ============================================================================
 # DATA & ANALYSIS
 # ============================================================================
-pandas>=2.2.0
-numpy>=2.0.0
-pandas-ta>=0.3.14b0         # Technical indicators (use latest compatible)
+pandas==2.3.3
+numpy==2.3.3
+ft-pandas-ta==0.3.16
+TA-Lib==0.6.7
 # TA-Lib requires separate binary installation:
-# Mac: brew install ta-lib && pip install TA-Lib
+# Mac: brew install ta-lib
 # Linux: See https://github.com/mrjbq7/ta-lib
 
 # ============================================================================
 # MACHINE LEARNING (for future ML models)
 # ============================================================================
-torch>=2.5.0                # PyTorch (use latest compatible)
-scikit-learn>=1.5.0
-scipy>=1.14.0
+torch==2.8.0
+scikit-learn==1.7.2
+scipy==1.16.2
 
 # ============================================================================
 # VISUALIZATION & DASHBOARDS
 # ============================================================================
-plotly==5.24.1
-matplotlib==3.9.2
-streamlit==1.40.1
+plotly==6.3.1
+matplotlib==3.10.6
+streamlit==1.50.0
 seaborn==0.13.2
 
 # ============================================================================
 # UTILITIES
 # ============================================================================
-python-dotenv==1.0.1
-requests==2.32.3
-pydantic==2.10.2            # Data validation
-python-telegram-bot==21.7   # Telegram alerts
-redis==5.2.0                # Caching (Freqtrade requirement)
-fastapi==0.115.5            # API server
-uvicorn==0.32.1             # ASGI server
+python-dotenv==1.1.1
+requests==2.32.5
+pydantic==2.12.0
+pydantic-settings==2.11.0
+python-telegram-bot==22.5
+fastapi==0.118.0
+uvicorn==0.37.0
 
 # ============================================================================
 # DEVELOPMENT & TESTING
 # ============================================================================
-pytest==8.3.3
-pytest-asyncio==0.24.0
-pytest-cov==6.0.0
-black==24.10.0              # Code formatting
-flake8==7.1.1               # Linting
-mypy==1.13.0                # Type checking
+pytest==8.4.2
+pytest-asyncio==1.2.0
+pytest-cov==7.0.0
+black==25.9.0
+mypy==1.18.2
 
 # ============================================================================
 # JUPYTER & RESEARCH
 # ============================================================================
-jupyterlab==4.3.3
-ipywidgets==8.1.5
-notebook==7.3.1
+jupyterlab==4.4.9
