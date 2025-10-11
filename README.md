@@ -4,7 +4,7 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.4.0 (Phase 2 Complete: Advanced Strategies & Portfolio Management)
+**Version**: 0.5.0 (Phase 3.1 Complete: FreqAI Integration & Machine Learning)
 
 > For detailed project status, weekly progress, and development plans, see [docs/roadmap.md](./docs/roadmap.md)
 
@@ -13,12 +13,13 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 ## 🎯 Key Features
 
 - **Multi-AI Analysis**: Leverages ChatGPT, Claude, and Gemini for market insights
+- **Machine Learning**: FreqAI integration with 80+ engineered features and adaptive models (LightGBM, XGBoost, CatBoost)
 - **Automated Execution**: Freqtrade-powered trading on Binance (Spot, Futures, Options)
 - **Comprehensive Backtesting**: Walk-forward analysis and multi-strategy comparison
 - **Risk Management**: 6-layer risk validation with emergency stops and 5 position sizing methods
 - **Centralized Configuration**: Single JSON file controls all 60+ trading parameters
 - **Modular Architecture**: Four independent modules for flexibility and extensibility
-- **Multi-Strategy System**: 3 strategies (Trend, Mean Reversion, Grid) with intelligent portfolio allocation
+- **Multi-Strategy System**: 4 strategies (Trend, Mean Reversion, Grid, FreqAI ML) with intelligent portfolio allocation
 - **Production-Ready**: 163 passing tests with comprehensive coverage
 
 ---
@@ -42,7 +43,7 @@ Proratio TradeHub      → Strategy orchestration
 |--------|---------|------------|--------|
 | **Utilities** | Config, data collection, execution utilities | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
 | **Signals** | Multi-LLM analysis, consensus mechanism | OpenAI API, Anthropic API, Gemini API | ✅ 95% |
-| **QuantLab** | Strategy backtesting, ML model development | PyTorch, scikit-learn, Jupyter | ✅ 60% |
+| **QuantLab** | Strategy backtesting, ML model development, feature engineering | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 75% |
 | **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework | ✅ 50% |
 
 ---
@@ -227,7 +228,8 @@ proratio/
 │
 ├── proratio_quantlab/      # Backtesting & ML
 │   ├── backtesting/        # Backtest engine
-│   ├── ml/                 # ML models
+│   ├── ml/                 # ML models & feature engineering (80+ features)
+│   ├── ab_testing/         # A/B testing framework
 │   ├── research/           # Jupyter notebooks
 │   └── analytics/          # Performance metrics
 │
@@ -278,12 +280,15 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 ## 📚 Documentation
 
-- **[docs/roadmap.md](./docs/roadmap.md)** - Complete implementation plan, weekly progress, and development workflow
+- **[docs/roadmap.md](./docs/roadmap.md)** - Complete implementation plan and development workflow
+- **[docs/project_progress.md](./docs/project_progress.md)** - Current status and completed milestones
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
+- **[docs/freqai_guide.md](./docs/freqai_guide.md)** - Machine learning with FreqAI (comprehensive ML guide)
+- **[docs/phase3_plan.md](./docs/phase3_plan.md)** - Phase 3 ML integration plan
 - **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
 - **[docs/backtesting_guide.md](./docs/backtesting_guide.md)** - Complete backtesting guide and results
+- **[docs/strategy_development_guide.md](./docs/strategy_development_guide.md)** - Strategy development patterns
 - **[docs/paper_trading_guide.md](./docs/paper_trading_guide.md)** - Paper trading setup and monitoring
-- **[docs/quickstart.md](./docs/quickstart.md)** - Quick setup and getting started guide
 - **[docs/troubleshooting.md](./docs/troubleshooting.md)** - Troubleshooting common issues
 - **[docs/trading_config_guide.md](./docs/trading_config_guide.md)** - Comprehensive configuration guide
 - **[docs/](./docs/)** - Module-specific documentation and guides
