@@ -5,366 +5,505 @@
 
 The Proratio CLI provides a beautiful, user-friendly command-line interface for managing your AI-driven cryptocurrency trading system.
 
-## =� Quick Start
+---
+
+## Quick Start
 
 ```bash
-# Show system status on startup
-./proratio
+# Launch CLI interface
+./start.sh cli
 
-# Or use with uv
-uv run python proratio
+# Show help
+./start.sh cli --help
 
-# Get help
-./proratio --help
+# Quick start guide
+./start.sh cli help quickstart
+
+# Check system health
+./start.sh cli status all
 ```
 
-## =� Command Overview
+---
 
-### Status Commands (`proratio status`)
+## Command Overview
+
+### Status Commands (`./start.sh cli status`)
 
 Check system health and component status.
 
 ```bash
 # Complete system status
-proratio status all
+./start.sh cli status all
 
 # Quick check (critical systems only)
-proratio status quick
+./start.sh cli status quick
 
 # LLM provider status
-proratio status providers
+./start.sh cli status providers
 
 # Data availability
-proratio status data
+./start.sh cli status data
 
 # ML models status
-proratio status models
+./start.sh cli status models
 ```
 
-### Strategy Commands (`proratio strategy`)
+### Strategy Commands (`./start.sh cli strategy`)
 
 Manage and test trading strategies.
 
 ```bash
 # List all available strategies
-proratio strategy list
+./start.sh cli strategy list
 
 # Show strategy source code
-proratio strategy show AIEnhancedStrategy
+./start.sh cli strategy show AIEnhancedStrategy
 
 # Validate strategy configuration
-proratio strategy validate AIEnhancedStrategy
+./start.sh cli strategy validate AIEnhancedStrategy
 
 # Run backtest
-proratio strategy backtest AIEnhancedStrategy --timeframe 4h --days 90
+./start.sh cli strategy backtest AIEnhancedStrategy --timeframe 4h --days 90
 ```
 
-### Configuration Commands (`proratio config`)
+### Configuration Commands (`./start.sh cli config`)
 
 View and modify trading configuration.
 
 ```bash
 # Show complete configuration
-proratio config show
+./start.sh cli config show
 
 # Show specific section
-proratio config show risk
+./start.sh cli config show risk
 
 # Set configuration value
-proratio config set risk.max_loss_per_trade_pct 0.02
+./start.sh cli config set risk.max_loss_per_trade_pct 0.02
 
 # Validate configuration
-proratio config validate
+./start.sh cli config validate
 ```
 
-### Data Commands (`proratio data`)
+### Data Commands (`./start.sh cli data`)
 
 Manage historical market data.
 
 ```bash
 # Download historical data
-proratio data download --pairs BTC/USDT,ETH/USDT --timeframes 1h,4h --days 180
+./start.sh cli data download --pairs BTC/USDT,ETH/USDT --timeframes 1h,4h --days 180
 
-# Show data status
-proratio data status
+# Check data availability
+./start.sh cli data status
 ```
 
-### Trading Commands (`proratio trade`)
+### Trading Commands (`./start.sh cli trade`)
 
-Control trading operations.
+Start and monitor trading operations.
 
 ```bash
 # Start paper trading (dry-run)
-proratio trade start --strategy AIEnhancedStrategy
+./start.sh cli trade start --strategy AIEnhancedStrategy
 
-# Start live trading (� real money!)
-proratio trade start --strategy AIEnhancedStrategy --live
+# Start live trading (CAUTION: real money!)
+./start.sh cli trade start --strategy AIEnhancedStrategy --live
 
-# Stop trading
-proratio trade stop
+# Stop trading bot
+./start.sh cli trade stop
 
-# Monitor trades (launches dashboard)
-proratio trade monitor
+# Monitor trading activity
+./start.sh cli trade monitor
 ```
 
-### Help Commands (`proratio help`)
+### Help Commands (`./start.sh cli help`)
 
 Interactive help and guides.
 
 ```bash
-# Show help menu
-proratio help
+# Show main help menu
+./start.sh cli help
 
-# Quick start guide
-proratio help quickstart
+# Quick start guide (5 steps)
+./start.sh cli help quickstart
 
-# All commands
-proratio help commands
+# Show all commands in tree view
+./start.sh cli help commands
 
 # Configuration guide
-proratio help config
+./start.sh cli help config
 
 # Machine learning guide
-proratio help ml
+./start.sh cli help ml
 ```
 
-## <� Features
+---
 
-### Beautiful Output
+## Features
 
-The CLI uses Rich for beautiful terminal output:
--  Color-coded status indicators
-- =� Formatted tables
-- <3 Tree menus for navigation
-- � Progress bars for long operations
-- =� Syntax highlighting for code
+### Beautiful Terminal Output
+
+The CLI uses the **Rich** library for stunning terminal output:
+
+- **Color-coded status indicators**: ✅ (success), ❌ (failure), ⚠️ (warning)
+- **Formatted tables**: Clean, bordered tables with aligned columns
+- **Tree menus**: Hierarchical command navigation
+- **Syntax highlighting**: Python code display with line numbers
+- **Progress bars**: Visual feedback for long operations
+- **Styled panels**: Headers and sections with borders
+
+### System Health Checks
+
+Comprehensive validation of all system components:
+
+| Component | What's Checked |
+|-----------|----------------|
+| **Environment** | `.env` file, Python version, dependencies |
+| **Database** | PostgreSQL container status |
+| **Redis** | Redis container status |
+| **LLM Providers** | API keys for OpenAI, Anthropic, Google |
+| **Data** | Historical data availability |
+| **Strategies** | Strategy files and validation |
+| **ML Models** | LSTM and ensemble models |
+| **Freqtrade** | Installation and configuration |
+| **PyTorch** | Deep learning framework |
+| **Binance API** | Exchange connectivity |
 
 ### Auto-completion
 
-Install shell completion for faster command entry:
+Shell completion for faster command entry:
 
 ```bash
-# Bash
-proratio --install-completion bash
+# Install completion for your shell
+./start.sh cli --install-completion
 
-# Zsh
-proratio --install-completion zsh
-
-# Fish
-proratio --install-completion fish
+# Or manually for specific shells
+./start.sh cli --install-completion bash   # Bash
+./start.sh cli --install-completion zsh    # Zsh
+./start.sh cli --install-completion fish   # Fish
 ```
 
-### Startup Status
+### Startup Status Display
 
-Running `proratio` without arguments shows:
--  Core systems status (Database, Redis, Freqtrade)
-- > LLM provider configuration
-- =� Data availability
-- =� ML models status
-- � Configuration validation
+Running `./start.sh cli` without any command shows system status:
 
-## =� Usage Examples
+```
+╔══════════════════════════════════════════════════════╗
+║         🤖 Proratio System Status                    ║
+╚══════════════════════════════════════════════════════╝
+
+Environment Status
+┌────────────────┬────────┬──────────────────────┐
+│ Component      │ Status │ Details              │
+├────────────────┼────────┼──────────────────────┤
+│ Environment    │ ✅     │ .env configured      │
+│ Database       │ ✅     │ PostgreSQL running   │
+│ Redis          │ ✅     │ Redis running        │
+│ Freqtrade      │ ✅     │ Installed            │
+└────────────────┴────────┴──────────────────────┘
+
+LLM Providers
+┌───────────┬────────┬──────────────────────┐
+│ Provider  │ Status │ Details              │
+├───────────┼────────┼──────────────────────┤
+│ OpenAI    │ ✅     │ API key configured   │
+│ Anthropic │ ✅     │ API key configured   │
+│ Google    │ ✅     │ API key configured   │
+└───────────┴────────┴──────────────────────┘
+
+Use './start.sh cli help' for command list
+```
+
+---
+
+## Usage Examples
 
 ### Example 1: First-Time Setup
 
 ```bash
-# 1. Check system status
-proratio
+# 1. Launch CLI and check system status
+./start.sh cli
 
-# 2. Download historical data
-proratio data download --pairs BTC/USDT --days 180
+# 2. View quick start guide
+./start.sh cli help quickstart
 
-# 3. List strategies
-proratio strategy list
+# 3. Check what's missing
+./start.sh cli status all
 
-# 4. Validate strategy
-proratio strategy validate AIEnhancedStrategy
+# 4. Download historical data
+./start.sh cli data download
 
-# 5. Run backtest
-proratio strategy backtest AIEnhancedStrategy --days 90
+# 5. List available strategies
+./start.sh cli strategy list
 
 # 6. Start paper trading
-proratio trade start
+./start.sh cli trade start
 ```
 
-### Example 2: Daily Workflow
+### Example 2: Strategy Development Workflow
 
 ```bash
-# Morning: Check system status
-proratio status quick
+# 1. List existing strategies
+./start.sh cli strategy list
 
-# Check LLM providers
-proratio status providers
+# 2. View a strategy's code
+./start.sh cli strategy show TrendFollowingStrategy
 
-# Review strategy performance
-proratio strategy list
+# 3. Validate the strategy
+./start.sh cli strategy validate TrendFollowingStrategy
 
-# Adjust configuration if needed
-proratio config set risk.max_loss_per_trade_pct 0.015
+# 4. Run a backtest
+./start.sh cli strategy backtest TrendFollowingStrategy --timeframe 4h --days 90
 
-# Start trading
-proratio trade start --strategy AIEnhancedStrategy
+# 5. If successful, start paper trading
+./start.sh cli trade start --strategy TrendFollowingStrategy
 ```
 
-### Example 3: Machine Learning Workflow
+### Example 3: Daily Trading Routine
 
 ```bash
-# Check ML models
-proratio status models
+# 1. Check system health
+./start.sh cli status quick
 
-# Train new LSTM model (using script)
-python scripts/train_lstm_model.py --pair BTC/USDT
+# 2. Verify LLM providers are working
+./start.sh cli status providers
 
-# Train ensemble model
-python scripts/example_ensemble_usage.py
+# 3. Check data is up-to-date
+./start.sh cli data status
 
-# Backtest ML-enhanced strategy
-proratio strategy backtest FreqAIStrategy --days 90
+# 4. Review current configuration
+./start.sh cli config show risk
+
+# 5. Start trading (if not already running)
+./start.sh cli trade start
+
+# 6. Monitor trading activity
+./start.sh cli trade monitor
 ```
-
-## � Configuration
-
-### Environment Variables
-
-The CLI checks for these environment variables:
-
-```bash
-# .env file
-DATABASE_URL=postgresql://user:pass@localhost/proratio
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-GOOGLE_API_KEY=AIza...
-BINANCE_API_KEY=...
-BINANCE_API_SECRET=...
-```
-
-### Trading Configuration
-
-Modify trading parameters via CLI:
-
-```bash
-# Risk settings
-proratio config set risk.max_loss_per_trade_pct 0.02
-proratio config set risk.max_drawdown_pct 0.10
-
-# Position sizing
-proratio config set position_sizing.method ai_weighted
-proratio config set position_sizing.base_position_pct 0.05
-
-# Validate changes
-proratio config validate
-```
-
-## = Troubleshooting
-
-### Common Issues
-
-**CLI not found:**
-```bash
-# Make sure it's executable
-chmod +x proratio
-
-# Or use with Python
-uv run python proratio
-```
-
-**Import errors:**
-```bash
-# Install dependencies
-uv pip install -r requirements.txt
-
-# Specifically install CLI dependencies
-uv pip install typer rich shellingham
-```
-
-**Database connection issues:**
-```bash
-# Check PostgreSQL is running
-proratio status quick
-
-# Start PostgreSQL
-docker-compose up -d postgres
-```
-
-**LLM providers not configured:**
-```bash
-# Check provider status
-proratio status providers
-
-# Add API keys to .env file
-# Then check again
-proratio status providers
-```
-
-## <� Command Reference
-
-| Command | Description |
-|---------|-------------|
-| `proratio` | Show startup status |
-| `proratio --version` | Show version |
-| `proratio --help` | Show help |
-| `proratio status all` | Complete system status |
-| `proratio status quick` | Quick health check |
-| `proratio status providers` | LLM provider status |
-| `proratio status data` | Data availability |
-| `proratio status models` | ML models status |
-| `proratio strategy list` | List strategies |
-| `proratio strategy show <name>` | Show strategy code |
-| `proratio strategy backtest <name>` | Run backtest |
-| `proratio strategy validate <name>` | Validate strategy |
-| `proratio config show [section]` | Show configuration |
-| `proratio config set <key> <value>` | Set config value |
-| `proratio config validate` | Validate config |
-| `proratio data download` | Download historical data |
-| `proratio data status` | Show data files |
-| `proratio trade start` | Start paper trading |
-| `proratio trade start --live` | Start live trading |
-| `proratio trade stop` | Stop trading |
-| `proratio trade monitor` | Monitor trades |
-| `proratio help` | Help menu |
-| `proratio help quickstart` | Quick start guide |
-| `proratio help commands` | All commands |
-| `proratio help config` | Config guide |
-| `proratio help ml` | ML guide |
-
-## =� Advanced Usage
-
-### Chaining Commands
-
-```bash
-# Download data, validate strategy, and backtest
-proratio data download --pairs BTC/USDT --days 180 && \
-proratio strategy validate AIEnhancedStrategy && \
-proratio strategy backtest AIEnhancedStrategy
-```
-
-### Using with Scripts
-
-```bash
-# Check if system is ready before running script
-if proratio status quick | grep -q ""; then
-    python scripts/my_trading_script.py
-else
-    echo "System not ready"
-fi
-```
-
-### JSON Output (Future)
-
-```bash
-# Export status as JSON (coming soon)
-proratio status all --json > status.json
-```
-
-## =� Related Documentation
-
-- [Main README](../README.md) - Project overview
-- [Roadmap](./roadmap.md) - Development plan
-- [Trading Config Guide](./trading_config_guide.md) - Configuration details
-- [LSTM Implementation](./lstm_implementation.md) - Neural networks
-- [Ensemble Implementation](./ensemble_implementation.md) - Ensemble learning
-- [FreqAI Guide](./freqai_guide.md) - Machine learning integration
 
 ---
 
-**Built with d using Typer and Rich**
+## Configuration
+
+The CLI reads configuration from:
+
+1. **Environment Variables** (`.env` file)
+   - API keys (Binance, OpenAI, Anthropic, Google)
+   - Database URLs
+   - System settings
+
+2. **Trading Configuration** (`proratio_utilities/config/trading_config.json`)
+   - Risk parameters
+   - Position sizing
+   - Strategy settings
+   - 60+ trading parameters
+
+3. **Freqtrade Configuration** (`proratio_utilities/config/freqtrade/`)
+   - `config_dry.json` - Paper trading
+   - `config_live.json` - Live trading
+
+### Environment Variables Reference
+
+```bash
+# Exchange API Keys
+BINANCE_API_KEY=your_binance_api_key
+BINANCE_SECRET_KEY=your_binance_secret_key
+
+# AI Provider API Keys
+OPENAI_API_KEY=your_openai_api_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+GEMINI_API_KEY=your_gemini_api_key
+
+# Database
+DATABASE_URL=postgresql://user:pass@localhost:5432/proratio
+
+# Trading Mode
+TRADING_MODE=dry_run  # or 'live'
+```
+
+---
+
+## Troubleshooting
+
+### CLI Won't Start
+
+**Problem**: `./start.sh cli` shows "command not found" or permission denied
+
+**Solutions**:
+```bash
+# Make start.sh executable
+chmod +x start.sh
+
+# Check if file exists
+ls -la start.sh
+
+# Try with bash explicitly
+bash start.sh cli
+```
+
+### Missing Dependencies
+
+**Problem**: "ModuleNotFoundError: No module named 'typer'" or similar
+
+**Solution**:
+```bash
+# Install CLI dependencies
+pip install typer rich shellingham
+
+# Or with uv
+uv pip install typer rich shellingham
+```
+
+### System Status Shows Failures
+
+**Problem**: `./start.sh cli status all` shows ❌ for components
+
+**Solutions**:
+
+1. **Database not running**:
+   ```bash
+   docker-compose up -d postgres
+   ```
+
+2. **Redis not running**:
+   ```bash
+   docker-compose up -d redis
+   ```
+
+3. **API keys not configured**:
+   ```bash
+   # Copy template and edit
+   cp .env.example .env
+   nano .env  # Add your API keys
+   ```
+
+4. **Data not downloaded**:
+   ```bash
+   ./start.sh cli data download
+   ```
+
+### Commands Not Working
+
+**Problem**: Command returns an error or doesn't do anything
+
+**Debug Steps**:
+```bash
+# Check if virtual environment is activated
+which python
+
+# Verify imports work
+python -c "import typer, rich; print('OK')"
+
+# Run with verbose error output
+./start.sh cli --help
+```
+
+---
+
+## Command Reference
+
+| Category | Command | Description |
+|----------|---------|-------------|
+| **Status** | `status all` | Complete system health check |
+| | `status quick` | Quick check (critical systems) |
+| | `status providers` | LLM provider status |
+| | `status data` | Data availability |
+| | `status models` | ML models status |
+| **Strategy** | `strategy list` | List all strategies |
+| | `strategy show NAME` | Show strategy code |
+| | `strategy validate NAME` | Validate strategy |
+| | `strategy backtest NAME` | Run backtest |
+| **Config** | `config show` | Show all configuration |
+| | `config show SECTION` | Show config section |
+| | `config set KEY VALUE` | Set config value |
+| | `config validate` | Validate configuration |
+| **Data** | `data download` | Download historical data |
+| | `data status` | Check data availability |
+| **Trade** | `trade start` | Start trading bot |
+| | `trade start --live` | Start live trading |
+| | `trade stop` | Stop trading bot |
+| | `trade monitor` | Monitor trading activity |
+| **Help** | `help` | Main help menu |
+| | `help quickstart` | Quick start guide |
+| | `help commands` | All commands tree view |
+| | `help config` | Configuration guide |
+| | `help ml` | ML training guide |
+
+---
+
+## Advanced Usage
+
+### Running Commands Without Interactive Mode
+
+```bash
+# Run a single command and exit
+./start.sh cli status all
+
+# Chain multiple commands
+./start.sh cli status all && ./start.sh cli data status
+
+# Save output to file
+./start.sh cli strategy list > strategies.txt
+```
+
+### Integration with Scripts
+
+```python
+# Python script using CLI commands
+import subprocess
+
+# Check system status
+result = subprocess.run(['./start.sh', 'cli', 'status', 'quick'],
+                       capture_output=True, text=True)
+print(result.stdout)
+
+# Start trading if system is healthy
+if result.returncode == 0:
+    subprocess.run(['./start.sh', 'cli', 'trade', 'start'])
+```
+
+### Custom Configuration Paths
+
+The CLI respects these environment variables:
+
+```bash
+# Use different config file
+export TRADING_CONFIG=/path/to/custom/config.json
+./start.sh cli config show
+
+# Use different Freqtrade userdir
+export FREQTRADE_USERDIR=/path/to/userdir
+./start.sh cli strategy list
+```
+
+---
+
+## What's Next?
+
+After mastering the CLI:
+
+1. **Read Strategy Guides**: Learn about the 4 built-in strategies
+   - See `docs/strategies/` for detailed guides
+
+2. **Explore ML Models**: Train LSTM and ensemble models
+   - `./start.sh cli help ml` for ML guide
+
+3. **Start Paper Trading**: Test strategies with dry-run mode
+   - `./start.sh cli trade start`
+
+4. **Monitor Dashboard**: View real-time trading activity
+   - `./start.sh trade` (starts full system with dashboard)
+
+5. **Join Community**: Share strategies and insights
+   - Check GitHub repository for discussions
+
+---
+
+## Support
+
+For issues or questions:
+- **Documentation**: See `docs/` directory
+- **GitHub Issues**: Report bugs or request features
+- **Logs**: Check `user_data/logs/` for debugging
+
+---
+
+**Happy Trading! 🚀**

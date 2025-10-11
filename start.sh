@@ -3,7 +3,11 @@
 # Proratio System Startup Script
 # Single entry point for initializing and starting the entire trading system
 #
-# Usage: ./start.sh [options]
+# Usage: ./start.sh [mode] [options]
+# Modes:
+#   cli              Launch CLI interface (recommended)
+#   trade            Start trading system (default)
+#
 # Options:
 #   --skip-checks    Skip system checks (faster startup)
 #   --no-dashboard   Don't start the dashboard
@@ -23,29 +27,87 @@ NC='\033[0m' # No Color
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKIP_CHECKS=false
 NO_DASHBOARD=false
+MODE="trade"  # Default mode
 
-# Parse arguments
-for arg in "$@"; do
-    case $arg in
-        --skip-checks)
-            SKIP_CHECKS=true
-            ;;
-        --no-dashboard)
-            NO_DASHBOARD=true
-            ;;
-        --help)
-            head -n 11 "$0" | tail -n 8
-            exit 0
-            ;;
-        *)
-            echo -e "${RED}Unknown option: $arg${NC}"
-            echo "Use --help for usage information"
-            exit 1
-            ;;
-    esac
-done
+# Check if first argument is 'cli' mode - if so, skip to CLI immediately
+if [ "$1" = "cli" ]; then
+    MODE="cli"
+else
+    # Parse arguments for trade mode
+    for arg in "$@"; do
+        case $arg in
+            trade)
+                MODE="trade"
+                ;;
+            --skip-checks)
+                SKIP_CHECKS=true
+                ;;
+            --no-dashboard)
+                NO_DASHBOARD=true
+                ;;
+            --help)
+                head -n 15 "$0" | tail -n 12
+                exit 0
+                ;;
+            *)
+                echo -e "${RED}Unknown option: $arg${NC}"
+                echo "Use --help for usage information"
+                exit 1
+                ;;
+        esac
+    done
+fi
 
 cd "$PROJECT_ROOT"
+
+# ============================================================================
+# CLI Mode: Launch CLI Interface
+# ============================================================================
+
+if [ "$MODE" = "cli" ]; then
+    echo "╔════════════════════════════════════════════════════════════════╗"
+    echo "║                  🤖 Proratio CLI Interface                     ║"
+    echo "║              AI-Driven Cryptocurrency Trading                  ║"
+    echo "╚════════════════════════════════════════════════════════════════╝"
+    echo ""
+
+    # Ensure virtual environment exists and is activated
+    if [ ! -d ".venv" ]; then
+        echo -e "${YELLOW}⚠${NC} Creating virtual environment..."
+        if command -v uv &> /dev/null; then
+            uv venv
+        else
+            python3 -m venv .venv
+        fi
+    fi
+
+    source .venv/bin/activate
+
+    # Check if CLI dependencies are installed
+    if ! python -c "import typer, rich" 2>/dev/null; then
+        echo -e "${YELLOW}⚠${NC} Installing CLI dependencies..."
+        if command -v uv &> /dev/null; then
+            uv pip install typer rich shellingham
+        else
+            pip install typer rich shellingham
+        fi
+    fi
+
+    # Launch CLI (filter out 'cli' argument)
+    # Build args array excluding 'cli' mode argument
+    CLI_ARGS=()
+    for arg in "$@"; do
+        if [ "$arg" != "cli" ]; then
+            CLI_ARGS+=("$arg")
+        fi
+    done
+
+    exec python -m proratio_cli.main "${CLI_ARGS[@]}"
+fi
+
+# ============================================================================
+# Trade Mode: Start Full Trading System
+# ============================================================================
 
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║                  🚀 Proratio Trading System                    ║"

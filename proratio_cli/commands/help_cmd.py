@@ -25,27 +25,27 @@ def quickstart():
     print_header("Quick Start Guide", "Get started with Proratio in 5 minutes")
 
     print_section_header("1. Check System Status")
-    print_command_example("proratio", "Show startup status")
-    print_command_example("proratio status all", "Detailed system check")
+    print_command_example("./start.sh cli", "Show startup status")
+    print_command_example("./start.sh cli status all", "Detailed system check")
 
     print_section_header("2. Download Data")
     print_command_example(
-        "proratio data download --pairs BTC/USDT --days 180",
+        "./start.sh cli data download --pairs BTC/USDT --days 180",
         "Download 180 days of BTC data"
     )
 
     print_section_header("3. List Strategies")
-    print_command_example("proratio strategy list", "Show all available strategies")
+    print_command_example("./start.sh cli strategy list", "Show all available strategies")
 
     print_section_header("4. Backtest Strategy")
     print_command_example(
-        "proratio strategy backtest AIEnhancedStrategy --days 90",
+        "./start.sh cli strategy backtest AIEnhancedStrategy --days 90",
         "Backtest strategy on 90 days"
     )
 
     print_section_header("5. Start Paper Trading")
     print_command_example(
-        "proratio trade start --strategy AIEnhancedStrategy",
+        "./start.sh cli trade start --strategy AIEnhancedStrategy",
         "Start dry-run trading"
     )
 
@@ -57,36 +57,36 @@ def commands():
 
     menu_items = {
         "Status Commands": [
-            "proratio status all - Complete system status",
-            "proratio status providers - LLM provider status",
-            "proratio status data - Data availability",
-            "proratio status models - ML models status",
+            "./start.sh cli status all - Complete system status",
+            "./start.sh cli status providers - LLM provider status",
+            "./start.sh cli status data - Data availability",
+            "./start.sh cli status models - ML models status",
         ],
         "Strategy Commands": [
-            "proratio strategy list - List all strategies",
-            "proratio strategy show <name> - Show strategy code",
-            "proratio strategy backtest <name> - Run backtest",
-            "proratio strategy validate <name> - Validate strategy",
+            "./start.sh cli strategy list - List all strategies",
+            "./start.sh cli strategy show <name> - Show strategy code",
+            "./start.sh cli strategy backtest <name> - Run backtest",
+            "./start.sh cli strategy validate <name> - Validate strategy",
         ],
         "Configuration": [
-            "proratio config show - Show configuration",
-            "proratio config set <key> <value> - Set config value",
-            "proratio config validate - Validate config",
+            "./start.sh cli config show - Show configuration",
+            "./start.sh cli config set <key> <value> - Set config value",
+            "./start.sh cli config validate - Validate config",
         ],
         "Data Management": [
-            "proratio data download - Download historical data",
-            "proratio data status - Show data files",
+            "./start.sh cli data download - Download historical data",
+            "./start.sh cli data status - Show data files",
         ],
         "Trading Operations": [
-            "proratio trade start - Start paper trading",
-            "proratio trade start --live - Start live trading",
-            "proratio trade stop - Stop trading",
-            "proratio trade monitor - Monitor trades",
+            "./start.sh cli trade start - Start paper trading",
+            "./start.sh cli trade start --live - Start live trading",
+            "./start.sh cli trade stop - Stop trading",
+            "./start.sh cli trade monitor - Monitor trades",
         ],
         "Help & Guides": [
-            "proratio help quickstart - Quick start guide",
-            "proratio help commands - All commands",
-            "proratio help config - Configuration guide",
+            "./start.sh cli help quickstart - Quick start guide",
+            "./start.sh cli help commands - All commands",
+            "./start.sh cli help config - Configuration guide",
         ],
     }
 
@@ -110,17 +110,17 @@ def config():
 
     print_section_header("Trading Configuration")
     print_command_example(
-        "proratio config show",
+        "./start.sh cli config show",
         "View current configuration"
     )
     print_command_example(
-        "proratio config set risk.max_loss_per_trade_pct 0.02",
+        "./start.sh cli config set risk.max_loss_per_trade_pct 0.02",
         "Set max loss to 2%"
     )
 
     print_section_header("Validation")
     print_command_example(
-        "proratio config validate",
+        "./start.sh cli config validate",
         "Validate configuration file"
     )
 
@@ -159,4 +159,4 @@ def main(ctx: typer.Context):
         console.print("  [green]config[/green]       - Configuration guide")
         console.print("  [green]ml[/green]           - Machine learning guide")
 
-        console.print("\n[dim]Usage: proratio help <topic>[/dim]\n")
+        console.print("\n[dim]Usage: ./start.sh cli help <topic>[/dim]\n")
