@@ -28,35 +28,65 @@ app = typer.Typer()
 @app.command()
 def all():
     """Show complete system status."""
-    print_header("System Status", "Complete health check")
+    from rich.table import Table
+    from rich import box
+    import shutil
+
+    # Get terminal width
+    terminal_width = shutil.get_terminal_size().columns
+    table_width = min(terminal_width - 4, 100)  # Max 100 chars, leave 4 for margins
 
     checks = run_all_checks()
     provider_status = get_llm_provider_status()
 
-    # Core systems
-    status_data = []
+    # Calculate summary
+    total_checks = len(checks) + len(provider_status)
+    passed_checks = sum(1 for success, _ in checks.values() if success)
+    passed_providers = sum(1 for success, _ in provider_status.values() if success)
+    total_passed = passed_checks + passed_providers
+
+    # Show header with summary
+    console.print()
+    console.print(f"[bold cyan]System Status[/bold cyan] - {total_passed}/{total_checks} components operational")
+    console.print()
+
+    # Core systems table
+    core_table = Table(
+        title="Core Systems",
+        box=box.ROUNDED,
+        show_header=True,
+        width=table_width,
+        title_style="bold white"
+    )
+    core_table.add_column("Component", style="cyan", width=15)
+    core_table.add_column("Status", style="white", width=8)
+    core_table.add_column("Details", style="white", width=table_width - 28)
+
     for component, (success, details) in checks.items():
-        status_data.append({
-            'component': component,
-            'status': '✅' if success else '❌',
-            'details': details
-        })
+        status_icon = '✅' if success else '❌'
+        core_table.add_row(component, status_icon, details)
 
-    table = create_status_table("Core Systems", status_data)
-    console.print(table)
+    console.print(core_table)
+    console.print()
 
-    # LLM Providers
-    print_section_header("LLM Providers")
-    provider_data = []
+    # AI Providers table (same width and style as core systems)
+    provider_table = Table(
+        title="AI Providers",
+        box=box.ROUNDED,
+        show_header=True,
+        width=table_width,
+        title_style="bold white"
+    )
+    provider_table.add_column("Provider", style="cyan", width=15)
+    provider_table.add_column("Status", style="white", width=8)
+    provider_table.add_column("Details", style="white", width=table_width - 28)
+
     for provider, (success, details) in provider_status.items():
-        provider_data.append({
-            'component': provider,
-            'status': '✅' if success else '❌',
-            'details': details
-        })
+        status_icon = '✅' if success else '❌'
+        provider_table.add_row(provider, status_icon, details)
 
-    provider_table = create_status_table("AI Providers", provider_data)
     console.print(provider_table)
+    console.print()
 
 
 @app.command()
