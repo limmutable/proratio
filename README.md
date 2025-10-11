@@ -54,7 +54,27 @@ Proratio TradeHub      → Strategy orchestration
 
 ## 🚀 Quick Start
 
-### Option 1: One-Command Startup (Recommended)
+### Option 1: CLI Interface (Recommended)
+
+```bash
+# Check system status
+./proratio
+
+# Show help and available commands
+./proratio --help
+
+# Quick start guide
+./proratio help quickstart
+```
+
+**Key CLI Commands:**
+- `./proratio status all` - Complete system health check
+- `./proratio strategy list` - List all strategies
+- `./proratio data download` - Download historical data
+- `./proratio trade start` - Start paper trading
+- See [CLI Guide](./docs/cli_guide.md) for complete reference
+
+### Option 2: One-Command Startup
 
 ```bash
 # Single command to start everything
@@ -75,7 +95,7 @@ This unified script will:
 - `./start.sh --no-dashboard` - Don't start dashboard
 - `./start.sh --help` - Show help
 
-### Option 2: Manual Setup
+### Option 3: Manual Setup
 
 If you need more control or are setting up for the first time:
 
@@ -302,13 +322,20 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 ## 📚 Documentation
 
+### Getting Started
+- **[docs/cli_guide.md](./docs/cli_guide.md)** - 🆕 CLI command reference and usage guide
+- **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
 - **[docs/roadmap.md](./docs/roadmap.md)** - Complete implementation plan and development workflow
 - **[docs/project_progress.md](./docs/project_progress.md)** - Current status and completed milestones
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
+
+### Machine Learning
 - **[docs/freqai_guide.md](./docs/freqai_guide.md)** - Machine learning with FreqAI (comprehensive ML guide)
 - **[docs/lstm_implementation.md](./docs/lstm_implementation.md)** - LSTM neural networks for time-series prediction
 - **[docs/ensemble_implementation.md](./docs/ensemble_implementation.md)** - Ensemble learning implementation guide
 - **[docs/phase3_plan.md](./docs/phase3_plan.md)** - Phase 3 ML integration plan
+
+### Trading & Operations
 - **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
 - **[docs/backtesting_guide.md](./docs/backtesting_guide.md)** - Complete backtesting guide and results
 - **[docs/strategy_development_guide.md](./docs/strategy_development_guide.md)** - Strategy development patterns
