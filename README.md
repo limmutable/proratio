@@ -54,25 +54,37 @@ Proratio TradeHub      → Strategy orchestration
 
 ## 🚀 Quick Start
 
-### Option 1: CLI Interface (Recommended)
+### Option 1: Interactive CLI (Recommended)
 
 ```bash
-# Launch CLI interface
+# Launch interactive CLI shell
 ./start.sh cli
-
-# Show help and available commands
-./start.sh cli --help
-
-# Quick start guide
-./start.sh cli help quickstart
 ```
 
-**Key CLI Commands:**
-- `./start.sh cli status all` - Complete system health check
-- `./start.sh cli strategy list` - List all strategies
-- `./start.sh cli data download` - Download historical data
-- `./start.sh cli trade start` - Start paper trading
-- See [CLI Guide](./docs/cli_guide.md) for complete reference
+This will:
+- ✅ Perform system initialization and health checks
+- ✅ Display system status (database, APIs, data availability)
+- ✅ Launch interactive prompt: `proratio>`
+- ✅ Wait for your commands with `/` prefix
+
+**Interactive Commands:**
+```
+proratio> /help              # Show all commands
+proratio> /status quick      # Quick system check
+proratio> /strategy list     # List all strategies
+proratio> /data download     # Download market data
+proratio> /trade start       # Start paper trading
+proratio> /quit              # Exit CLI
+```
+
+**Features:**
+- 🎨 Beautiful Rich terminal output with colors and tables
+- 🔍 Real-time system health checks on startup
+- 💬 Interactive command prompt with `/` prefix
+- ❓ Built-in help system (`/help <command>`)
+- 🚪 Graceful shutdown (`/quit` or `/exit`)
+
+See [CLI Guide](./docs/cli_guide.md) for complete reference
 
 ### Option 2: One-Command Startup (Full Trading System)
 

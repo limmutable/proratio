@@ -60,16 +60,17 @@ def main(
     """
     Proratio - AI-Driven Cryptocurrency Trading System
 
-    Run without arguments to see system status.
+    Run without arguments to launch interactive shell mode.
     Use --help to see available commands.
     """
     if version:
         print_info("Proratio v0.7.0")
         raise typer.Exit()
 
-    # If no subcommand, show startup status
+    # If no subcommand, launch interactive shell
     if ctx.invoked_subcommand is None:
-        show_startup_status()
+        from proratio_cli.shell import run_shell
+        run_shell()
 
 
 def show_startup_status():

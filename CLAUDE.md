@@ -61,45 +61,55 @@ Utilities (data) � Signals (AI analysis) � TradeHub (strategy) � Utilities
 ### Quick Start
 
 ```bash
-# Launch CLI interface (recommended for most tasks)
+# Launch interactive CLI shell (recommended for most tasks)
 ./start.sh cli
 
-# Show CLI help
-./start.sh cli --help
-
-# Quick start guide
-./start.sh cli help quickstart
-
-# Check system status
-./start.sh cli status all
+# This will:
+# 1. Initialize system and run health checks
+# 2. Display system status
+# 3. Launch interactive prompt: proratio>
+# 4. Wait for commands with / prefix
 
 # Start full trading system (bot + dashboard)
 ./start.sh
 ```
 
-### CLI Commands
+### Interactive CLI Commands
+
+All commands in the shell must start with `/` prefix:
 
 ```bash
+# In the interactive shell (proratio>):
+
+# Core commands
+/help                        # Show all commands
+/help <command>              # Detailed help
+/clear                       # Clear screen
+/quit or /exit               # Exit CLI
+
 # System status
-./start.sh cli status all              # Complete health check
-./start.sh cli status providers        # LLM provider status
+/status                      # Complete health check
+/status quick                # Quick check
+/status providers            # LLM provider status
 
 # Strategy management
-./start.sh cli strategy list           # List all strategies
-./start.sh cli strategy show <name>    # Show strategy code
-./start.sh cli strategy backtest <name> # Run backtest
+/strategy list               # List all strategies
+/strategy show <name>        # Show strategy code
+/strategy backtest <name>    # Run backtest
 
 # Data management
-./start.sh cli data download           # Download historical data
-./start.sh cli data status             # Check data availability
+/data download               # Download historical data
+/data status                 # Check data availability
 
 # Trading operations
-./start.sh cli trade start             # Start paper trading
-./start.sh cli trade stop              # Stop trading bot
+/trade start                 # Start paper trading
+/trade stop                  # Stop trading bot
+/trade monitor               # Monitor trading activity
 
-# Help and guides
-./start.sh cli help quickstart         # Quick start guide
-./start.sh cli help commands           # All available commands
+# Configuration
+/config show                 # Show all config
+/config show risk            # Show specific section
+/config set <key> <value>    # Set config value
 ```
 
 ### Setup & Installation
