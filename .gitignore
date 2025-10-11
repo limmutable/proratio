@@ -92,6 +92,11 @@ api_keys.txt
 *~
 .cache/
 
+# Code Review Documents
+*codereview*.md
+*code-review*.md
+*code_review*.md
+
 # OS
 .DS_Store
 Thumbs.db
