@@ -65,12 +65,6 @@ cd "$PROJECT_ROOT"
 # ============================================================================
 
 if [ "$MODE" = "cli" ]; then
-    echo "╔════════════════════════════════════════════════════════════════╗"
-    echo "║                  🤖 Proratio CLI Interface                     ║"
-    echo "║              AI-Driven Cryptocurrency Trading                  ║"
-    echo "╚════════════════════════════════════════════════════════════════╝"
-    echo ""
-
     # Ensure virtual environment exists and is activated
     if [ ! -d ".venv" ]; then
         echo -e "${YELLOW}⚠${NC} Creating virtual environment..."

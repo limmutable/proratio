@@ -32,97 +32,53 @@ class ProratioShell:
 
     def startup(self):
         """Perform startup initialization and system checks."""
-        # Display header
+        # Display simple header
         self.console.print()
-        self.console.print("╔════════════════════════════════════════════════════════════════╗", style="cyan")
-        self.console.print("║                  🤖 Proratio CLI Interface                     ║", style="cyan")
-        self.console.print("║              AI-Driven Cryptocurrency Trading                  ║", style="cyan")
-        self.console.print("╚════════════════════════════════════════════════════════════════╝", style="cyan")
+        self.console.print("[bold cyan]Proratio v0.8.0[/bold cyan] - AI Crypto Trading System")
         self.console.print()
 
-        # Show loading animation
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            console=self.console,
-            transient=True
-        ) as progress:
-            task = progress.add_task("🔄 Initializing system...", total=None)
+        # Run system checks silently
+        checks = run_all_checks()
+        providers = check_llm_providers()
 
-            # Run system checks
-            import time
-            time.sleep(0.5)  # Brief pause for visual effect
-            progress.update(task, description="🔍 Running health checks...")
-            checks = run_all_checks()
-
-            time.sleep(0.3)
-            progress.update(task, description="📊 Loading configuration...")
-            time.sleep(0.3)
-
-            progress.update(task, description="✅ Initialization complete")
-            time.sleep(0.3)
-
-        self.console.print()
-
-        # Display system status
-        self._display_startup_status(checks)
+        # Display compact status
+        self._display_startup_status(checks, providers)
 
         self.initialized = True
 
-    def _display_startup_status(self, checks: dict):
-        """Display startup status with health check results."""
-        # Create status table
-        table = Table(title="System Status", box=box.ROUNDED, show_header=True, title_style="bold cyan")
-        table.add_column("Component", style="cyan", no_wrap=True, width=20)
-        table.add_column("Status", style="magenta", width=10)
-        table.add_column("Details", style="white", width=30)
+    def _display_startup_status(self, checks: dict, providers: dict):
+        """Display compact startup status."""
+        # Count status
+        passed = sum(1 for status, _ in checks.values() if status)
+        total = len(checks)
+        critical_ok = all(checks.get(c, (False, ''))[0] for c in ['Environment', 'Database', 'Freqtrade'])
 
-        all_healthy = True
-        critical_components = ['Environment', 'Database', 'Freqtrade']
+        # Show critical systems only
+        self.console.print("[bold]System Status:[/bold]")
 
-        for component, (status, details) in checks.items():
-            if status:
-                status_text = Text("✅", style="green")
-            else:
-                status_text = Text("❌", style="red")
-                if component in critical_components:
-                    all_healthy = False
+        # Core systems
+        for component in ['Database', 'Freqtrade', 'Strategies']:
+            if component in checks:
+                status, details = checks[component]
+                icon = "✅" if status else "❌"
+                color = "green" if status else "red"
+                self.console.print(f"  {icon} [dim]{component}:[/dim] [{color}]{details[:40]}[/{color}]")
 
-            table.add_row(component, status_text, details)
-
-        self.console.print(table)
-        self.console.print()
-
-        # Check LLM providers
-        providers = check_llm_providers()
-        provider_table = Table(title="LLM Providers", box=box.ROUNDED, show_header=True, title_style="bold cyan")
-        provider_table.add_column("Provider", style="cyan", width=15)
-        provider_table.add_column("Status", style="magenta", width=10)
-        provider_table.add_column("Details", style="white", width=30)
-
-        for provider, (status, details) in providers.items():
-            status_text = Text("✅" if status else "⚠️", style="green" if status else "yellow")
-            provider_table.add_row(provider, status_text, details)
-
-        self.console.print(provider_table)
-        self.console.print()
-
-        # Display overall status
-        if all_healthy:
-            self.console.print(Panel(
-                Text("✅ System is ready to use!", style="bold green"),
-                border_style="green",
-                box=box.DOUBLE
-            ))
+        # LLM Providers (compact)
+        provider_count = sum(1 for status, _ in providers.values() if status)
+        if provider_count > 0:
+            self.console.print(f"  ✅ [dim]AI Providers:[/dim] [green]{provider_count}/3 configured[/green]")
         else:
-            self.console.print(Panel(
-                Text("⚠️  System has critical errors. Please fix the issues above.", style="bold yellow"),
-                border_style="yellow",
-                box=box.DOUBLE
-            ))
+            self.console.print(f"  ⚠️  [dim]AI Providers:[/dim] [yellow]None configured[/yellow]")
 
         self.console.print()
-        self.console.print("[dim]Type [bold cyan]/help[/bold cyan] for available commands or [bold cyan]/quit[/bold cyan] to exit[/dim]")
+
+        # Overall status - one line
+        if critical_ok:
+            self.console.print("[green]✅ Ready to use[/green] | Type [cyan]/help[/cyan] for commands or [cyan]/quit[/cyan] to exit")
+        else:
+            self.console.print("[yellow]⚠️  Some systems need configuration[/yellow] | Type [cyan]/status all[/cyan] for details")
+
         self.console.print()
 
     def run(self):
@@ -195,25 +151,19 @@ class ProratioShell:
     def cmd_help(self, args: list):
         """Display help information."""
         if not args:
-            # Show main help
+            # Show main help - simple list
             self.console.print()
-            print_header("Available Commands", "Type /help <command> for more details")
-
-            table = Table(box=box.ROUNDED, show_header=True)
-            table.add_column("Command", style="cyan", width=20)
-            table.add_column("Description", style="white", width=50)
-
-            table.add_row("/help", "Show this help message")
-            table.add_row("/help <command>", "Show help for specific command")
-            table.add_row("/status [all|quick|providers|data|models]", "Check system status")
-            table.add_row("/strategy [list|show|validate|backtest]", "Manage strategies")
-            table.add_row("/config [show|set|validate]", "Manage configuration")
-            table.add_row("/data [download|status]", "Manage market data")
-            table.add_row("/trade [start|stop|monitor]", "Trading operations")
-            table.add_row("/clear", "Clear screen")
-            table.add_row("/quit, /exit", "Exit Proratio CLI")
-
-            self.console.print(table)
+            self.console.print("[bold cyan]Available Commands:[/bold cyan]")
+            self.console.print()
+            self.console.print("  [cyan]/help[/cyan]              Show this help")
+            self.console.print("  [cyan]/help <command>[/cyan]    Show help for specific command")
+            self.console.print("  [cyan]/status[/cyan]            Check system status")
+            self.console.print("  [cyan]/strategy[/cyan]          Manage strategies")
+            self.console.print("  [cyan]/config[/cyan]            Manage configuration")
+            self.console.print("  [cyan]/data[/cyan]              Manage market data")
+            self.console.print("  [cyan]/trade[/cyan]             Trading operations")
+            self.console.print("  [cyan]/clear[/cyan]             Clear screen")
+            self.console.print("  [cyan]/quit[/cyan], [cyan]/exit[/cyan]      Exit CLI")
             self.console.print()
         else:
             # Show help for specific command
@@ -420,18 +370,7 @@ class ProratioShell:
     def shutdown(self):
         """Shutdown the shell gracefully."""
         self.console.print()
-        self.console.print("[yellow]🔄 Shutting down Proratio CLI...[/yellow]")
-
-        # Perform cleanup
-        self.console.print("[dim]  • Saving session...[/dim]")
-        self.console.print("[dim]  • Closing connections...[/dim]")
-
-        self.console.print()
-        self.console.print(Panel(
-            Text("👋 Thank you for using Proratio!", style="bold cyan"),
-            border_style="cyan",
-            box=box.DOUBLE
-        ))
+        self.console.print("[cyan]👋 Goodbye![/cyan]")
         self.console.print()
 
         self.running = False
