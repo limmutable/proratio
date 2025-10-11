@@ -27,9 +27,7 @@ CONFIG_PATH = Path('proratio_utilities/config/trading_config.json')
 
 
 @app.command()
-def show(
-    section: Optional[str] = typer.Argument(None, help="Config section to show")
-):
+def show(section: Optional[str] = None):
     """Show trading configuration."""
     if not CONFIG_PATH.exists():
         print_error("Config file not found")
@@ -39,22 +37,76 @@ def show(
         config = json.load(f)
 
     if section:
+        # Show specific section as JSON
         if section in config:
-            print_header(f"Configuration: {section}", str(CONFIG_PATH))
+            console.print()
+            console.print(f"[bold cyan]Configuration Section:[/bold cyan] {section}")
+            console.print(f"[dim]File: {CONFIG_PATH}[/dim]")
+            console.print()
             console.print(JSON(json.dumps(config[section], indent=2)))
+            console.print()
         else:
             print_error(f"Section '{section}' not found")
+            console.print(f"[dim]Available sections: {', '.join(config.keys())}[/dim]")
             raise typer.Exit(1)
     else:
-        print_header("Trading Configuration", str(CONFIG_PATH))
-        console.print(JSON(json.dumps(config, indent=2)))
+        # Show summary of key configurations
+        console.print()
+        console.print("[bold cyan]Trading Configuration Summary[/bold cyan]")
+        console.print()
+
+        # Risk Management
+        console.print("[bold]Risk Management:[/bold]")
+        risk = config.get('risk', {})
+        console.print(f"  Max loss per trade: [yellow]{risk.get('max_loss_per_trade_pct', 'N/A')}%[/yellow]")
+        console.print(f"  Max drawdown: [yellow]{risk.get('max_total_drawdown_pct', 'N/A')}%[/yellow]")
+        console.print(f"  Max concurrent positions: [yellow]{risk.get('max_concurrent_positions', 'N/A')}[/yellow]")
+        console.print()
+
+        # Trading Strategy
+        console.print("[bold]Strategy:[/bold]")
+        strategy = config.get('strategy', {})
+        console.print(f"  Name: [cyan]{strategy.get('strategy_name', 'N/A')}[/cyan]")
+        console.print(f"  Timeframe: [cyan]{strategy.get('timeframe', 'N/A')}[/cyan]")
+        pairs = strategy.get('pairs', [])
+        console.print(f"  Trading pairs: [cyan]{', '.join(pairs) if pairs else 'N/A'}[/cyan]")
+        console.print(f"  Stop loss: [yellow]{strategy.get('stoploss_pct', 'N/A')}%[/yellow]")
+        console.print()
+
+        # AI Configuration
+        console.print("[bold]AI Providers:[/bold]")
+        ai = config.get('ai', {})
+        console.print(f"  ChatGPT weight: [green]{ai.get('chatgpt_weight', 'N/A')}[/green]")
+        console.print(f"  Claude weight: [green]{ai.get('claude_weight', 'N/A')}[/green]")
+        console.print(f"  Gemini weight: [green]{ai.get('gemini_weight', 'N/A')}[/green]")
+        console.print(f"  Min consensus: [green]{ai.get('min_consensus_score', 'N/A')}[/green]")
+        console.print()
+
+        # Execution
+        console.print("[bold]Execution:[/bold]")
+        execution = config.get('execution', {})
+        mode = execution.get('trading_mode', 'N/A')
+        mode_color = "green" if mode == "dry_run" else "red"
+        console.print(f"  Mode: [{mode_color}]{mode}[/{mode_color}]")
+        console.print(f"  Exchange: [cyan]{execution.get('exchange', 'N/A')}[/cyan]")
+        console.print(f"  Starting balance: [yellow]{execution.get('starting_balance', 'N/A')} {execution.get('stake_currency', 'USDT')}[/yellow]")
+        console.print(f"  Stake per trade: [yellow]{execution.get('stake_amount', 'N/A')} {execution.get('stake_currency', 'USDT')}[/yellow]")
+        console.print()
+
+        # File locations
+        console.print("[bold]Configuration Files:[/bold]")
+        console.print(f"  [dim]Main config: {CONFIG_PATH}[/dim]")
+        console.print(f"  [dim]Freqtrade config: proratio_utilities/config/freqtrade/config_dry.json[/dim]")
+        console.print()
+
+        # Usage hint
+        console.print("[dim]Use [cyan]/config show <section>[/cyan] to view full section details[/dim]")
+        console.print("[dim]Available sections: {0}[/dim]".format(', '.join(config.keys())))
+        console.print()
 
 
 @app.command()
-def set(
-    key: str = typer.Argument(..., help="Config key (section.key)"),
-    value: str = typer.Argument(..., help="New value")
-):
+def set(key: str, value: str):
     """Set configuration value."""
     if not CONFIG_PATH.exists():
         print_error("Config file not found")

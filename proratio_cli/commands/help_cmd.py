@@ -104,7 +104,7 @@ def config():
     console.print("  [cyan]DATABASE_URL[/cyan] - PostgreSQL connection")
     console.print("  [cyan]OPENAI_API_KEY[/cyan] - OpenAI API key")
     console.print("  [cyan]ANTHROPIC_API_KEY[/cyan] - Anthropic API key")
-    console.print("  [cyan]GOOGLE_API_KEY[/cyan] - Google API key")
+    console.print("  [cyan]GEMINI_API_KEY[/cyan] - Google Gemini API key")
     console.print("  [cyan]BINANCE_API_KEY[/cyan] - Binance API key")
     console.print("  [cyan]BINANCE_API_SECRET[/cyan] - Binance API secret\n")
 

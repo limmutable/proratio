@@ -11,6 +11,10 @@ import os
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 import subprocess
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 
 def check_environment() -> Tuple[bool, str]:
@@ -23,7 +27,7 @@ def check_environment() -> Tuple[bool, str]:
         'DATABASE_URL',
         'OPENAI_API_KEY',
         'ANTHROPIC_API_KEY',
-        'GOOGLE_API_KEY'
+        'GEMINI_API_KEY'
     ]
 
     missing = []
@@ -145,11 +149,11 @@ def check_llm_providers() -> Dict[str, Tuple[bool, str]]:
         providers['Anthropic'] = (False, "API key not configured")
 
     # Google (Gemini)
-    google_key = os.getenv('GOOGLE_API_KEY')
-    if google_key and google_key != 'your-google-api-key-here':
-        providers['Google'] = (True, "API key configured")
+    gemini_key = os.getenv('GEMINI_API_KEY')
+    if gemini_key and gemini_key != 'your-gemini-api-key-here':
+        providers['Gemini'] = (True, "API key configured")
     else:
-        providers['Google'] = (False, "API key not configured")
+        providers['Gemini'] = (False, "API key not configured")
 
     return providers
 
