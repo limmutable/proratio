@@ -58,9 +58,53 @@ Utilities (data) � Signals (AI analysis) � TradeHub (strategy) � Utilities
 
 ## Common Commands
 
+### Quick Start
+
+```bash
+# Launch CLI interface (recommended for most tasks)
+./start.sh cli
+
+# Show CLI help
+./start.sh cli --help
+
+# Quick start guide
+./start.sh cli help quickstart
+
+# Check system status
+./start.sh cli status all
+
+# Start full trading system (bot + dashboard)
+./start.sh
+```
+
+### CLI Commands
+
+```bash
+# System status
+./start.sh cli status all              # Complete health check
+./start.sh cli status providers        # LLM provider status
+
+# Strategy management
+./start.sh cli strategy list           # List all strategies
+./start.sh cli strategy show <name>    # Show strategy code
+./start.sh cli strategy backtest <name> # Run backtest
+
+# Data management
+./start.sh cli data download           # Download historical data
+./start.sh cli data status             # Check data availability
+
+# Trading operations
+./start.sh cli trade start             # Start paper trading
+./start.sh cli trade stop              # Stop trading bot
+
+# Help and guides
+./start.sh cli help quickstart         # Quick start guide
+./start.sh cli help commands           # All available commands
+```
+
 ### Setup & Installation
 ```bash
-# Initial setup
+# Initial setup (usually handled by ./start.sh automatically)
 ./scripts/setup.sh
 
 # Install dependencies
