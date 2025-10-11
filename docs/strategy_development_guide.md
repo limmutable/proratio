@@ -211,37 +211,225 @@ __all__ = ['BaseStrategy', 'TradeSignal', 'MeanReversionStrategy', 'MyStrategy']
 
 ---
 
-## Example: Mean Reversion Strategy
+## Production Strategies
 
-### Overview
+Proratio includes three production-ready strategies designed for different market conditions:
 
-**Strategy:** Enter when price deviates from mean, exit when it returns
-**Best for:** Range-bound markets
-**Avoid:** Strong trending markets
+### 1. AI-Enhanced Trend Following Strategy
 
-### Entry Logic
+**Best for:** Strong trending markets (ADX > 25)
+**Timeframe:** 4h
+**Risk Level:** Medium
 
-**Long Entry:**
-- RSI < 30 (oversold)
+**Entry Logic:**
+- EMA fast > EMA slow (uptrend confirmation)
+- AI consensus bullish with confidence > 60%
+- Volume confirmation
+- ADX > 25 (strong trend)
+
+**Exit Logic:**
+- EMA crossover reversal
+- AI consensus shifts bearish
+- ROI target hit (4%)
+- Stop-loss (-2%)
+
+**Implementation:**
+- Strategy: `proratio_tradehub/strategies/ai_enhanced.py`
+- Adapter: `user_data/strategies/AIEnhancedStrategy.py`
+
+---
+
+### 2. Mean Reversion Strategy
+
+**Best for:** Range-bound, sideways markets (ADX < 20)
+**Timeframe:** 1h
+**Risk Level:** Medium
+
+**Entry Logic:**
+- RSI < 30 (oversold) for long
 - Price < Lower Bollinger Band
-- AI confirms bullish (optional)
+- Sufficient volatility (BB width > 2%)
+- Volume confirmation
+- Optional AI confirmation (50% threshold)
 
-**Short Entry:**
-- RSI > 70 (overbought)
-- Price > Upper Bollinger Band
-- AI confirms bearish (optional)
-
-### Exit Logic
-
-- Price returns to mean (middle BB)
+**Exit Logic:**
+- Price returns to BB middle (mean reversion complete)
 - RSI returns to neutral (40-60)
-- Stop-loss or take-profit hit
+- RSI becomes overbought (> 70)
+- ROI target hit (4%)
 
-### Implementation
+**Key Parameters:**
+```python
+rsi_oversold = 30          # Entry threshold
+rsi_overbought = 70        # Exit threshold
+bb_period = 20             # Bollinger Bands period
+bb_std = 2.0               # Standard deviations
+use_ai_confirmation = True # Require AI consensus
+ai_min_confidence = 0.50   # Lower threshold (50%)
+```
 
-See complete implementation:
-- Strategy: `proratio_tradehub/strategies/mean_reversion.py`
-- Adapter: `user_data/strategies/MeanReversionAdapter.py`
+**Implementation:**
+- Core: `proratio_tradehub/strategies/mean_reversion.py`
+- Adapter: `user_data/strategies/MeanReversionStrategy.py`
+- Tests: `tests/test_tradehub/test_mean_reversion.py` (13 tests)
+
+**When to Use:**
+- Market trading sideways for weeks
+- RSI oscillating between 30-70 regularly
+- No strong directional trend (ADX < 20)
+
+**When to Avoid:**
+- Strong trending markets
+- Breaking out of consolidation
+- High volatility with directional bias
+
+---
+
+### 3. Grid Trading Strategy
+
+**Best for:** High volatility, ranging markets
+**Timeframe:** 1h
+**Risk Level:** Medium-High
+
+**Entry Logic:**
+1. Detect high volatility (ATR% > 1.5%)
+2. Confirm ranging market (EMA diff < 3%)
+3. Calculate grid levels above/below current price
+4. Enter when price reaches buy grid level
+5. Grid level not already filled
+
+**Exit Logic:**
+- Price reaches corresponding sell grid
+- Market becomes trending (exit all positions)
+- Volatility drops below threshold
+- Emergency stop-loss hit
+
+**Key Parameters:**
+```python
+grid_spacing = 0.02        # 2% between grids
+num_grids_above = 5        # Sell grids above
+num_grids_below = 5        # Buy grids below
+grid_type = "geometric"    # or "arithmetic"
+min_volatility_threshold = 0.015  # 1.5% ATR
+```
+
+**Grid Types:**
+
+**Geometric** (equal percentage):
+- Grid 1: $40,000
+- Grid 2: $40,000 × 1.02 = $40,800
+- Grid 3: $40,000 × 1.04 = $41,600
+
+**Arithmetic** (equal dollar amount):
+- Grid 1: $40,000
+- Grid 2: $40,000 + $800 = $40,800
+- Grid 3: $40,000 + $1,600 = $41,600
+
+**Implementation:**
+- Core: `proratio_tradehub/strategies/grid_trading.py`
+- Adapter: `user_data/strategies/GridTradingStrategy.py`
+- Tests: `tests/test_tradehub/test_grid_trading.py` (12 tests)
+
+**Risk Management:**
+- Reduce stake per grid (divide total by num_grids)
+- Set stop-loss below lowest grid
+- Monitor for trend breakouts
+- Emergency exit if strong trend emerges
+
+---
+
+### Strategy Selection Matrix
+
+| Market Condition | ADX | Volatility | Best Strategy |
+|-----------------|-----|------------|---------------|
+| Strong Uptrend | > 25 | Any | AI-Enhanced Trend |
+| Strong Downtrend | > 25 | Any | AI-Enhanced Trend (short) |
+| Ranging | < 20 | Low-Med | Mean Reversion |
+| Ranging | < 20 | High | Grid Trading |
+| Consolidation | < 15 | Low | Mean Reversion |
+| Volatile Range | 15-25 | High | Grid Trading |
+| Uncertain | Any | Any | Portfolio Manager |
+
+---
+
+## Portfolio Manager
+
+The Portfolio Manager intelligently allocates capital across multiple strategies based on market conditions.
+
+### Features
+
+1. **Market Regime Detection**
+   - Trending Up: ADX > 25, EMA fast > EMA slow * 1.03
+   - Trending Down: ADX > 25, EMA fast < EMA slow * 0.97
+   - Ranging: ADX < 20, |EMA diff| < 2%
+   - Volatile: ATR% > 2.5%, BB width > 4%
+   - Uncertain: Mixed signals
+
+2. **Allocation Methods**
+   - **Equal**: Simple 1/N allocation
+   - **Performance**: Allocate to best performers
+   - **Market-Adaptive**: Allocate based on regime suitability
+   - **AI-Driven**: Hybrid approach using AI + performance
+
+3. **Dynamic Rebalancing**
+   - Adjusts allocation periodically
+   - Enforces min/max limits per strategy
+   - Tracks performance history
+
+### Usage Example
+
+```python
+from proratio_tradehub.orchestration import PortfolioManager
+from proratio_tradehub.strategies import (
+    MeanReversionStrategy,
+    GridTradingStrategy
+)
+
+# Initialize portfolio manager
+pm = PortfolioManager(
+    total_capital=10000,
+    allocation_method="market_adaptive",
+    rebalance_frequency_hours=24,
+    min_strategy_allocation=0.10,  # 10% minimum
+    max_strategy_allocation=0.60   # 60% maximum
+)
+
+# Register strategies
+pm.register_strategy(MeanReversionStrategy(name="MeanReversion"))
+pm.register_strategy(GridTradingStrategy(name="GridTrading"))
+
+# Detect market regime
+regime = pm.detect_market_regime(dataframe, pair="BTC/USDT")
+print(f"Market Regime: {regime.regime_type} ({regime.confidence:.1%})")
+
+# Rebalance portfolio
+allocations = pm.rebalance_portfolio(dataframe)
+
+# Get allocation for specific strategy
+capital = pm.get_strategy_capital("MeanReversion")
+print(f"Mean Reversion Capital: ${capital:.2f}")
+
+# Update performance after trade
+pm.update_strategy_performance("MeanReversion", return_pct=0.025)
+
+# Get summary
+summary = pm.get_portfolio_summary()
+print(summary)
+```
+
+### Strategy Suitability Matrix
+
+| Strategy | Trending Up | Trending Down | Ranging | Volatile | Uncertain |
+|----------|-------------|---------------|---------|----------|-----------|
+| **Trend** | 0.9 ⭐ | 0.3 | 0.4 | 0.5 | 0.6 |
+| **Mean Rev** | 0.3 | 0.3 | 0.9 ⭐ | 0.6 | 0.5 |
+| **Grid** | 0.4 | 0.4 | 0.7 | 0.9 ⭐ | 0.5 |
+
+⭐ = Best suited
+
+**Implementation:**
+- `proratio_tradehub/orchestration/portfolio_manager.py`
+- Tests: `tests/test_tradehub/test_portfolio_manager.py` (15 tests)
 
 ---
 
@@ -515,7 +703,7 @@ PYTHONPATH=/path/to/proratio:$PYTHONPATH uv run python scripts/diagnose_mean_rev
 ## Additional Resources
 
 - [backtesting_guide.md](./backtesting_guide.md) - Complete backtesting guide
-- [TRADING_CONFIG_GUIDE.md](./TRADING_CONFIG_GUIDE.md) - Configuration reference
+- [trading_config_guide.md](./trading_config_guide.md) - Configuration reference
 - [Freqtrade Strategy Docs](https://www.freqtrade.io/en/stable/strategy-customization/)
 
 ---

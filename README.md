@@ -4,9 +4,9 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.3.0 (MVP Development - Week 3 Complete: Risk Management & Configuration)
+**Version**: 0.4.0 (Phase 2 Complete: Advanced Strategies & Portfolio Management)
 
-> For detailed project status, weekly progress, and development plans, see [PLAN.md](./PLAN.md)
+> For detailed project status, weekly progress, and development plans, see [docs/roadmap.md](./docs/roadmap.md)
 
 ---
 
@@ -18,7 +18,8 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 - **Risk Management**: 6-layer risk validation with emergency stops and 5 position sizing methods
 - **Centralized Configuration**: Single JSON file controls all 60+ trading parameters
 - **Modular Architecture**: Four independent modules for flexibility and extensibility
-- **Production-Ready**: 106 passing tests with comprehensive coverage
+- **Multi-Strategy System**: 3 strategies (Trend, Mean Reversion, Grid) with intelligent portfolio allocation
+- **Production-Ready**: 163 passing tests with comprehensive coverage
 
 ---
 
@@ -109,7 +110,7 @@ uv run python scripts/export_data_for_freqtrade.py
 
 > **Important:** Always use `uv run python` to ensure you're using the correct Python environment with all dependencies.
 
-> For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/) or [docs/README.md](./docs/README.md)
+> For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/) or [docs/index.md](./docs/index.md)
 
 ### Configure Trading Parameters
 
@@ -124,7 +125,7 @@ python scripts/show_trading_config.py
 python scripts/show_trading_config.py --validate
 ```
 
-> For configuration guide, see [docs/TRADING_CONFIG_GUIDE.md](./docs/TRADING_CONFIG_GUIDE.md)
+> For configuration guide, see [docs/trading_config_guide.md](./docs/trading_config_guide.md)
 
 ### Run Paper Trading
 
@@ -136,7 +137,7 @@ freqtrade trade \
   --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
-> For complete development workflow, see [PLAN.md](./PLAN.md)
+> For complete development workflow, see [docs/roadmap.md](./docs/roadmap.md)
 
 ---
 
@@ -198,7 +199,7 @@ if not errors:
     config.save_to_file('proratio_utilities/config/trading_config.json')
 ```
 
-### Monitor Dashboard (Coming in Week 4)
+### Monitor Dashboard
 
 ```bash
 streamlit run proratio_tradehub/dashboard/app.py
@@ -250,8 +251,8 @@ proratio/
 │   └── results/            # Test results (logs, backtest_results, analysis)
 │
 ├── scripts/                # Utility scripts
-├── tests/                  # Unit tests (106 tests passing)
-└── docs/                   # Documentation
+├── tests/                  # Unit tests (163 tests passing)
+└── docs/                   # Documentation (14 active + index)
 ```
 
 > **Note**: The `temp_tests/` directory contains temporary testing materials used during development. These files are gitignored and should be deleted after testing is complete or promoted to production when validated.
@@ -261,13 +262,13 @@ proratio/
 ## 🧪 Testing
 
 ```bash
-# Run all tests (106 tests)
+# Run all tests (163 tests)
 pytest
 
 # Run specific module
 pytest tests/test_signals/      # AI signal tests (42 tests)
-pytest tests/test_quantlab/     # Backtesting tests (11 tests)
-pytest tests/test_tradehub/     # Risk management tests (44 tests)
+pytest tests/test_quantlab/     # Backtesting & A/B tests (24 tests)
+pytest tests/test_tradehub/     # Risk & strategy tests (97 tests)
 
 # With coverage
 pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --cov-report=html
@@ -277,14 +278,14 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 ## 📚 Documentation
 
-- **[PLAN.md](./PLAN.md)** - Complete implementation plan, weekly progress, and development workflow
+- **[docs/roadmap.md](./docs/roadmap.md)** - Complete implementation plan, weekly progress, and development workflow
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
-- **[docs/QUICKSTART.md](./docs/QUICKSTART.md)** - Quick start guide for new users
+- **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
 - **[docs/backtesting_guide.md](./docs/backtesting_guide.md)** - Complete backtesting guide and results
 - **[docs/paper_trading_guide.md](./docs/paper_trading_guide.md)** - Paper trading setup and monitoring
-- **[docs/week4_quickstart.md](./docs/week4_quickstart.md)** - Week 4 integration testing guide
+- **[docs/quickstart.md](./docs/quickstart.md)** - Quick setup and getting started guide
 - **[docs/troubleshooting.md](./docs/troubleshooting.md)** - Troubleshooting common issues
-- **[docs/TRADING_CONFIG_GUIDE.md](./docs/TRADING_CONFIG_GUIDE.md)** - Comprehensive configuration guide
+- **[docs/trading_config_guide.md](./docs/trading_config_guide.md)** - Comprehensive configuration guide
 - **[docs/](./docs/)** - Module-specific documentation and guides
 
 ---

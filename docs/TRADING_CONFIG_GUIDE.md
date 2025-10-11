@@ -385,7 +385,7 @@ results = engine.backtest(
 
 - **Python config**: [`proratio_utilities/config/trading_config.py`](../proratio_utilities/config/trading_config.py)
 - **JSON config**: [`proratio_utilities/config/trading_config.json`](../proratio_utilities/config/trading_config.json)
-- **This guide**: [`docs/TRADING_CONFIG_GUIDE.md`](TRADING_CONFIG_GUIDE.md)
+- **This guide**: [`docs/trading_config_guide.md`](trading_config_guide.md)
 
 ---
 

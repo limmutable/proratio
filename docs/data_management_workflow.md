@@ -370,7 +370,7 @@ psql $DATABASE_URL -c "SELECT COUNT(*) FROM ohlcv;"
 
 ### Issue: Pandas SQLAlchemy warning
 **Note:** This is a deprecation warning, not an error. The code works fine.
-**Future fix:** Migrate from psycopg2 to SQLAlchemy (Week 3)
+**Future fix:** Migrate from psycopg2 to SQLAlchemy (Phase 1.2)
 
 ---
 
@@ -396,6 +396,6 @@ psql $DATABASE_URL -c "SELECT COUNT(*) FROM ohlcv;"
 
 **Questions?** Check:
 - [CLAUDE.md](../CLAUDE.md) - Development guidelines
-- [plan.md](../plan.md) - Implementation roadmap
-- [week1_summary_20251006.md](../week1_summary_20251006.md) - Week 1 results
+- [roadmap.md](../roadmap.md) - Implementation roadmap
+- Project documentation - Phase 1.0 results (see [project_progress.md](project_progress.md))
 

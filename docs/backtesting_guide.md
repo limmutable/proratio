@@ -347,6 +347,206 @@ open user_data/plot/freqtrade-plot-BTC_USDT-4h.html
 
 ---
 
+## A/B Testing Framework
+
+### Overview
+
+The A/B Testing Framework provides statistical strategy comparison with confidence scores to determine which strategy performs better.
+
+### Running Phase 2 Backtests with A/B Testing
+
+```bash
+# Backtest all Phase 2 strategies with A/B comparison
+python scripts/backtest_phase2_strategies.py \
+  --pairs BTC/USDT ETH/USDT \
+  --timeframe 1h \
+  --days 180
+
+# Backtest specific strategies
+python scripts/backtest_phase2_strategies.py \
+  --strategies MeanReversionStrategy GridTradingStrategy \
+  --days 90
+
+# Use custom config
+python scripts/backtest_phase2_strategies.py \
+  --config proratio_utilities/config/freqtrade/config_custom.json
+
+# Skip backtest, analyze existing results
+python scripts/backtest_phase2_strategies.py --skip-backtest
+```
+
+### Statistical Tests
+
+The framework includes four statistical tests:
+
+#### 1. T-Test (Parametric)
+- Tests if mean returns differ significantly
+- Assumes normal distribution
+- Best for: Large sample sizes (> 30 trades)
+
+#### 2. Mann-Whitney U Test (Non-parametric)
+- Distribution-free alternative to T-test
+- Compares median returns
+- Best for: Small samples or non-normal distributions
+
+#### 3. Kolmogorov-Smirnov Test
+- Compares entire return distributions
+- Detects differences in shape, not just mean
+- Best for: Detecting systematic differences
+
+#### 4. Variance Test (F-test)
+- Compares risk/volatility between strategies
+- Tests if one strategy is more consistent
+- Best for: Risk-adjusted performance
+
+### Usage Example
+
+```python
+from proratio_quantlab.ab_testing import (
+    StrategyComparer,
+    StrategyResult,
+    create_strategy_result_from_backtest
+)
+
+# Initialize comparer
+comparer = StrategyComparer(
+    significance_level=0.05,  # 5% p-value threshold
+    min_trades_for_significance=30
+)
+
+# Load backtest results
+strategy_a = create_strategy_result_from_backtest(
+    "AIEnhancedStrategy",
+    backtest_data_a
+)
+
+strategy_b = create_strategy_result_from_backtest(
+    "MeanReversionStrategy",
+    backtest_data_b
+)
+
+# Compare strategies
+comparison = comparer.compare_strategies(strategy_a, strategy_b)
+
+# Print detailed report
+comparer.print_comparison_report(comparison)
+```
+
+### Example Output
+
+```
+🏆 WINNER: MeanReversionStrategy (confidence: 85%)
+
+Statistical Tests:
+  • T-test: p=0.023 ✅ Significant difference in mean returns
+  • Mann-Whitney: p=0.031 ✅ Significant difference in medians
+  • KS-test: p=0.045 ✅ Distributions differ significantly
+  • Variance: p=0.089 ⚠️ No significant risk difference
+
+Key Differences:
+  • Returns: +3.50% (✅ Strategy B)
+  • Sharpe: +0.45 (✅ Strategy B)
+  • Drawdown: +1.20% (✅ Strategy B better)
+  • Win Rate: +8.5% (✅ Strategy B)
+
+✅ RECOMMENDATION: Deploy MeanReversionStrategy
+   Strong statistical evidence of superior performance.
+```
+
+### Confidence Levels
+
+| Confidence | Interpretation | Action |
+|------------|----------------|--------|
+| **> 70%** | High confidence | ✅ Deploy winner |
+| **50-70%** | Medium confidence | ⚠️ More testing needed |
+| **< 50%** | Low confidence | ❌ Insufficient evidence |
+
+### Interpreting Results
+
+#### Scenario 1: Clear Winner (Confidence > 80%)
+
+```
+Winner: MeanReversionStrategy (confidence: 85%)
+All 4 tests show significant differences (p < 0.05)
+Mean Reversion outperforms by +5.2% returns
+```
+
+**Action:** Deploy MeanReversionStrategy with confidence
+
+#### Scenario 2: Marginal Difference (Confidence 50-70%)
+
+```
+Winner: GridTradingStrategy (confidence: 62%)
+2 out of 4 tests show significant differences
+Grid Trading slightly better (+1.8% returns)
+```
+
+**Action:**
+- Extend backtest period (180 → 365 days)
+- Test on more pairs
+- Consider market regime (both may excel in different conditions)
+
+#### Scenario 3: No Clear Winner (Confidence < 50%)
+
+```
+Winner: None (confidence: 45%)
+No statistical tests show significant differences
+Both strategies perform similarly
+```
+
+**Action:**
+- Use Portfolio Manager to run both simultaneously
+- Allocate based on market regime detection
+- Continue monitoring performance
+
+### Output Files
+
+The backtest script generates:
+
+1. **Summary Table**: Side-by-side metrics comparison (terminal)
+2. **A/B Test Results**: Statistical analysis for each pair (terminal)
+3. **JSON Export**: `user_data/backtest_results/phase2_comparison.json`
+
+### Best Practices for A/B Testing
+
+#### 1. Sample Size Requirements
+- Minimum 30 trades per strategy for valid statistical tests
+- More trades = higher confidence in results
+- Consider extending backtest period if < 30 trades
+
+#### 2. Multiple Pairs Testing
+```bash
+# Test on multiple pairs to validate generalization
+python scripts/backtest_phase2_strategies.py \
+  --pairs BTC/USDT ETH/USDT BNB/USDT SOL/USDT \
+  --days 180
+```
+
+#### 3. Different Market Conditions
+```bash
+# Bull market
+python scripts/backtest_phase2_strategies.py --timerange 20241001-20241231
+
+# Bear market
+python scripts/backtest_phase2_strategies.py --timerange 20220401-20220930
+
+# Ranging market
+python scripts/backtest_phase2_strategies.py --timerange 20230101-20230630
+```
+
+#### 4. Walk-Forward Validation
+```bash
+# Train period
+python scripts/backtest_phase2_strategies.py --days 180
+
+# Test period (different time)
+python scripts/backtest_phase2_strategies.py --timerange 20251001-20251231
+```
+
+**Goal:** Winner should be consistent across both periods
+
+---
+
 ## Backtest Best Practices
 
 ### 1. Test Multiple Timeframes
@@ -472,7 +672,7 @@ After successful backtesting:
    - Max drawdown < 10%?
 
 2. **If Good Results:**
-   - Proceed to paper trading (Week 4)
+   - Proceed to paper trading (Phase 1.3)
    - See [paper_trading_guide.md](./paper_trading_guide.md)
 
 3. **If Poor Results:**

@@ -224,7 +224,7 @@ View all trading configuration parameters across 5 sections:
 
 ## Usage Scenarios
 
-### Scenario 1: Paper Trading Monitoring (Week 4)
+### Scenario 1: Paper Trading Monitoring (Phase 1.3)
 
 **Goal**: Monitor paper trading performance and validate against backtest
 
@@ -528,7 +528,7 @@ ps aux | grep streamlit
 
 ---
 
-## Future Enhancements (Post-Week 4)
+## Future Enhancements (Phase 2+)
 
 - [ ] Trade execution directly from dashboard
 - [ ] Manual trade entry with AI confirmation
@@ -545,8 +545,8 @@ ps aux | grep streamlit
 
 **Documentation**
 - [README.md](../README.md) - Project overview
-- [PLAN.md](../PLAN.md) - Development plan
-- [TRADING_CONFIG_GUIDE.md](./TRADING_CONFIG_GUIDE.md) - Configuration guide
+- [roadmap.md](../roadmap.md) - Development plan
+- [trading_config_guide.md](./trading_config_guide.md) - Configuration guide
 
 **Troubleshooting**
 - Check Freqtrade logs: `user_data/logs/freqtrade.log`

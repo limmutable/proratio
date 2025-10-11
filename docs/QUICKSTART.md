@@ -136,7 +136,7 @@ freqtrade trade \
   --config proratio_utilities/config/freqtrade/config_dry.json
 ```
 
-**Note:** The `ProRatioAdapter` strategy will be created in Week 2 of the development plan.
+**Note:** The `ProRatioAdapter` strategy will be created in Phase 1.1 of the development plan.
 
 ---
 
@@ -145,8 +145,8 @@ freqtrade trade \
 Now that your environment is set up, you can:
 
 1. **Review the architecture** in [CLAUDE.md](../CLAUDE.md)
-2. **Follow the development plan** in [PLAN.md](../PLAN.md)
-3. **Start with Week 1 tasks** (implement Proratio Utilities)
+2. **Follow the development plan** in [roadmap.md](../roadmap.md)
+3. **Start with Phase 1.0 tasks** (implement Proratio Utilities)
 4. **Experiment in Jupyter notebooks**
 
 ---
@@ -306,12 +306,12 @@ Before proceeding with development:
 
 ## What's Next?
 
-Follow the **4-Week MVP Plan** in [PLAN.md](../PLAN.md):
+Follow the **4-Week MVP Plan** in [roadmap.md](../roadmap.md):
 
-- **Week 1**: Build Proratio Utilities (data collection + execution)
-- **Week 2**: Build Proratio Signals (AI integration)
-- **Week 3**: Build QuantLab & TradeHub (backtesting + risk management)
-- **Week 4**: Integration testing and paper trading validation
+- **Phase 1.0**: Build Proratio Utilities (data collection + execution)
+- **Phase 1.1**: Build Proratio Signals (AI integration)
+- **Phase 1.2**: Build QuantLab & TradeHub (backtesting + risk management)
+- **Phase 1.3**: Integration testing and paper trading validation
 
 ---
 

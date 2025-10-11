@@ -277,7 +277,7 @@ cat reports/final_week4_report.txt
 1. Review final report carefully
 2. Document any observations
 3. Prepare for live deployment (start with small capital)
-4. See [PLAN.md](../PLAN.md) for post-MVP roadmap
+4. See [plan.md](../plan.md) for post-MVP roadmap
 
 **If criteria not met:**
 1. Analyze failure modes
@@ -291,7 +291,7 @@ cat reports/final_week4_report.txt
 
 - [paper_trading_guide.md](./paper_trading_guide.md) - Comprehensive paper trading guide
 - [troubleshooting.md](./troubleshooting.md) - Common issues and solutions
-- [TRADING_CONFIG_GUIDE.md](./TRADING_CONFIG_GUIDE.md) - Configuration reference
+- [trading_config_guide.md](./trading_config_guide.md) - Configuration reference
 
 ---
 

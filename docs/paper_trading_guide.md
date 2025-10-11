@@ -391,9 +391,9 @@ After 1-2 weeks of successful paper trading:
 
 ---
 
-## Week 4: AI-Enhanced Paper Trading
+## Phase 1.3: AI-Enhanced Paper Trading
 
-### New Scripts for Week 4
+### Scripts for Phase 1.3
 
 #### 1. Start Paper Trading (with AI)
 
@@ -466,7 +466,7 @@ Report includes:
 - Higher win rate (quality over quantity)
 - "No trade" decisions are normal and expected
 
-### Week 4 Success Criteria
+### Phase 1.3 Success Criteria
 
 After 5-7 days of paper trading:
 

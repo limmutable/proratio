@@ -180,10 +180,10 @@ check_api_key() {
     fi
 }
 
-check_api_key "Binance API" "$BINANCE_API_KEY" 20
-check_api_key "OpenAI API" "$OPENAI_API_KEY" 20
-check_api_key "Anthropic API" "$ANTHROPIC_API_KEY" 20
-check_api_key "Google Gemini API" "$GOOGLE_API_KEY" 20
+check_api_key "Binance API" "$BINANCE_API_KEY" 20 || true
+check_api_key "OpenAI API" "$OPENAI_API_KEY" 20 || true
+check_api_key "Anthropic API" "$ANTHROPIC_API_KEY" 20 || true
+check_api_key "Google Gemini API" "$GEMINI_API_KEY" 20 || true
 
 echo ""
 

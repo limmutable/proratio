@@ -521,9 +521,9 @@ uv run python -c "from proratio_utilities.config.settings import get_settings; p
    ```
 
 4. **Review documentation:**
-   - [QUICKSTART.md](./QUICKSTART.md) - Setup guide
+   - [quickstart.md](./quickstart.md) - Setup guide
    - [CLAUDE.md](../CLAUDE.md) - Developer guide
-   - [PLAN.md](../PLAN.md) - Implementation plan
+   - [roadmap.md](../roadmap.md) - Implementation plan
 
 ---
 

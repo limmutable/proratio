@@ -6,7 +6,12 @@
       "Bash(uv run pytest:*)",
       "Bash(uv run:*)",
       "Bash(cat:*)",
-      "Bash(PYTHONPATH=/Users/jlim/Projects/proratio:$PYTHONPATH uv run python scripts/diagnose_mean_reversion.py)"
+      "Bash(PYTHONPATH=/Users/jlim/Projects/proratio:$PYTHONPATH uv run python scripts/diagnose_mean_reversion.py)",
+      "Bash(xargs:*)",
+      "Bash(for:*)",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

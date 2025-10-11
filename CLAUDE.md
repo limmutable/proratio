@@ -324,7 +324,7 @@ proratio/
 - **CCXT Docs**: https://docs.ccxt.com/
 - **Binance API**: https://binance-docs.github.io/apidocs/spot/en/
 - **Project Documentation**: `docs/`
-- **Project Reorganization**: `CLEANUP_COMPLETE.md`, `PROJECT_STRUCTURE.md`
+- **Project Reorganization**: `CLEANUP_COMPLETE.md`, `docs/project_structure.md`
 
 ## Development Workflow
 
@@ -370,7 +370,7 @@ Perform these steps in order:
 
 2. **Update documentation**
    - Update `README.md` if features/setup changed
-   - Update `plan.md` to reflect current progress
+   - Update `roadmap.md` to reflect current progress
    - Update `CLAUDE.md` if workflow changed
    - Ensure all docs are consistent
 
@@ -389,7 +389,7 @@ Perform these steps in order:
 **Example response to "prepare for git commit":**
 ```
 ✅ Cleaned up temporary files
-✅ Updated README.md, plan.md
+✅ Updated README.md, roadmap.md
 ✅ Security check passed (no secrets, output files excluded)
 
 Suggested commit message:
@@ -426,7 +426,7 @@ Standard documentation files use UPPERCASE for visibility and recognition.
 All other documentation uses lowercase with underscores for word separation.
 
 **Living Documents (no datetime):**
-- `plan.md` - Implementation plan (continuously updated)
+- `roadmap.md` - Implementation plan (continuously updated)
 - `sample_report.md` - Example template
 - `file_naming_standards.md` - Project conventions
 
@@ -517,7 +517,7 @@ Generated reports and outputs should include datetime stamps for tracking.
 | File Type | Convention | Example |
 |-----------|------------|---------|
 | Standard doc | UPPERCASE | `README.md`, `LICENSE` |
-| Living doc | lowercase_underscore | `plan.md`, `sample_report.md` |
+| Living doc | lowercase_underscore | `roadmap.md`, `sample_report.md` |
 | Snapshot doc | lowercase_YYYYMMDD | `code_review_20241004.md` |
 | Python source | lowercase_underscore | `my_module.py` |
 | Python test | test_lowercase_underscore | `test_my_module.py` |
@@ -525,7 +525,7 @@ Generated reports and outputs should include datetime stamps for tracking.
 | Output file | lowercase_YYYYMMDD_HHMMSS | `report_20241015143052.xlsx` |
 
 **Datetime Decision Tree:**
-1. Is it continuously updated? → **NO datetime** (e.g., `plan.md`)
+1. Is it continuously updated? → **NO datetime** (e.g., `roadmap.md`)
 2. Is it a point-in-time snapshot? → **Add datetime** (e.g., `status_20241003.md`)
 3. Is it generated output? → **Add datetime + time** (e.g., `report_20241015_143052.xlsx`)
 
@@ -549,9 +549,9 @@ Generated reports and outputs should include datetime stamps for tracking.
 
 ## 🎯 Implementation Workflow
 
-**IMPORTANT:** Always follow [plan.md](plan.md) as the primary implementation guide.
+**IMPORTANT:** Always follow [roadmap.md](roadmap.md) as the primary implementation guide.
 
-[plan.md](plan.md) contains:
+[roadmap.md](roadmap.md) contains:
 - ✅ Phase-by-phase checklist with detailed tasks
 - ✅ Progress tracking (completed vs. pending tasks)
 - ✅ Code examples and test commands for each phase
@@ -559,10 +559,10 @@ Generated reports and outputs should include datetime stamps for tracking.
 - ✅ Current implementation status
 
 **Before implementing any feature:**
-1. Check [plan.md](plan.md) for the current phase and tasks
+1. Check [roadmap.md](roadmap.md) for the current phase and tasks
 2. Review the checklist for that phase
 3. Implement according to the detailed requirements
-4. Update checkboxes in [plan.md](plan.md) as tasks are completed
+4. Update checkboxes in [roadmap.md](roadmap.md) as tasks are completed
 5. Run the test commands provided in the phase
 6. Move to the next phase only when all tasks are checked
 

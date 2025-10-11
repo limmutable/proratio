@@ -1,28 +1,23 @@
 # Proratio Documentation Index
 
-**Last Updated**: 2025-10-09
+**Last Updated**: 2025-10-11
 
-Welcome to the Proratio documentation! This guide will help you navigate all available documentation.
+This is the main documentation index for the Proratio project. For the project overview, see [../README.md](../README.md).
+
+> **Quick Links**: [Project Roadmap](roadmap.md) | [Project Progress](project_progress.md) | [Quickstart](quickstart.md)
 
 ---
 
-## 📚 Quick Start Guides
+## 📚 Quick Start
 
 Start here if you're new to Proratio:
 
-### [QUICKSTART.md](QUICKSTART.md)
+### [quickstart.md](quickstart.md)
 **Getting started with Proratio in 15 minutes**
 - Initial setup and installation
 - Environment configuration
 - First dry-run test
 - Basic commands
-
-### [week4_quickstart.md](week4_quickstart.md)
-**Week 4: Paper Trading Validation**
-- Paper trading setup
-- Monitoring dashboard
-- Performance validation
-- Transition to live trading
 
 ---
 
@@ -44,16 +39,26 @@ Start here if you're new to Proratio:
 - Entry/exit logic
 - AI signal integration
 
-#### [3hour_test_guide.md](3hour_test_guide.md)
-**Quick 3-hour validation test**
-- Mean reversion strategy test
-- Automated test scripts
-- Real-time monitoring
-- Results analysis
+
+### Project Management
+
+#### [roadmap.md](roadmap.md)
+**Complete development roadmap**
+- 4-week MVP timeline
+- Phase 2-5 roadmap
+- Feature specifications
+- Success metrics
+
+#### [project_progress.md](project_progress.md)
+**Current project status and progress**
+- Completed milestones
+- Current tasks
+- Metrics and statistics
+- Task backlog
 
 ### Configuration & Setup
 
-#### [TRADING_CONFIG_GUIDE.md](TRADING_CONFIG_GUIDE.md)
+#### [trading_config_guide.md](trading_config_guide.md)
 **Centralized configuration system**
 - TradingConfig dataclasses
 - Risk management settings
@@ -101,13 +106,18 @@ Start here if you're new to Proratio:
 
 ---
 
-## 📦 Archive
+## 📦 Obsolete Documentation
 
-Deprecated or outdated documentation (kept for reference):
+Deprecated or outdated documentation (kept for reference in `/docs/obsolete/`):
 
-- [archive/streamlit_dashboard_summary.md](archive/streamlit_dashboard_summary.md) - Replaced by dashboard_guide.md
-- [archive/GEMINI.md](archive/GEMINI.md) - Old project overview (see README.md and CLAUDE.md)
-- [archive/PLANREVIEW.md](archive/PLANREVIEW.md) - Initial plan review (see PLAN.md)
+- [3hour_test_guide_obsolete.md](obsolete/3hour_test_guide_obsolete.md) - Time-specific test guide → See [paper_trading_guide.md](paper_trading_guide.md)
+- [week4_quickstart_obsolete.md](obsolete/week4_quickstart_obsolete.md) - Week-specific guide → See [quickstart.md](quickstart.md)
+- [phase2_summary_obsolete.md](obsolete/phase2_summary_obsolete.md) - Phase 2 snapshot → See [roadmap.md](roadmap.md)
+- [phase2_guide_obsolete.md](obsolete/phase2_guide_obsolete.md) - Phase 2 guide → Merged into [strategy_development_guide.md](strategy_development_guide.md) and [backtesting_guide.md](backtesting_guide.md)
+- [streamlit_dashboard_summary.md](obsolete/streamlit_dashboard_summary.md) - Old dashboard docs → See [dashboard_guide.md](dashboard_guide.md)
+- [GEMINI.md](obsolete/GEMINI.md) - Old project overview → See main [README.md](../README.md) and [CLAUDE.md](../CLAUDE.md)
+- [PLANREVIEW.md](obsolete/PLANREVIEW.md) - Initial plan review → See [roadmap.md](roadmap.md)
+- [CLEANUP_SUMMARY_20251009.md](obsolete/CLEANUP_SUMMARY_20251009.md) - Historical cleanup notes
 
 ---
 
@@ -115,16 +125,18 @@ Deprecated or outdated documentation (kept for reference):
 
 ```
 Quick Start
-    ├── QUICKSTART.md (15-min setup)
-    └── week4_quickstart.md (paper trading)
+    └── quickstart.md (15-min setup)
+
+Project Management
+    ├── roadmap.md (development plan)
+    └── project_progress.md (current status)
 
 Trading Workflow
     ├── paper_trading_guide.md (full workflow)
-    ├── strategy_development_guide.md (strategy dev)
-    └── 3hour_test_guide.md (quick test)
+    └── strategy_development_guide.md (strategy dev)
 
 Configuration
-    └── TRADING_CONFIG_GUIDE.md (all settings)
+    └── trading_config_guide.md (all settings)
 
 Data & Analysis
     ├── data_management_workflow.md (data ops)
@@ -142,14 +154,14 @@ Support
 ## 🎓 Learning Path
 
 ### Beginner
-1. Start with [QUICKSTART.md](QUICKSTART.md)
+1. Start with [quickstart.md](quickstart.md)
 2. Read [paper_trading_guide.md](paper_trading_guide.md)
-3. Review [TRADING_CONFIG_GUIDE.md](TRADING_CONFIG_GUIDE.md)
+3. Review [trading_config_guide.md](trading_config_guide.md)
 4. Explore [dashboard_guide.md](dashboard_guide.md)
 
 ### Intermediate
 1. Study [strategy_development_guide.md](strategy_development_guide.md)
-2. Practice with [3hour_test_guide.md](3hour_test_guide.md)
+2. Practice with [paper_trading_guide.md](paper_trading_guide.md)
 3. Learn [data_management_workflow.md](data_management_workflow.md)
 4. Master [backtesting_guide.md](backtesting_guide.md)
 
