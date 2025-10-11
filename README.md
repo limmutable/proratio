@@ -4,7 +4,7 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.7.0 (Phase 3.3 Complete: Ensemble Learning - LSTM + LightGBM + XGBoost)
+**Version**: 0.8.0 (Phase 4.0 Complete: Interactive CLI with System Health Checks)
 
 > For detailed project status, weekly progress, and development plans, see [docs/roadmap.md](./docs/roadmap.md)
 

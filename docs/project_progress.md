@@ -1,14 +1,14 @@
 # Project Progress
 
 **Last Updated**: 2025-10-11
-**Current Phase**: Phase 3.3 Complete → Phase 1.4 (Paper Trading) Next
+**Current Phase**: Phase 4.0 Complete → Phase 1.4 (Paper Trading) Next
 
 ---
 
 ## 🎯 Current Status
 
-**Version**: 0.7.0
-**Active Phase**: Machine Learning Complete (Phases 3.1-3.3)
+**Version**: 0.8.0
+**Active Phase**: Interactive CLI Complete (Phase 4.0)
 **Next Milestone**: Phase 1.4 (Paper Trading Validation)
 
 ### Quick Summary

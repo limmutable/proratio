@@ -1,6 +1,6 @@
 # Proratio CLI Guide
 
-**Version**: 0.7.0  
+**Version**: 0.8.0
 **Last Updated**: October 11, 2025
 
 The Proratio CLI provides a beautiful, interactive command-line interface for managing your AI-driven cryptocurrency trading system.

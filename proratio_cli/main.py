@@ -64,7 +64,7 @@ def main(
     Use --help to see available commands.
     """
     if version:
-        print_info("Proratio v0.7.0")
+        print_info("Proratio v0.8.0")
         raise typer.Exit()
 
     # If no subcommand, launch interactive shell
@@ -77,7 +77,7 @@ def show_startup_status():
     """Display startup status with system checks."""
     print_header(
         "🤖 Proratio Trading System",
-        "AI-Driven Cryptocurrency Trading | Version 0.7.0"
+        "AI-Driven Cryptocurrency Trading | Version 0.8.0"
     )
 
     console.print("\n[bold cyan]System Status[/bold cyan]\n")

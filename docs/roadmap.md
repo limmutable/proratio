@@ -1,7 +1,7 @@
 # Proratio Development Plan
 
 **AI-Driven Crypto Trading System for Binance**
-**Version**: 0.7.0 | **Last Updated**: 2025-10-11
+**Version**: 0.8.0 | **Last Updated**: 2025-10-11
 
 ---
 
