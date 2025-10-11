@@ -4,7 +4,7 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.5.0 (Phase 3.1 Complete: FreqAI Integration & Machine Learning)
+**Version**: 0.7.0 (Phase 3.3 Complete: Ensemble Learning - LSTM + LightGBM + XGBoost)
 
 > For detailed project status, weekly progress, and development plans, see [docs/roadmap.md](./docs/roadmap.md)
 
@@ -13,14 +13,18 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 ## 🎯 Key Features
 
 - **Multi-AI Analysis**: Leverages ChatGPT, Claude, and Gemini for market insights
-- **Machine Learning**: FreqAI integration with 80+ engineered features and adaptive models (LightGBM, XGBoost, CatBoost)
+- **Advanced Machine Learning**:
+  - FreqAI integration with 80+ engineered features
+  - LSTM neural networks for time-series prediction
+  - Ensemble learning (stacking/blending/voting) combining LSTM + LightGBM + XGBoost
+  - 19.66% improvement over single models with ensemble methods
 - **Automated Execution**: Freqtrade-powered trading on Binance (Spot, Futures, Options)
 - **Comprehensive Backtesting**: Walk-forward analysis and multi-strategy comparison
 - **Risk Management**: 6-layer risk validation with emergency stops and 5 position sizing methods
 - **Centralized Configuration**: Single JSON file controls all 60+ trading parameters
 - **Modular Architecture**: Four independent modules for flexibility and extensibility
 - **Multi-Strategy System**: 4 strategies (Trend, Mean Reversion, Grid, FreqAI ML) with intelligent portfolio allocation
-- **Production-Ready**: 163 passing tests with comprehensive coverage
+- **Production-Ready**: 186+ passing tests with comprehensive coverage
 
 ---
 
@@ -43,7 +47,7 @@ Proratio TradeHub      → Strategy orchestration
 |--------|---------|------------|--------|
 | **Utilities** | Config, data collection, execution utilities | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
 | **Signals** | Multi-LLM analysis, consensus mechanism | OpenAI API, Anthropic API, Gemini API | ✅ 95% |
-| **QuantLab** | Strategy backtesting, ML model development, feature engineering | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 75% |
+| **QuantLab** | Backtesting, ML models (LSTM, Ensemble), feature engineering | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 85% |
 | **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework | ✅ 50% |
 
 ---
@@ -200,6 +204,20 @@ if not errors:
     config.save_to_file('proratio_utilities/config/trading_config.json')
 ```
 
+### Train Machine Learning Models
+
+```bash
+# Train LSTM model for price prediction
+python scripts/train_lstm_model.py --pair BTC/USDT --epochs 100
+
+# Train ensemble model (LSTM + LightGBM + XGBoost)
+python scripts/example_ensemble_usage.py
+
+# Example output:
+# Ensemble RMSE: 1.726914
+# → 19.66% improvement over best base model
+```
+
 ### Monitor Dashboard
 
 ```bash
@@ -228,7 +246,11 @@ proratio/
 │
 ├── proratio_quantlab/      # Backtesting & ML
 │   ├── backtesting/        # Backtest engine
-│   ├── ml/                 # ML models & feature engineering (80+ features)
+│   ├── ml/                 # ML models (LSTM, Ensemble, FreqAI), feature engineering (80+ features)
+│   │   ├── lstm_predictor.py          # LSTM/GRU neural networks
+│   │   ├── lstm_data_pipeline.py      # Time-series preprocessing
+│   │   ├── ensemble_predictor.py      # Ensemble learning (stacking/blending/voting)
+│   │   └── feature_engineering.py     # 80+ technical indicators
 │   ├── ab_testing/         # A/B testing framework
 │   ├── research/           # Jupyter notebooks
 │   └── analytics/          # Performance metrics
@@ -264,12 +286,12 @@ proratio/
 ## 🧪 Testing
 
 ```bash
-# Run all tests (163 tests)
+# Run all tests (186+ tests)
 pytest
 
 # Run specific module
 pytest tests/test_signals/      # AI signal tests (42 tests)
-pytest tests/test_quantlab/     # Backtesting & A/B tests (24 tests)
+pytest tests/test_quantlab/     # ML, backtesting & A/B tests (52 tests)
 pytest tests/test_tradehub/     # Risk & strategy tests (97 tests)
 
 # With coverage
@@ -284,6 +306,8 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 - **[docs/project_progress.md](./docs/project_progress.md)** - Current status and completed milestones
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
 - **[docs/freqai_guide.md](./docs/freqai_guide.md)** - Machine learning with FreqAI (comprehensive ML guide)
+- **[docs/lstm_implementation.md](./docs/lstm_implementation.md)** - LSTM neural networks for time-series prediction
+- **[docs/ensemble_implementation.md](./docs/ensemble_implementation.md)** - Ensemble learning implementation guide
 - **[docs/phase3_plan.md](./docs/phase3_plan.md)** - Phase 3 ML integration plan
 - **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
 - **[docs/backtesting_guide.md](./docs/backtesting_guide.md)** - Complete backtesting guide and results
