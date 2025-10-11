@@ -456,7 +456,12 @@ class LSTMPredictor:
         with torch.no_grad():
             for X_batch, _ in loader:
                 outputs = self.model(X_batch).squeeze()
-                predictions.extend(outputs.cpu().numpy())
+                # Handle both single sample and batch predictions
+                output_np = outputs.cpu().numpy()
+                if output_np.ndim == 0:
+                    predictions.append(output_np.item())
+                else:
+                    predictions.extend(output_np)
 
         return np.array(predictions)
 
