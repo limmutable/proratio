@@ -31,7 +31,7 @@ class LSTMDataPipeline:
         train_ratio: float = 0.7,
         val_ratio: float = 0.15,
         test_ratio: float = 0.15,
-        min_samples: int = 1000
+        min_samples: int = 1000,
     ):
         """
         Initialize data pipeline.
@@ -42,8 +42,9 @@ class LSTMDataPipeline:
             test_ratio: Proportion of data for testing
             min_samples: Minimum number of samples required
         """
-        assert abs(train_ratio + val_ratio + test_ratio - 1.0) < 0.01, \
+        assert abs(train_ratio + val_ratio + test_ratio - 1.0) < 0.01, (
             "train_ratio + val_ratio + test_ratio must equal 1.0"
+        )
 
         self.train_ratio = train_ratio
         self.val_ratio = val_ratio
@@ -53,9 +54,9 @@ class LSTMDataPipeline:
     def prepare_data(
         self,
         dataframe: pd.DataFrame,
-        target_column: str = 'target_return',
+        target_column: str = "target_return",
         feature_columns: Optional[list] = None,
-        remove_nan: bool = True
+        remove_nan: bool = True,
     ) -> Tuple[pd.DataFrame, list]:
         """
         Prepare dataframe for LSTM training.
@@ -74,7 +75,15 @@ class LSTMDataPipeline:
         # Auto-detect feature columns if not provided
         if feature_columns is None:
             # Exclude OHLCV, date, and target columns
-            exclude_cols = ['date', 'open', 'high', 'low', 'close', 'volume', target_column]
+            exclude_cols = [
+                "date",
+                "open",
+                "high",
+                "low",
+                "close",
+                "volume",
+                target_column,
+            ]
             feature_columns = [col for col in df.columns if col not in exclude_cols]
 
         # Check if target exists
@@ -87,11 +96,15 @@ class LSTMDataPipeline:
             df = df.dropna()
             removed = initial_len - len(df)
             if removed > 0:
-                logger.info(f"Removed {removed} rows with NaN values ({removed/initial_len*100:.1f}%)")
+                logger.info(
+                    f"Removed {removed} rows with NaN values ({removed / initial_len * 100:.1f}%)"
+                )
 
         # Check minimum samples
         if len(df) < self.min_samples:
-            raise ValueError(f"Insufficient data: {len(df)} < {self.min_samples} samples")
+            raise ValueError(
+                f"Insufficient data: {len(df)} < {self.min_samples} samples"
+            )
 
         # Verify all feature columns exist
         missing_cols = set(feature_columns) - set(df.columns)
@@ -106,7 +119,7 @@ class LSTMDataPipeline:
         self,
         dataframe: pd.DataFrame,
         feature_columns: list,
-        target_column: str = 'target_return'
+        target_column: str = "target_return",
     ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
         Split data into train, validation, and test sets (time-ordered).
@@ -125,10 +138,12 @@ class LSTMDataPipeline:
 
         # Time-ordered split (no shuffling for time-series)
         df_train = dataframe.iloc[:train_size].copy()
-        df_val = dataframe.iloc[train_size:train_size + val_size].copy()
-        df_test = dataframe.iloc[train_size + val_size:].copy()
+        df_val = dataframe.iloc[train_size : train_size + val_size].copy()
+        df_test = dataframe.iloc[train_size + val_size :].copy()
 
-        logger.info(f"Split sizes - Train: {len(df_train)}, Val: {len(df_val)}, Test: {len(df_test)}")
+        logger.info(
+            f"Split sizes - Train: {len(df_train)}, Val: {len(df_val)}, Test: {len(df_test)}"
+        )
 
         return df_train, df_val, df_test
 
@@ -136,7 +151,7 @@ class LSTMDataPipeline:
         self,
         dataframe: pd.DataFrame,
         feature_columns: list,
-        target_column: str = 'target_return'
+        target_column: str = "target_return",
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Extract feature and target arrays from dataframe.
@@ -156,9 +171,7 @@ class LSTMDataPipeline:
         return X, y
 
     def create_walk_forward_splits(
-        self,
-        dataframe: pd.DataFrame,
-        n_splits: int = 5
+        self, dataframe: pd.DataFrame, n_splits: int = 5
     ) -> list:
         """
         Create walk-forward validation splits for time-series cross-validation.
@@ -192,11 +205,13 @@ class LSTMDataPipeline:
             Dictionary with summary statistics
         """
         summary = {
-            'n_samples': len(dataframe),
-            'n_features': len(feature_columns),
-            'date_range': (dataframe['date'].min(), dataframe['date'].max()) if 'date' in dataframe.columns else None,
-            'missing_values': dataframe[feature_columns].isnull().sum().sum(),
-            'feature_stats': dataframe[feature_columns].describe().to_dict()
+            "n_samples": len(dataframe),
+            "n_features": len(feature_columns),
+            "date_range": (dataframe["date"].min(), dataframe["date"].max())
+            if "date" in dataframe.columns
+            else None,
+            "missing_values": dataframe[feature_columns].isnull().sum().sum(),
+            "feature_stats": dataframe[feature_columns].describe().to_dict(),
         }
 
         return summary
@@ -204,12 +219,17 @@ class LSTMDataPipeline:
 
 def prepare_lstm_data(
     dataframe: pd.DataFrame,
-    target_column: str = 'target_return',
+    target_column: str = "target_return",
     train_ratio: float = 0.7,
     val_ratio: float = 0.15,
     test_ratio: float = 0.15,
-    min_samples: int = 100
-) -> Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray], list]:
+    min_samples: int = 100,
+) -> Tuple[
+    Tuple[np.ndarray, np.ndarray],
+    Tuple[np.ndarray, np.ndarray],
+    Tuple[np.ndarray, np.ndarray],
+    list,
+]:
     """
     Convenience function to prepare data for LSTM training.
 
@@ -230,7 +250,9 @@ def prepare_lstm_data(
     df_clean, feature_cols = pipeline.prepare_data(dataframe, target_column)
 
     # Split data
-    df_train, df_val, df_test = pipeline.split_data(df_clean, feature_cols, target_column)
+    df_train, df_val, df_test = pipeline.split_data(
+        df_clean, feature_cols, target_column
+    )
 
     # Get arrays
     X_train, y_train = pipeline.get_arrays(df_train, feature_cols, target_column)

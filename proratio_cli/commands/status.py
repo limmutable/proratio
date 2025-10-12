@@ -8,18 +8,12 @@ Date: 2025-10-11
 """
 
 import typer
-from rich.console import Console
-from proratio_cli.utils.display import (
-    print_header,
-    create_status_table,
-    print_section_header,
-    console
-)
+from proratio_cli.utils.display import print_header, create_status_table, console
 from proratio_cli.utils.checks import (
     run_all_checks,
     get_llm_provider_status,
     check_data_availability,
-    check_ml_models
+    check_ml_models,
 )
 
 app = typer.Typer()
@@ -47,7 +41,9 @@ def all():
 
     # Show header with summary
     console.print()
-    console.print(f"[bold cyan]System Status[/bold cyan] - {total_passed}/{total_checks} components operational")
+    console.print(
+        f"[bold cyan]System Status[/bold cyan] - {total_passed}/{total_checks} components operational"
+    )
     console.print()
 
     # Core systems table
@@ -56,14 +52,14 @@ def all():
         box=box.ROUNDED,
         show_header=True,
         width=table_width,
-        title_style="bold white"
+        title_style="bold white",
     )
     core_table.add_column("Component", style="cyan", width=15)
     core_table.add_column("Status", style="white", width=8)
     core_table.add_column("Details", style="white", width=table_width - 28)
 
     for component, (success, details) in checks.items():
-        status_icon = '✅' if success else '❌'
+        status_icon = "✅" if success else "❌"
         core_table.add_row(component, status_icon, details)
 
     console.print(core_table)
@@ -75,14 +71,14 @@ def all():
         box=box.ROUNDED,
         show_header=True,
         width=table_width,
-        title_style="bold white"
+        title_style="bold white",
     )
     provider_table.add_column("Provider", style="cyan", width=15)
     provider_table.add_column("Status", style="white", width=8)
     provider_table.add_column("Details", style="white", width=table_width - 28)
 
     for provider, (success, details) in provider_status.items():
-        status_icon = '✅' if success else '❌'
+        status_icon = "✅" if success else "❌"
         provider_table.add_row(provider, status_icon, details)
 
     console.print(provider_table)
@@ -98,11 +94,13 @@ def providers():
 
     data = []
     for provider, (success, details) in provider_status.items():
-        data.append({
-            'component': provider,
-            'status': '✅' if success else '❌',
-            'details': details
-        })
+        data.append(
+            {
+                "component": provider,
+                "status": "✅" if success else "❌",
+                "details": details,
+            }
+        )
 
     table = create_status_table("AI Providers", data)
     console.print(table)
@@ -118,7 +116,9 @@ def data():
 
     success, details = check_data_availability()
 
-    console.print(f"\n[bold]Status:[/bold] {'✅ Available' if success else '❌ Not Available'}")
+    console.print(
+        f"\n[bold]Status:[/bold] {'✅ Available' if success else '❌ Not Available'}"
+    )
     console.print(f"[bold]Details:[/bold] {details}\n")
 
 
@@ -129,21 +129,27 @@ def models():
 
     success, details = check_ml_models()
 
-    console.print(f"\n[bold]Status:[/bold] {'✅ Available' if success else '❌ Not Available'}")
+    console.print(
+        f"\n[bold]Status:[/bold] {'✅ Available' if success else '❌ Not Available'}"
+    )
     console.print(f"[bold]Details:[/bold] {details}\n")
 
 
 @app.command()
 def quick():
     """Quick status check (critical systems only)."""
-    from proratio_cli.utils.checks import check_database, check_environment, check_freqtrade
+    from proratio_cli.utils.checks import (
+        check_database,
+        check_environment,
+        check_freqtrade,
+    )
 
     checks = {
-        'Environment': check_environment(),
-        'Database': check_database(),
-        'Freqtrade': check_freqtrade(),
+        "Environment": check_environment(),
+        "Database": check_database(),
+        "Freqtrade": check_freqtrade(),
     }
 
     for component, (success, details) in checks.items():
-        status = '✅' if success else '❌'
+        status = "✅" if success else "❌"
         console.print(f"{status} [cyan]{component}[/cyan]: {details}")

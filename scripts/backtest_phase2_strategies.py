@@ -21,7 +21,6 @@ Features:
 import sys
 from pathlib import Path
 from typing import List, Dict
-from datetime import datetime, timedelta
 import argparse
 import json
 
@@ -34,7 +33,10 @@ import pandas as pd
 import subprocess
 from tabulate import tabulate
 
-from proratio_quantlab.ab_testing import StrategyComparer, StrategyResult, create_strategy_result_from_backtest
+from proratio_quantlab.ab_testing import (
+    StrategyComparer,
+    create_strategy_result_from_backtest,
+)
 
 
 def run_freqtrade_backtest(
@@ -42,7 +44,7 @@ def run_freqtrade_backtest(
     pairs: List[str],
     timeframe: str,
     days: int,
-    config_path: str = "proratio_utilities/config/freqtrade/config_dry.json"
+    config_path: str = "proratio_utilities/config/freqtrade/config_dry.json",
 ) -> Dict:
     """
     Run Freqtrade backtest for a strategy.
@@ -57,21 +59,28 @@ def run_freqtrade_backtest(
     Returns:
         Dictionary with backtest results
     """
-    print(f"\n{'='*80}")
+    print(f"\n{'=' * 80}")
     print(f"Running backtest for {strategy_name}")
-    print(f"{'='*80}")
+    print(f"{'=' * 80}")
 
     # Build Freqtrade command
     cmd = [
         "freqtrade",
         "backtesting",
-        "--strategy", strategy_name,
-        "--timeframe", timeframe,
-        "--timerange", f"-{days}",  # Last N days
-        "--config", config_path,
-        "--userdir", "user_data",
-        "--export", "trades",
-        "--export-filename", f"user_data/backtest_results/{strategy_name}_backtest.json"
+        "--strategy",
+        strategy_name,
+        "--timeframe",
+        timeframe,
+        "--timerange",
+        f"-{days}",  # Last N days
+        "--config",
+        config_path,
+        "--userdir",
+        "user_data",
+        "--export",
+        "trades",
+        "--export-filename",
+        f"user_data/backtest_results/{strategy_name}_backtest.json",
     ]
 
     # Add pairs if specified
@@ -87,10 +96,12 @@ def run_freqtrade_backtest(
         print(result.stdout)
 
         # Parse results from JSON export
-        results_file = project_root / f"user_data/backtest_results/{strategy_name}_backtest.json"
+        results_file = (
+            project_root / f"user_data/backtest_results/{strategy_name}_backtest.json"
+        )
 
         if results_file.exists():
-            with open(results_file, 'r') as f:
+            with open(results_file, "r") as f:
                 backtest_data = json.load(f)
             return parse_freqtrade_results(backtest_data, strategy_name)
         else:
@@ -118,29 +129,33 @@ def parse_freqtrade_results(backtest_data: Dict, strategy_name: str) -> Dict:
     # This is a simplified parser
 
     try:
-        strategy_data = backtest_data.get('strategy', {}).get(strategy_name, {})
+        strategy_data = backtest_data.get("strategy", {}).get(strategy_name, {})
 
-        trades = strategy_data.get('trades', [])
+        trades = strategy_data.get("trades", [])
         total_trades = len(trades)
 
-        winning_trades = sum(1 for trade in trades if trade.get('profit_ratio', 0) > 0)
+        winning_trades = sum(1 for trade in trades if trade.get("profit_ratio", 0) > 0)
         losing_trades = total_trades - winning_trades
 
         win_rate = (winning_trades / total_trades * 100) if total_trades > 0 else 0
 
         # Calculate returns
-        returns = [trade.get('profit_ratio', 0) * 100 for trade in trades]
+        returns = [trade.get("profit_ratio", 0) * 100 for trade in trades]
         total_return = sum(returns)
         avg_return = total_return / total_trades if total_trades > 0 else 0
 
         # Calculate Sharpe ratio (simplified)
         if returns:
-            sharpe_ratio = (pd.Series(returns).mean() / pd.Series(returns).std()) * (252 ** 0.5) if pd.Series(returns).std() > 0 else 0
+            sharpe_ratio = (
+                (pd.Series(returns).mean() / pd.Series(returns).std()) * (252**0.5)
+                if pd.Series(returns).std() > 0
+                else 0
+            )
         else:
             sharpe_ratio = 0
 
         # Max drawdown
-        max_drawdown = strategy_data.get('max_drawdown', 0)
+        max_drawdown = strategy_data.get("max_drawdown", 0)
 
         # Profit factor
         gross_profit = sum(r for r in returns if r > 0)
@@ -148,29 +163,41 @@ def parse_freqtrade_results(backtest_data: Dict, strategy_name: str) -> Dict:
         profit_factor = gross_profit / gross_loss if gross_loss > 0 else 0
 
         return {
-            'strategy_name': strategy_name,
-            'total_trades': total_trades,
-            'winning_trades': winning_trades,
-            'losing_trades': losing_trades,
-            'win_rate': win_rate,
-            'total_return_pct': total_return,
-            'sharpe_ratio': sharpe_ratio,
-            'max_drawdown_pct': max_drawdown,
-            'profit_factor': profit_factor,
-            'avg_trade_return_pct': avg_return,
-            'avg_win_pct': sum(r for r in returns if r > 0) / winning_trades if winning_trades > 0 else 0,
-            'avg_loss_pct': sum(r for r in returns if r < 0) / losing_trades if losing_trades > 0 else 0,
-            'best_trade_pct': max(returns) if returns else 0,
-            'worst_trade_pct': min(returns) if returns else 0,
-            'avg_trade_duration_hours': sum(trade.get('trade_duration', 0) for trade in trades) / total_trades / 60 if total_trades > 0 else 0,
-            'total_fees': sum(trade.get('fee_close', 0) + trade.get('fee_open', 0) for trade in trades),
-            'returns_distribution': returns,
-            'equity_curve': pd.Series(),  # Would need to reconstruct from trades
-            'metadata': {
-                'backtest_start': strategy_data.get('backtest_start'),
-                'backtest_end': strategy_data.get('backtest_end'),
-                'config': strategy_data.get('config', {})
-            }
+            "strategy_name": strategy_name,
+            "total_trades": total_trades,
+            "winning_trades": winning_trades,
+            "losing_trades": losing_trades,
+            "win_rate": win_rate,
+            "total_return_pct": total_return,
+            "sharpe_ratio": sharpe_ratio,
+            "max_drawdown_pct": max_drawdown,
+            "profit_factor": profit_factor,
+            "avg_trade_return_pct": avg_return,
+            "avg_win_pct": sum(r for r in returns if r > 0) / winning_trades
+            if winning_trades > 0
+            else 0,
+            "avg_loss_pct": sum(r for r in returns if r < 0) / losing_trades
+            if losing_trades > 0
+            else 0,
+            "best_trade_pct": max(returns) if returns else 0,
+            "worst_trade_pct": min(returns) if returns else 0,
+            "avg_trade_duration_hours": sum(
+                trade.get("trade_duration", 0) for trade in trades
+            )
+            / total_trades
+            / 60
+            if total_trades > 0
+            else 0,
+            "total_fees": sum(
+                trade.get("fee_close", 0) + trade.get("fee_open", 0) for trade in trades
+            ),
+            "returns_distribution": returns,
+            "equity_curve": pd.Series(),  # Would need to reconstruct from trades
+            "metadata": {
+                "backtest_start": strategy_data.get("backtest_start"),
+                "backtest_end": strategy_data.get("backtest_end"),
+                "config": strategy_data.get("config", {}),
+            },
         }
 
     except Exception as e:
@@ -199,7 +226,7 @@ def print_summary_table(results: Dict[str, Dict]) -> None:
         "Sharpe",
         "Max DD",
         "Profit Factor",
-        "Avg Return"
+        "Avg Return",
     ]
 
     rows = []
@@ -207,16 +234,18 @@ def print_summary_table(results: Dict[str, Dict]) -> None:
         if not result:
             continue
 
-        rows.append([
-            strategy_name,
-            result.get('total_trades', 0),
-            f"{result.get('win_rate', 0):.1f}%",
-            f"{result.get('total_return_pct', 0):+.2f}%",
-            f"{result.get('sharpe_ratio', 0):.2f}",
-            f"{result.get('max_drawdown_pct', 0):.2f}%",
-            f"{result.get('profit_factor', 0):.2f}",
-            f"{result.get('avg_trade_return_pct', 0):+.2f}%"
-        ])
+        rows.append(
+            [
+                strategy_name,
+                result.get("total_trades", 0),
+                f"{result.get('win_rate', 0):.1f}%",
+                f"{result.get('total_return_pct', 0):+.2f}%",
+                f"{result.get('sharpe_ratio', 0):.2f}",
+                f"{result.get('max_drawdown_pct', 0):.2f}%",
+                f"{result.get('profit_factor', 0):.2f}",
+                f"{result.get('avg_trade_return_pct', 0):+.2f}%",
+            ]
+        )
 
     print(tabulate(rows, headers=headers, tablefmt="grid"))
     print()
@@ -242,7 +271,9 @@ def run_ab_tests(results: Dict[str, Dict]) -> None:
     baseline_name = "AIEnhancedStrategy"
 
     if baseline_name in results:
-        baseline_result = create_strategy_result_from_backtest(baseline_name, results[baseline_name])
+        baseline_result = create_strategy_result_from_backtest(
+            baseline_name, results[baseline_name]
+        )
 
         for strategy_name in strategy_names:
             if strategy_name == baseline_name:
@@ -255,7 +286,9 @@ def run_ab_tests(results: Dict[str, Dict]) -> None:
             print(f"Comparing: {baseline_name} vs. {strategy_name}")
             print(f"{'─' * 120}\n")
 
-            strategy_result = create_strategy_result_from_backtest(strategy_name, results[strategy_name])
+            strategy_result = create_strategy_result_from_backtest(
+                strategy_name, results[strategy_name]
+            )
 
             comparison = comparer.compare_strategies(baseline_result, strategy_result)
 
@@ -272,39 +305,37 @@ def main():
         "--pairs",
         nargs="+",
         default=["BTC/USDT", "ETH/USDT"],
-        help="Trading pairs to backtest (default: BTC/USDT ETH/USDT)"
+        help="Trading pairs to backtest (default: BTC/USDT ETH/USDT)",
     )
 
     parser.add_argument(
-        "--timeframe",
-        default="1h",
-        help="Timeframe for backtest (default: 1h)"
+        "--timeframe", default="1h", help="Timeframe for backtest (default: 1h)"
     )
 
     parser.add_argument(
         "--days",
         type=int,
         default=180,
-        help="Number of days to backtest (default: 180)"
+        help="Number of days to backtest (default: 180)",
     )
 
     parser.add_argument(
         "--strategies",
         nargs="+",
         default=["AIEnhancedStrategy", "MeanReversionStrategy", "GridTradingStrategy"],
-        help="Strategies to test (default: all Phase 2 strategies)"
+        help="Strategies to test (default: all Phase 2 strategies)",
     )
 
     parser.add_argument(
         "--config",
         default="proratio_utilities/config/freqtrade/config_dry.json",
-        help="Path to Freqtrade config file"
+        help="Path to Freqtrade config file",
     )
 
     parser.add_argument(
         "--skip-backtest",
         action="store_true",
-        help="Skip backtest execution, only analyze existing results"
+        help="Skip backtest execution, only analyze existing results",
     )
 
     args = parser.parse_args()
@@ -329,7 +360,7 @@ def main():
                 pairs=args.pairs,
                 timeframe=args.timeframe,
                 days=args.days,
-                config_path=args.config
+                config_path=args.config,
             )
 
             if result:
@@ -341,7 +372,7 @@ def main():
         output_file = project_root / "user_data/backtest_results/phase2_comparison.json"
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(results, f, indent=2, default=str)
 
         print(f"\n✓ Results saved to {output_file}")
@@ -351,7 +382,7 @@ def main():
         output_file = project_root / "user_data/backtest_results/phase2_comparison.json"
 
         if output_file.exists():
-            with open(output_file, 'r') as f:
+            with open(output_file, "r") as f:
                 results = json.load(f)
             print(f"✓ Loaded results from {output_file}")
         else:

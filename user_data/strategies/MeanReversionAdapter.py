@@ -38,13 +38,13 @@ class MeanReversionAdapter(IStrategy):
     INTERFACE_VERSION = 3
 
     # Optimal timeframe
-    timeframe = '4h'
+    timeframe = "4h"
 
     # ROI table (take-profit levels)
     minimal_roi = {
-        "0": 0.04,   # 4% take profit
+        "0": 0.04,  # 4% take profit
         "60": 0.02,  # 2% after 1 hour
-        "120": 0.01  # 1% after 2 hours
+        "120": 0.01,  # 1% after 2 hours
     }
 
     # Stoploss
@@ -57,11 +57,13 @@ class MeanReversionAdapter(IStrategy):
     process_only_new_candles = True
 
     # Strategy parameters (optimizable with hyperopt)
-    rsi_oversold = IntParameter(20, 35, default=30, space='buy', optimize=True)
-    rsi_overbought = IntParameter(65, 80, default=70, space='sell', optimize=True)
-    bb_std = DecimalParameter(1.5, 2.5, default=2.0, space='buy', optimize=True)
+    rsi_oversold = IntParameter(20, 35, default=30, space="buy", optimize=True)
+    rsi_overbought = IntParameter(65, 80, default=70, space="sell", optimize=True)
+    bb_std = DecimalParameter(1.5, 2.5, default=2.0, space="buy", optimize=True)
     use_ai_confirmation = False  # Set to True to enable AI (requires API keys)
-    ai_confidence_threshold = DecimalParameter(0.3, 0.7, default=0.5, space='buy', optimize=True)
+    ai_confidence_threshold = DecimalParameter(
+        0.3, 0.7, default=0.5, space="buy", optimize=True
+    )
 
     # Position size adjustment
     position_adjustment_enable = True
@@ -76,12 +78,14 @@ class MeanReversionAdapter(IStrategy):
             rsi_overbought=self.rsi_overbought.value,
             bb_std=self.bb_std.value,
             use_ai_confirmation=self.use_ai_confirmation,
-            ai_confidence_threshold=self.ai_confidence_threshold.value
+            ai_confidence_threshold=self.ai_confidence_threshold.value,
         )
 
         print(f"✓ Initialized {self.strategy}")
 
-    def populate_indicators(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+    def populate_indicators(
+        self, dataframe: pd.DataFrame, metadata: dict
+    ) -> pd.DataFrame:
         """
         Add technical indicators required by mean reversion strategy.
 
@@ -93,28 +97,26 @@ class MeanReversionAdapter(IStrategy):
             Dataframe with indicators added
         """
         # RSI (Relative Strength Index)
-        dataframe['rsi'] = ta.rsi(dataframe['close'], length=14)
+        dataframe["rsi"] = ta.rsi(dataframe["close"], length=14)
 
         # Bollinger Bands
         bb_length = 20
         bb_std = self.bb_std.value
 
-        bollinger = ta.bbands(
-            dataframe['close'],
-            length=bb_length,
-            std=bb_std
-        )
+        bollinger = ta.bbands(dataframe["close"], length=bb_length, std=bb_std)
 
-        dataframe['bb_lower'] = bollinger[f'BBL_{bb_length}_{bb_std}']
-        dataframe['bb_middle'] = bollinger[f'BBM_{bb_length}_{bb_std}']
-        dataframe['bb_upper'] = bollinger[f'BBU_{bb_length}_{bb_std}']
+        dataframe["bb_lower"] = bollinger[f"BBL_{bb_length}_{bb_std}"]
+        dataframe["bb_middle"] = bollinger[f"BBM_{bb_length}_{bb_std}"]
+        dataframe["bb_upper"] = bollinger[f"BBU_{bb_length}_{bb_std}"]
 
         # Volume moving average (for additional context)
-        dataframe['volume_ma'] = ta.sma(dataframe['volume'], length=20)
+        dataframe["volume_ma"] = ta.sma(dataframe["volume"], length=20)
 
         return dataframe
 
-    def populate_entry_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+    def populate_entry_trend(
+        self, dataframe: pd.DataFrame, metadata: dict
+    ) -> pd.DataFrame:
         """
         Populate buy signals using mean reversion strategy.
 
@@ -126,22 +128,23 @@ class MeanReversionAdapter(IStrategy):
             Dataframe with entry signals
         """
         # Initialize columns
-        dataframe['enter_long'] = 0
-        dataframe['enter_tag'] = ''
+        dataframe["enter_long"] = 0
+        dataframe["enter_tag"] = ""
 
         # Check for long entry conditions (RSI < threshold AND price < BB_lower)
-        long_conditions = (
-            (dataframe['rsi'] < self.rsi_oversold.value) &
-            (dataframe['close'] < dataframe['bb_lower'])
+        long_conditions = (dataframe["rsi"] < self.rsi_oversold.value) & (
+            dataframe["close"] < dataframe["bb_lower"]
         )
 
         # Mark all rows that meet the criteria
-        dataframe.loc[long_conditions, 'enter_long'] = 1
-        dataframe.loc[long_conditions, 'enter_tag'] = 'mean_reversion_long'
+        dataframe.loc[long_conditions, "enter_long"] = 1
+        dataframe.loc[long_conditions, "enter_tag"] = "mean_reversion_long"
 
         return dataframe
 
-    def populate_exit_trend(self, dataframe: pd.DataFrame, metadata: dict) -> pd.DataFrame:
+    def populate_exit_trend(
+        self, dataframe: pd.DataFrame, metadata: dict
+    ) -> pd.DataFrame:
         """
         Populate exit signals using mean reversion strategy.
 
@@ -153,18 +156,18 @@ class MeanReversionAdapter(IStrategy):
             Dataframe with exit signals
         """
         # Initialize columns
-        dataframe['exit_long'] = 0
-        dataframe['exit_tag'] = ''
+        dataframe["exit_long"] = 0
+        dataframe["exit_tag"] = ""
 
         # Exit when price returns to mean (middle Bollinger Band) or RSI neutralizes
         exit_conditions = (
-            (dataframe['close'] >= dataframe['bb_middle']) |  # Price returned to mean
-            (dataframe['rsi'] >= 50)  # RSI neutralized
+            (dataframe["close"] >= dataframe["bb_middle"])  # Price returned to mean
+            | (dataframe["rsi"] >= 50)  # RSI neutralized
         )
 
         # Mark all rows that meet exit criteria
-        dataframe.loc[exit_conditions, 'exit_long'] = 1
-        dataframe.loc[exit_conditions, 'exit_tag'] = 'mean_reversion_exit'
+        dataframe.loc[exit_conditions, "exit_long"] = 1
+        dataframe.loc[exit_conditions, "exit_tag"] = "mean_reversion_exit"
 
         return dataframe
 
@@ -175,7 +178,7 @@ class MeanReversionAdapter(IStrategy):
         current_time: datetime,
         current_rate: float,
         current_profit: float,
-        **kwargs
+        **kwargs,
     ) -> Optional[str]:
         """
         Custom exit logic using mean reversion strategy.
@@ -191,35 +194,31 @@ class MeanReversionAdapter(IStrategy):
         Returns:
             Exit reason string or None
         """
-        dataframe = kwargs.get('dataframe')
+        dataframe = kwargs.get("dataframe")
 
         if dataframe is None or dataframe.empty:
             return None
 
         # Build current position dict
         current_position = {
-            'entry_price': trade.open_rate,
-            'side': 'long' if trade.is_short is False else 'short',
-            'current_price': current_rate,
-            'profit': current_profit
+            "entry_price": trade.open_rate,
+            "side": "long" if trade.is_short is False else "short",
+            "current_price": current_rate,
+            "profit": current_profit,
         }
 
         # Get exit signal from strategy
-        exit_signal = self.strategy.should_exit(
-            pair,
-            dataframe,
-            current_position
-        )
+        exit_signal = self.strategy.should_exit(pair, dataframe, current_position)
 
-        if exit_signal.direction == 'exit':
-            print(f"\n{'='*70}")
+        if exit_signal.direction == "exit":
+            print(f"\n{'=' * 70}")
             print(f"EXIT SIGNAL: {pair}")
-            print(f"{'='*70}")
+            print(f"{'=' * 70}")
             print(exit_signal.reasoning)
             print(f"Profit: {current_profit:+.2%}")
-            print(f"{'='*70}\n")
+            print(f"{'=' * 70}\n")
 
-            return 'mean_reversion_exit'
+            return "mean_reversion_exit"
 
         return None
 
@@ -234,7 +233,7 @@ class MeanReversionAdapter(IStrategy):
         leverage: float,
         entry_tag: Optional[str],
         side: str,
-        **kwargs
+        **kwargs,
     ) -> float:
         """
         Adjust position size based on signal confidence.
@@ -249,7 +248,7 @@ class MeanReversionAdapter(IStrategy):
         Returns:
             Adjusted stake amount
         """
-        dataframe = kwargs.get('dataframe')
+        dataframe = kwargs.get("dataframe")
 
         if dataframe is None or dataframe.empty:
             return proposed_stake
@@ -257,7 +256,7 @@ class MeanReversionAdapter(IStrategy):
         # Get signal confidence
         signal = self.strategy.should_enter_long(pair, dataframe)
 
-        if signal.direction == 'long':
+        if signal.direction == "long":
             # Adjust stake by confidence (0.5 - 1.5x)
             multiplier = 0.5 + signal.confidence
             adjusted_stake = proposed_stake * multiplier
@@ -268,7 +267,9 @@ class MeanReversionAdapter(IStrategy):
             if adjusted_stake > max_stake:
                 adjusted_stake = max_stake
 
-            print(f"  Position sizing: {signal.confidence:.1%} confidence → {multiplier:.2f}x stake = ${adjusted_stake:.2f}")
+            print(
+                f"  Position sizing: {signal.confidence:.1%} confidence → {multiplier:.2f}x stake = ${adjusted_stake:.2f}"
+            )
 
             return adjusted_stake
 
@@ -284,7 +285,7 @@ class MeanReversionAdapter(IStrategy):
         current_time: datetime,
         entry_tag: Optional[str],
         side: str,
-        **kwargs
+        **kwargs,
     ) -> bool:
         """
         Confirm trade entry before execution.
@@ -312,7 +313,7 @@ class MeanReversionAdapter(IStrategy):
         max_leverage: float,
         entry_tag: Optional[str],
         side: str,
-        **kwargs
+        **kwargs,
     ) -> float:
         """
         Set leverage for the trade.

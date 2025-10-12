@@ -68,7 +68,7 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
                 generation_config=genai.types.GenerationConfig(
                     temperature=0.3,
                     max_output_tokens=1024,
-                )
+                ),
             )
 
             return response.text
@@ -80,7 +80,7 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
         self,
         ohlcv_data: OHLCVData,
         prompt_template: str,
-        additional_context: Optional[Dict[str, Any]] = None
+        additional_context: Optional[Dict[str, Any]] = None,
     ) -> MarketAnalysis:
         """
         Analyze market using Gemini.
@@ -100,7 +100,9 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
             market_data=market_summary,
             pair=ohlcv_data.pair,
             timeframe=ohlcv_data.timeframe,
-            additional_context=json.dumps(additional_context) if additional_context else ""
+            additional_context=json.dumps(additional_context)
+            if additional_context
+            else "",
         )
 
         # Call API
@@ -109,7 +111,9 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
         # Parse JSON response
         return self._parse_json_response(raw_response, ohlcv_data)
 
-    def _parse_json_response(self, raw_response: str, ohlcv_data: OHLCVData) -> MarketAnalysis:
+    def _parse_json_response(
+        self, raw_response: str, ohlcv_data: OHLCVData
+    ) -> MarketAnalysis:
         """
         Parse JSON response from Gemini.
 
@@ -125,14 +129,16 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
             response_text = raw_response.strip()
 
             # Remove markdown code blocks if present
-            if response_text.startswith('```json'):
-                response_text = response_text.replace('```json', '').replace('```', '').strip()
-            elif response_text.startswith('```'):
-                response_text = response_text.replace('```', '').strip()
+            if response_text.startswith("```json"):
+                response_text = (
+                    response_text.replace("```json", "").replace("```", "").strip()
+                )
+            elif response_text.startswith("```"):
+                response_text = response_text.replace("```", "").strip()
 
             # Find JSON object in response
-            start_idx = response_text.find('{')
-            end_idx = response_text.rfind('}') + 1
+            start_idx = response_text.find("{")
+            end_idx = response_text.rfind("}") + 1
 
             if start_idx != -1 and end_idx > start_idx:
                 json_str = response_text[start_idx:end_idx]
@@ -141,12 +147,12 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
                 data = json.loads(response_text)
 
             # Extract fields with defaults
-            direction = data.get('direction', 'neutral').lower()
-            confidence = float(data.get('confidence', 0.5))
+            direction = data.get("direction", "neutral").lower()
+            confidence = float(data.get("confidence", 0.5))
 
             # Validate direction
-            if direction not in ['long', 'short', 'neutral']:
-                direction = 'neutral'
+            if direction not in ["long", "short", "neutral"]:
+                direction = "neutral"
 
             # Clamp confidence to [0, 1]
             confidence = max(0.0, min(1.0, confidence))
@@ -154,15 +160,15 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
             return MarketAnalysis(
                 direction=direction,
                 confidence=confidence,
-                technical_summary=data.get('technical_summary', ''),
-                risk_assessment=data.get('risk_assessment', ''),
-                sentiment=data.get('sentiment', 'neutral'),
-                reasoning=data.get('reasoning', raw_response),
+                technical_summary=data.get("technical_summary", ""),
+                risk_assessment=data.get("risk_assessment", ""),
+                sentiment=data.get("sentiment", "neutral"),
+                reasoning=data.get("reasoning", raw_response),
                 provider=self.provider_name,
                 timestamp=pd.Timestamp.now(),
                 pair=ohlcv_data.pair,
                 timeframe=ohlcv_data.timeframe,
-                raw_response=raw_response
+                raw_response=raw_response,
             )
 
         except (json.JSONDecodeError, ValueError) as e:

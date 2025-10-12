@@ -37,7 +37,7 @@ class TimeSeriesDataset(Dataset):
         data: np.ndarray,
         targets: np.ndarray,
         sequence_length: int = 24,
-        device: str = 'cpu'
+        device: str = "cpu",
     ):
         """
         Initialize time-series dataset.
@@ -67,7 +67,7 @@ class TimeSeriesDataset(Dataset):
             X: (sequence_length, n_features) tensor
             y: (1,) tensor
         """
-        X = self.data[idx:idx + self.sequence_length]
+        X = self.data[idx : idx + self.sequence_length]
         y = self.targets[idx + self.sequence_length]
         return X, y
 
@@ -88,7 +88,7 @@ class LSTMModel(nn.Module):
         hidden_size: int = 128,
         num_layers: int = 2,
         dropout: float = 0.2,
-        output_size: int = 1
+        output_size: int = 1,
     ):
         """
         Initialize LSTM model.
@@ -113,7 +113,7 @@ class LSTMModel(nn.Module):
             hidden_size=hidden_size,
             num_layers=num_layers,
             dropout=dropout if num_layers > 1 else 0,
-            batch_first=True
+            batch_first=True,
         )
 
         # Fully connected layers
@@ -161,7 +161,7 @@ class GRUModel(nn.Module):
         hidden_size: int = 128,
         num_layers: int = 2,
         dropout: float = 0.2,
-        output_size: int = 1
+        output_size: int = 1,
     ):
         """
         Initialize GRU model.
@@ -186,7 +186,7 @@ class GRUModel(nn.Module):
             hidden_size=hidden_size,
             num_layers=num_layers,
             dropout=dropout if num_layers > 1 else 0,
-            batch_first=True
+            batch_first=True,
         )
 
         # Fully connected layers
@@ -230,14 +230,14 @@ class LSTMPredictor:
 
     def __init__(
         self,
-        model_type: str = 'lstm',
+        model_type: str = "lstm",
         sequence_length: int = 24,
         hidden_size: int = 128,
         num_layers: int = 2,
         dropout: float = 0.2,
         learning_rate: float = 0.001,
         batch_size: int = 32,
-        device: Optional[str] = None
+        device: Optional[str] = None,
     ):
         """
         Initialize LSTM predictor.
@@ -262,7 +262,7 @@ class LSTMPredictor:
 
         # Auto-detect device
         if device is None:
-            self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
         else:
             self.device = device
 
@@ -276,21 +276,21 @@ class LSTMPredictor:
 
     def _create_model(self, input_size: int) -> nn.Module:
         """Create LSTM or GRU model based on configuration."""
-        if self.model_type == 'lstm':
+        if self.model_type == "lstm":
             model = LSTMModel(
                 input_size=input_size,
                 hidden_size=self.hidden_size,
                 num_layers=self.num_layers,
                 dropout=self.dropout,
-                output_size=1
+                output_size=1,
             )
-        elif self.model_type == 'gru':
+        elif self.model_type == "gru":
             model = GRUModel(
                 input_size=input_size,
                 hidden_size=self.hidden_size,
                 num_layers=self.num_layers,
                 dropout=self.dropout,
-                output_size=1
+                output_size=1,
             )
         else:
             raise ValueError(f"Unknown model_type: {self.model_type}")
@@ -300,8 +300,8 @@ class LSTMPredictor:
     def preprocess_data(
         self,
         dataframe: pd.DataFrame,
-        target_column: str = 'target_return',
-        fit_scaler: bool = True
+        target_column: str = "target_return",
+        fit_scaler: bool = True,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Preprocess dataframe for LSTM training/prediction.
@@ -317,13 +317,21 @@ class LSTMPredictor:
         """
         # Store feature names
         if self.feature_names is None:
-            feature_cols = [col for col in dataframe.columns
-                           if col not in [target_column, 'date', 'open', 'high', 'low', 'close', 'volume']]
+            feature_cols = [
+                col
+                for col in dataframe.columns
+                if col
+                not in [target_column, "date", "open", "high", "low", "close", "volume"]
+            ]
             self.feature_names = feature_cols
 
         # Extract features and target
         X = dataframe[self.feature_names].values
-        y = dataframe[target_column].values if target_column in dataframe.columns else None
+        y = (
+            dataframe[target_column].values
+            if target_column in dataframe.columns
+            else None
+        )
 
         # Scale features
         if fit_scaler:
@@ -341,7 +349,7 @@ class LSTMPredictor:
         y_val: Optional[np.ndarray] = None,
         epochs: int = 100,
         early_stopping_patience: int = 10,
-        verbose: bool = True
+        verbose: bool = True,
     ) -> Dict[str, List[float]]:
         """
         Train LSTM model.
@@ -364,21 +372,29 @@ class LSTMPredictor:
             self.model = self._create_model(self.input_size)
 
         # Create datasets
-        train_dataset = TimeSeriesDataset(X_train, y_train, self.sequence_length, self.device)
-        train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+        train_dataset = TimeSeriesDataset(
+            X_train, y_train, self.sequence_length, self.device
+        )
+        train_loader = DataLoader(
+            train_dataset, batch_size=self.batch_size, shuffle=True
+        )
 
         val_loader = None
         if X_val is not None and y_val is not None:
-            val_dataset = TimeSeriesDataset(X_val, y_val, self.sequence_length, self.device)
-            val_loader = DataLoader(val_dataset, batch_size=self.batch_size, shuffle=False)
+            val_dataset = TimeSeriesDataset(
+                X_val, y_val, self.sequence_length, self.device
+            )
+            val_loader = DataLoader(
+                val_dataset, batch_size=self.batch_size, shuffle=False
+            )
 
         # Loss and optimizer
         criterion = nn.MSELoss()
         optimizer = torch.optim.Adam(self.model.parameters(), lr=self.learning_rate)
 
         # Training loop
-        history = {'train_loss': [], 'val_loss': []}
-        best_val_loss = float('inf')
+        history = {"train_loss": [], "val_loss": []}
+        best_val_loss = float("inf")
         patience_counter = 0
 
         for epoch in range(epochs):
@@ -395,7 +411,7 @@ class LSTMPredictor:
                 train_losses.append(loss.item())
 
             avg_train_loss = np.mean(train_losses)
-            history['train_loss'].append(avg_train_loss)
+            history["train_loss"].append(avg_train_loss)
 
             # Validation
             if val_loader is not None:
@@ -409,7 +425,7 @@ class LSTMPredictor:
                         val_losses.append(loss.item())
 
                 avg_val_loss = np.mean(val_losses)
-                history['val_loss'].append(avg_val_loss)
+                history["val_loss"].append(avg_val_loss)
 
                 # Early stopping
                 if avg_val_loss < best_val_loss:
@@ -420,14 +436,18 @@ class LSTMPredictor:
 
                 if patience_counter >= early_stopping_patience:
                     if verbose:
-                        logger.info(f"Early stopping at epoch {epoch+1}")
+                        logger.info(f"Early stopping at epoch {epoch + 1}")
                     break
 
                 if verbose and (epoch + 1) % 10 == 0:
-                    logger.info(f"Epoch {epoch+1}/{epochs} - Train Loss: {avg_train_loss:.6f}, Val Loss: {avg_val_loss:.6f}")
+                    logger.info(
+                        f"Epoch {epoch + 1}/{epochs} - Train Loss: {avg_train_loss:.6f}, Val Loss: {avg_val_loss:.6f}"
+                    )
             else:
                 if verbose and (epoch + 1) % 10 == 0:
-                    logger.info(f"Epoch {epoch+1}/{epochs} - Train Loss: {avg_train_loss:.6f}")
+                    logger.info(
+                        f"Epoch {epoch + 1}/{epochs} - Train Loss: {avg_train_loss:.6f}"
+                    )
 
         return history
 
@@ -468,17 +488,17 @@ class LSTMPredictor:
     def save(self, path: str):
         """Save model and scaler to disk."""
         save_dict = {
-            'model_state_dict': self.model.state_dict(),
-            'scaler': self.scaler,
-            'feature_names': self.feature_names,
-            'input_size': self.input_size,
-            'config': {
-                'model_type': self.model_type,
-                'sequence_length': self.sequence_length,
-                'hidden_size': self.hidden_size,
-                'num_layers': self.num_layers,
-                'dropout': self.dropout
-            }
+            "model_state_dict": self.model.state_dict(),
+            "scaler": self.scaler,
+            "feature_names": self.feature_names,
+            "input_size": self.input_size,
+            "config": {
+                "model_type": self.model_type,
+                "sequence_length": self.sequence_length,
+                "hidden_size": self.hidden_size,
+                "num_layers": self.num_layers,
+                "dropout": self.dropout,
+            },
         }
 
         Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -490,21 +510,21 @@ class LSTMPredictor:
         save_dict = joblib.load(path)
 
         # Restore configuration
-        config = save_dict['config']
-        self.model_type = config['model_type']
-        self.sequence_length = config['sequence_length']
-        self.hidden_size = config['hidden_size']
-        self.num_layers = config['num_layers']
-        self.dropout = config['dropout']
+        config = save_dict["config"]
+        self.model_type = config["model_type"]
+        self.sequence_length = config["sequence_length"]
+        self.hidden_size = config["hidden_size"]
+        self.num_layers = config["num_layers"]
+        self.dropout = config["dropout"]
 
         # Restore scaler and features
-        self.scaler = save_dict['scaler']
-        self.feature_names = save_dict['feature_names']
-        self.input_size = save_dict['input_size']
+        self.scaler = save_dict["scaler"]
+        self.feature_names = save_dict["feature_names"]
+        self.input_size = save_dict["input_size"]
 
         # Recreate and load model
         self.model = self._create_model(self.input_size)
-        self.model.load_state_dict(save_dict['model_state_dict'])
+        self.model.load_state_dict(save_dict["model_state_dict"])
         self.model.eval()
 
         logger.info(f"Model loaded from {path}")

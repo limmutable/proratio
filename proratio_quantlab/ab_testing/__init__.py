@@ -4,12 +4,12 @@ from .strategy_comparison import (
     StrategyComparer,
     StrategyResult,
     ComparisonResult,
-    create_strategy_result_from_backtest
+    create_strategy_result_from_backtest,
 )
 
 __all__ = [
-    'StrategyComparer',
-    'StrategyResult',
-    'ComparisonResult',
-    'create_strategy_result_from_backtest'
+    "StrategyComparer",
+    "StrategyResult",
+    "ComparisonResult",
+    "create_strategy_result_from_backtest",
 ]

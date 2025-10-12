@@ -398,4 +398,3 @@ psql $DATABASE_URL -c "SELECT COUNT(*) FROM ohlcv;"
 - [CLAUDE.md](../CLAUDE.md) - Development guidelines
 - [roadmap.md](../roadmap.md) - Implementation roadmap
 - Project documentation - Phase 1.0 results (see [project_progress.md](project_progress.md))
-

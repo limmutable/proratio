@@ -16,7 +16,7 @@ Phase: 3.3 - Ensemble Learning
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Union
 import logging
 from pathlib import Path
 import joblib
@@ -24,31 +24,39 @@ from sklearn.linear_model import Ridge, Lasso
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import warnings
 
 logger = logging.getLogger(__name__)
 
 # Optional imports with graceful fallback
 try:
     from .lstm_predictor import LSTMPredictor
+
     LSTM_AVAILABLE = True
 except ImportError:
     LSTM_AVAILABLE = False
-    logger.warning("LSTM predictor not available. Install PyTorch to enable LSTM models.")
+    logger.warning(
+        "LSTM predictor not available. Install PyTorch to enable LSTM models."
+    )
 
 try:
     import lightgbm as lgb
+
     LIGHTGBM_AVAILABLE = True
 except ImportError:
     LIGHTGBM_AVAILABLE = False
-    logger.warning("LightGBM not available. Install lightgbm to enable gradient boosting.")
+    logger.warning(
+        "LightGBM not available. Install lightgbm to enable gradient boosting."
+    )
 
 try:
     import xgboost as xgb
+
     XGBOOST_AVAILABLE = True
 except ImportError:
     XGBOOST_AVAILABLE = False
-    logger.warning("XGBoost not available. Install xgboost to enable gradient boosting.")
+    logger.warning(
+        "XGBoost not available. Install xgboost to enable gradient boosting."
+    )
 
 
 class EnsemblePredictor:
@@ -66,10 +74,10 @@ class EnsemblePredictor:
 
     def __init__(
         self,
-        ensemble_method: str = 'stacking',
-        meta_model_type: str = 'ridge',
+        ensemble_method: str = "stacking",
+        meta_model_type: str = "ridge",
         base_models: Optional[Dict[str, object]] = None,
-        weights: Optional[Dict[str, float]] = None
+        weights: Optional[Dict[str, float]] = None,
     ):
         """
         Initialize ensemble predictor.
@@ -90,36 +98,28 @@ class EnsemblePredictor:
         self.performance_history = []
 
         # Validate ensemble method
-        valid_methods = ['stacking', 'blending', 'voting']
+        valid_methods = ["stacking", "blending", "voting"]
         if ensemble_method not in valid_methods:
             raise ValueError(f"ensemble_method must be one of {valid_methods}")
 
         # Initialize meta-model for stacking
-        if ensemble_method == 'stacking':
+        if ensemble_method == "stacking":
             self.meta_model = self._create_meta_model(meta_model_type)
 
     def _create_meta_model(self, model_type: str):
         """Create meta-model for stacking."""
-        if model_type == 'ridge':
+        if model_type == "ridge":
             return Ridge(alpha=1.0)
-        elif model_type == 'lasso':
+        elif model_type == "lasso":
             return Lasso(alpha=0.1)
-        elif model_type == 'rf':
+        elif model_type == "rf":
             return RandomForestRegressor(
-                n_estimators=100,
-                max_depth=5,
-                random_state=42,
-                n_jobs=-1
+                n_estimators=100, max_depth=5, random_state=42, n_jobs=-1
             )
         else:
             raise ValueError(f"Unknown meta_model_type: {model_type}")
 
-    def add_base_model(
-        self,
-        name: str,
-        model: object,
-        weight: float = 1.0
-    ):
+    def add_base_model(self, name: str, model: object, weight: float = 1.0):
         """
         Add a base model to the ensemble.
 
@@ -138,7 +138,7 @@ class EnsemblePredictor:
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_val: np.ndarray,
-        y_val: np.ndarray
+        y_val: np.ndarray,
     ):
         """
         Train stacking ensemble.
@@ -157,7 +157,9 @@ class EnsemblePredictor:
         if not self.base_models:
             raise ValueError("No base models added. Use add_base_model() first.")
 
-        logger.info(f"Training stacking ensemble with {len(self.base_models)} base models")
+        logger.info(
+            f"Training stacking ensemble with {len(self.base_models)} base models"
+        )
 
         # Step 1: Get base model predictions on validation set
         base_predictions = self._get_base_predictions(X_val)
@@ -172,13 +174,10 @@ class EnsemblePredictor:
 
         logger.info(f"Meta-model trained - MSE: {mse:.6f}, MAE: {mae:.6f}")
 
-        return {'mse': mse, 'mae': mae}
+        return {"mse": mse, "mae": mae}
 
     def train_blending(
-        self,
-        X_val: np.ndarray,
-        y_val: np.ndarray,
-        optimization_metric: str = 'mse'
+        self, X_val: np.ndarray, y_val: np.ndarray, optimization_metric: str = "mse"
     ):
         """
         Train blending ensemble by optimizing weights.
@@ -194,16 +193,16 @@ class EnsemblePredictor:
         if not self.base_models:
             raise ValueError("No base models added. Use add_base_model() first.")
 
-        logger.info(f"Training blending ensemble with {len(self.base_models)} base models")
+        logger.info(
+            f"Training blending ensemble with {len(self.base_models)} base models"
+        )
 
         # Get base model predictions
         base_predictions = self._get_base_predictions(X_val)
 
         # Grid search for optimal weights
         best_weights = self._optimize_weights(
-            base_predictions,
-            y_val,
-            optimization_metric
+            base_predictions, y_val, optimization_metric
         )
 
         self.weights = dict(zip(self.model_names, best_weights))
@@ -216,13 +215,10 @@ class EnsemblePredictor:
         logger.info(f"Optimal weights found: {self.weights}")
         logger.info(f"Blending ensemble - MSE: {mse:.6f}, MAE: {mae:.6f}")
 
-        return {'mse': mse, 'mae': mae, 'weights': self.weights}
+        return {"mse": mse, "mae": mae, "weights": self.weights}
 
     def _optimize_weights(
-        self,
-        base_predictions: np.ndarray,
-        y_true: np.ndarray,
-        metric: str = 'mse'
+        self, base_predictions: np.ndarray, y_true: np.ndarray, metric: str = "mse"
     ) -> List[float]:
         """
         Find optimal weights using grid search.
@@ -230,7 +226,7 @@ class EnsemblePredictor:
         Searches over weight combinations that sum to 1.0.
         """
         n_models = len(self.model_names)
-        best_score = float('inf')
+        best_score = float("inf")
         best_weights = [1.0 / n_models] * n_models
 
         # Grid search resolution
@@ -238,6 +234,7 @@ class EnsemblePredictor:
 
         # Generate weight combinations
         from itertools import product
+
         weight_grid = np.linspace(0, 1, steps)
 
         for weights in product(weight_grid, repeat=n_models):
@@ -252,7 +249,7 @@ class EnsemblePredictor:
             ensemble_pred = (base_predictions * weights).sum(axis=1)
 
             # Calculate metric
-            if metric == 'mse':
+            if metric == "mse":
                 score = mean_squared_error(y_true, ensemble_pred)
             else:  # mae
                 score = mean_absolute_error(y_true, ensemble_pred)
@@ -299,9 +296,9 @@ class EnsemblePredictor:
         Returns:
             Ensemble predictions
         """
-        if self.ensemble_method == 'stacking':
+        if self.ensemble_method == "stacking":
             return self.predict_stacking(X)
-        elif self.ensemble_method == 'blending':
+        elif self.ensemble_method == "blending":
             return self.predict_blending(X)
         else:  # voting
             return self.predict_voting(X)
@@ -330,10 +327,7 @@ class EnsemblePredictor:
         return base_predictions.mean(axis=1)
 
     def update_weights_dynamic(
-        self,
-        X_recent: np.ndarray,
-        y_recent: np.ndarray,
-        window_size: int = 100
+        self, X_recent: np.ndarray, y_recent: np.ndarray, window_size: int = 100
     ):
         """
         Update weights based on recent performance.
@@ -368,23 +362,17 @@ class EnsemblePredictor:
         # Normalize to weights (sum to 1.0)
         total_performance = sum(performances.values())
         new_weights = {
-            name: perf / total_performance
-            for name, perf in performances.items()
+            name: perf / total_performance for name, perf in performances.items()
         }
 
         self.weights = new_weights
-        self.performance_history.append({
-            'performances': performances,
-            'weights': new_weights
-        })
+        self.performance_history.append(
+            {"performances": performances, "weights": new_weights}
+        )
 
         logger.info(f"Updated dynamic weights: {self.weights}")
 
-    def evaluate(
-        self,
-        X_test: np.ndarray,
-        y_test: np.ndarray
-    ) -> Dict[str, float]:
+    def evaluate(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
         """
         Evaluate ensemble and individual models.
 
@@ -395,10 +383,10 @@ class EnsemblePredictor:
 
         # Ensemble prediction
         ensemble_pred = self.predict(X_test)
-        results['ensemble'] = {
-            'mse': mean_squared_error(y_test, ensemble_pred),
-            'mae': mean_absolute_error(y_test, ensemble_pred),
-            'rmse': np.sqrt(mean_squared_error(y_test, ensemble_pred))
+        results["ensemble"] = {
+            "mse": mean_squared_error(y_test, ensemble_pred),
+            "mae": mean_absolute_error(y_test, ensemble_pred),
+            "rmse": np.sqrt(mean_squared_error(y_test, ensemble_pred)),
         }
 
         # Individual model predictions
@@ -409,9 +397,9 @@ class EnsemblePredictor:
                 pred = pred.flatten()
 
             results[name] = {
-                'mse': mean_squared_error(y_test, pred),
-                'mae': mean_absolute_error(y_test, pred),
-                'rmse': np.sqrt(mean_squared_error(y_test, pred))
+                "mse": mean_squared_error(y_test, pred),
+                "mae": mean_absolute_error(y_test, pred),
+                "rmse": np.sqrt(mean_squared_error(y_test, pred)),
             }
 
         return results
@@ -427,13 +415,12 @@ class EnsemblePredictor:
         ensemble_pred = self.predict(X)
 
         df = pd.DataFrame(
-            base_predictions,
-            columns=[f"{name}_pred" for name in self.model_names]
+            base_predictions, columns=[f"{name}_pred" for name in self.model_names]
         )
-        df['ensemble_pred'] = ensemble_pred
+        df["ensemble_pred"] = ensemble_pred
 
         # Add weights if using blending
-        if self.ensemble_method == 'blending':
+        if self.ensemble_method == "blending":
             for name in self.model_names:
                 df[f"{name}_weight"] = self.weights[name]
 
@@ -446,12 +433,12 @@ class EnsemblePredictor:
 
         # Save ensemble configuration
         ensemble_config = {
-            'ensemble_method': self.ensemble_method,
-            'meta_model_type': self.meta_model_type,
-            'weights': self.weights,
-            'model_names': self.model_names,
-            'meta_model': self.meta_model,
-            'performance_history': self.performance_history
+            "ensemble_method": self.ensemble_method,
+            "meta_model_type": self.meta_model_type,
+            "weights": self.weights,
+            "model_names": self.model_names,
+            "meta_model": self.meta_model,
+            "performance_history": self.performance_history,
         }
 
         joblib.dump(ensemble_config, path)
@@ -462,12 +449,12 @@ class EnsemblePredictor:
         path = Path(path)
 
         ensemble_config = joblib.load(path)
-        self.ensemble_method = ensemble_config['ensemble_method']
-        self.meta_model_type = ensemble_config['meta_model_type']
-        self.weights = ensemble_config['weights']
-        self.model_names = ensemble_config['model_names']
-        self.meta_model = ensemble_config['meta_model']
-        self.performance_history = ensemble_config.get('performance_history', [])
+        self.ensemble_method = ensemble_config["ensemble_method"]
+        self.meta_model_type = ensemble_config["meta_model_type"]
+        self.weights = ensemble_config["weights"]
+        self.model_names = ensemble_config["model_names"]
+        self.meta_model = ensemble_config["meta_model"]
+        self.performance_history = ensemble_config.get("performance_history", [])
 
         logger.info(f"Ensemble predictor loaded from {path}")
 
@@ -482,7 +469,7 @@ class EnsembleBuilder:
     3. Training ensemble
     """
 
-    def __init__(self, ensemble_method: str = 'stacking'):
+    def __init__(self, ensemble_method: str = "stacking"):
         """
         Initialize ensemble builder.
 
@@ -493,83 +480,79 @@ class EnsembleBuilder:
         self.base_models = {}
         self.trained_models = {}
 
-    def add_lightgbm(
-        self,
-        name: str = 'lgbm',
-        params: Optional[Dict] = None
-    ):
+    def add_lightgbm(self, name: str = "lgbm", params: Optional[Dict] = None):
         """Add LightGBM to ensemble."""
         if not LIGHTGBM_AVAILABLE:
-            raise ImportError("LightGBM not available. Install with: pip install lightgbm")
+            raise ImportError(
+                "LightGBM not available. Install with: pip install lightgbm"
+            )
 
         default_params = {
-            'objective': 'regression',
-            'metric': 'rmse',
-            'boosting_type': 'gbdt',
-            'num_leaves': 31,
-            'learning_rate': 0.05,
-            'feature_fraction': 0.9,
-            'bagging_fraction': 0.8,
-            'bagging_freq': 5,
-            'verbose': -1
+            "objective": "regression",
+            "metric": "rmse",
+            "boosting_type": "gbdt",
+            "num_leaves": 31,
+            "learning_rate": 0.05,
+            "feature_fraction": 0.9,
+            "bagging_fraction": 0.8,
+            "bagging_freq": 5,
+            "verbose": -1,
         }
 
         if params:
             default_params.update(params)
 
-        self.base_models[name] = ('lightgbm', default_params)
+        self.base_models[name] = ("lightgbm", default_params)
 
-    def add_xgboost(
-        self,
-        name: str = 'xgb',
-        params: Optional[Dict] = None
-    ):
+    def add_xgboost(self, name: str = "xgb", params: Optional[Dict] = None):
         """Add XGBoost to ensemble."""
         if not XGBOOST_AVAILABLE:
-            raise ImportError("XGBoost not available. Install with: pip install xgboost")
+            raise ImportError(
+                "XGBoost not available. Install with: pip install xgboost"
+            )
 
         default_params = {
-            'objective': 'reg:squarederror',
-            'max_depth': 6,
-            'learning_rate': 0.1,
-            'n_estimators': 100,
-            'subsample': 0.8,
-            'colsample_bytree': 0.8,
-            'random_state': 42
+            "objective": "reg:squarederror",
+            "max_depth": 6,
+            "learning_rate": 0.1,
+            "n_estimators": 100,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8,
+            "random_state": 42,
         }
 
         if params:
             default_params.update(params)
 
-        self.base_models[name] = ('xgboost', default_params)
+        self.base_models[name] = ("xgboost", default_params)
 
     def add_lstm(
         self,
-        name: str = 'lstm',
+        name: str = "lstm",
         sequence_length: int = 24,
         hidden_size: int = 128,
         num_layers: int = 2,
-        dropout: float = 0.2
+        dropout: float = 0.2,
     ):
         """Add LSTM to ensemble."""
         if not LSTM_AVAILABLE:
             raise ImportError("LSTM not available. Install PyTorch first.")
 
         params = {
-            'sequence_length': sequence_length,
-            'hidden_size': hidden_size,
-            'num_layers': num_layers,
-            'dropout': dropout
+            "sequence_length": sequence_length,
+            "hidden_size": hidden_size,
+            "num_layers": num_layers,
+            "dropout": dropout,
         }
 
-        self.base_models[name] = ('lstm', params)
+        self.base_models[name] = ("lstm", params)
 
     def train_all(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
         X_val: np.ndarray,
-        y_val: np.ndarray
+        y_val: np.ndarray,
     ):
         """
         Train all base models.
@@ -585,41 +568,40 @@ class EnsembleBuilder:
         for name, (model_type, params) in self.base_models.items():
             logger.info(f"Training {name} ({model_type})...")
 
-            if model_type == 'lightgbm':
+            if model_type == "lightgbm":
                 model = lgb.LGBMRegressor(**params)
                 model.fit(
-                    X_train, y_train,
+                    X_train,
+                    y_train,
                     eval_set=[(X_val, y_val)],
-                    callbacks=[lgb.early_stopping(50), lgb.log_evaluation(50)]
+                    callbacks=[lgb.early_stopping(50), lgb.log_evaluation(50)],
                 )
 
-            elif model_type == 'xgboost':
+            elif model_type == "xgboost":
                 model = xgb.XGBRegressor(**params)
                 # Handle different XGBoost versions
                 try:
                     # XGBoost >= 2.0
-                    model.fit(
-                        X_train, y_train,
-                        eval_set=[(X_val, y_val)],
-                        verbose=50
-                    )
+                    model.fit(X_train, y_train, eval_set=[(X_val, y_val)], verbose=50)
                 except TypeError:
                     # XGBoost < 2.0
                     model.fit(
-                        X_train, y_train,
+                        X_train,
+                        y_train,
                         eval_set=[(X_val, y_val)],
                         early_stopping_rounds=50,
-                        verbose=50
+                        verbose=50,
                     )
 
-            elif model_type == 'lstm':
+            elif model_type == "lstm":
                 from .lstm_predictor import LSTMPredictor
+
                 model = LSTMPredictor(
-                    model_type='lstm',
-                    sequence_length=params['sequence_length'],
-                    hidden_size=params['hidden_size'],
-                    num_layers=params['num_layers'],
-                    dropout=params['dropout']
+                    model_type="lstm",
+                    sequence_length=params["sequence_length"],
+                    hidden_size=params["hidden_size"],
+                    num_layers=params["num_layers"],
+                    dropout=params["dropout"],
                 )
                 model.train(X_train, y_train, X_val, y_val, epochs=100)
 
@@ -632,10 +614,7 @@ class EnsembleBuilder:
         logger.info(f"All {len(self.trained_models)} base models trained")
 
     def build_ensemble(
-        self,
-        X_val: np.ndarray,
-        y_val: np.ndarray,
-        meta_model_type: str = 'ridge'
+        self, X_val: np.ndarray, y_val: np.ndarray, meta_model_type: str = "ridge"
     ) -> EnsemblePredictor:
         """
         Build ensemble from trained models.
@@ -653,8 +632,7 @@ class EnsembleBuilder:
 
         # Create ensemble
         ensemble = EnsemblePredictor(
-            ensemble_method=self.ensemble_method,
-            meta_model_type=meta_model_type
+            ensemble_method=self.ensemble_method, meta_model_type=meta_model_type
         )
 
         # Add base models
@@ -662,9 +640,9 @@ class EnsembleBuilder:
             ensemble.add_base_model(name, model)
 
         # Train ensemble
-        if self.ensemble_method == 'stacking':
+        if self.ensemble_method == "stacking":
             ensemble.train_stacking(None, None, X_val, y_val)
-        elif self.ensemble_method == 'blending':
+        elif self.ensemble_method == "blending":
             ensemble.train_blending(X_val, y_val)
         # voting needs no training
 

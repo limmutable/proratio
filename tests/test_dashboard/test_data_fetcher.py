@@ -6,7 +6,6 @@ Tests the data fetching utilities for the Streamlit dashboard.
 
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from pathlib import Path
 
 from proratio_tradehub.dashboard.data_fetcher import (
     FreqtradeAPIClient,
@@ -27,13 +26,11 @@ class TestFreqtradeAPIClient:
     def test_init_with_auth(self):
         """Test client initialization with authentication"""
         client = FreqtradeAPIClient(
-            base_url="http://localhost:8080",
-            username="admin",
-            password="secret"
+            base_url="http://localhost:8080", username="admin", password="secret"
         )
         assert client.auth == ("admin", "secret")
 
-    @patch('requests.Session.get')
+    @patch("requests.Session.get")
     def test_get_status_success(self, mock_get):
         """Test successful status retrieval"""
         mock_response = Mock()
@@ -47,10 +44,11 @@ class TestFreqtradeAPIClient:
         assert status == {"state": "running"}
         mock_get.assert_called_once()
 
-    @patch('requests.Session.get')
+    @patch("requests.Session.get")
     def test_get_status_error(self, mock_get):
         """Test status retrieval with error"""
         import requests
+
         mock_get.side_effect = requests.exceptions.RequestException("Connection error")
 
         client = FreqtradeAPIClient()
@@ -58,7 +56,7 @@ class TestFreqtradeAPIClient:
 
         assert status == {}
 
-    @patch('requests.Session.post')
+    @patch("requests.Session.post")
     def test_force_exit_all(self, mock_post):
         """Test force exit all trades"""
         mock_response = Mock()
@@ -71,7 +69,7 @@ class TestFreqtradeAPIClient:
 
         assert result == {"trades_closed": 3}
 
-    @patch('requests.Session.post')
+    @patch("requests.Session.post")
     def test_stop_trading(self, mock_post):
         """Test stop trading command"""
         mock_response = Mock()
@@ -99,8 +97,8 @@ class TestTradeDatabaseReader:
         reader = TradeDatabaseReader(db_path=mock_db_path)
         assert str(reader.db_path) == mock_db_path
 
-    @patch('sqlite3.connect')
-    @patch('pathlib.Path.exists')
+    @patch("sqlite3.connect")
+    @patch("pathlib.Path.exists")
     def test_get_all_trades(self, mock_exists, mock_connect):
         """Test retrieving all trades"""
         mock_exists.return_value = True
@@ -124,8 +122,8 @@ class TestTradeDatabaseReader:
         assert trades[0]["pair"] == "BTC/USDT"
         assert trades[1]["pair"] == "ETH/USDT"
 
-    @patch('sqlite3.connect')
-    @patch('pathlib.Path.exists')
+    @patch("sqlite3.connect")
+    @patch("pathlib.Path.exists")
     def test_get_trade_statistics(self, mock_exists, mock_connect):
         """Test trade statistics calculation"""
         mock_exists.return_value = True
@@ -134,11 +132,11 @@ class TestTradeDatabaseReader:
         mock_cursor = MagicMock()
         mock_cursor.fetchone.side_effect = [
             (100,),  # total_trades
-            (65,),   # winning_trades
-            (35,),   # losing_trades
+            (65,),  # winning_trades
+            (35,),  # losing_trades
             (1234.56,),  # total_profit
-            (0.023,),    # avg_profit
-            (-0.015,),   # avg_loss
+            (0.023,),  # avg_profit
+            (-0.015,),  # avg_loss
         ]
 
         mock_conn = MagicMock()
@@ -163,8 +161,10 @@ class TestDashboardDataFetcher:
     @pytest.fixture
     def mock_fetcher(self):
         """Create a data fetcher with mocked dependencies"""
-        with patch('proratio_tradehub.dashboard.data_fetcher.FreqtradeAPIClient'), \
-             patch('proratio_tradehub.dashboard.data_fetcher.TradeDatabaseReader'):
+        with (
+            patch("proratio_tradehub.dashboard.data_fetcher.FreqtradeAPIClient"),
+            patch("proratio_tradehub.dashboard.data_fetcher.TradeDatabaseReader"),
+        ):
             fetcher = DashboardDataFetcher()
             return fetcher
 
@@ -174,14 +174,14 @@ class TestDashboardDataFetcher:
         assert mock_fetcher.db is not None
         assert mock_fetcher.signal_orchestrator is None
 
-    @patch('proratio_tradehub.dashboard.data_fetcher.SignalOrchestrator')
+    @patch("proratio_tradehub.dashboard.data_fetcher.SignalOrchestrator")
     def test_get_orchestrator(self, mock_orchestrator_class, mock_fetcher):
         """Test lazy loading of signal orchestrator"""
         orchestrator = mock_fetcher.get_orchestrator()
         assert orchestrator is not None
         assert mock_fetcher.signal_orchestrator is not None
 
-    @patch('proratio_utilities.config.trading_config.TradingConfig.load_from_file')
+    @patch("proratio_utilities.config.trading_config.TradingConfig.load_from_file")
     def test_get_trading_status(self, mock_load_config, mock_fetcher):
         """Test getting comprehensive trading status"""
         # Mock config
@@ -194,7 +194,7 @@ class TestDashboardDataFetcher:
         mock_fetcher.api.get_status.return_value = {"state": "running"}
         mock_fetcher.api.get_profit.return_value = {
             "profit_all_coin": 1234.56,
-            "profit_all_ratio_mean": 0.1234
+            "profit_all_ratio_mean": 0.1234,
         }
 
         # Mock DB responses

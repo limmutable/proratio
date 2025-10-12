@@ -7,7 +7,6 @@ Verifies that ChatGPT, Claude, and Gemini can generate consensus signals.
 """
 
 import sys
-import os
 from pathlib import Path
 
 # Add project root to Python path
@@ -17,7 +16,6 @@ sys.path.insert(0, str(project_root))
 from proratio_signals import SignalOrchestrator
 from proratio_utilities.data.storage import DatabaseStorage
 from proratio_utilities.config.settings import get_settings
-import pandas as pd
 
 
 def test_ai_providers():
@@ -31,9 +29,16 @@ def test_ai_providers():
 
     # Check API keys
     providers_status = {
-        'ChatGPT (OpenAI)': bool(settings.openai_api_key and settings.openai_api_key.startswith('sk-')),
-        'Claude (Anthropic)': bool(settings.anthropic_api_key and settings.anthropic_api_key.startswith('sk-ant-')),
-        'Gemini (Google)': bool(settings.gemini_api_key and len(settings.gemini_api_key) > 20),
+        "ChatGPT (OpenAI)": bool(
+            settings.openai_api_key and settings.openai_api_key.startswith("sk-")
+        ),
+        "Claude (Anthropic)": bool(
+            settings.anthropic_api_key
+            and settings.anthropic_api_key.startswith("sk-ant-")
+        ),
+        "Gemini (Google)": bool(
+            settings.gemini_api_key and len(settings.gemini_api_key) > 20
+        ),
     }
 
     for provider, has_key in providers_status.items():
@@ -53,7 +58,9 @@ def test_ai_providers():
     # Initialize orchestrator
     try:
         orchestrator = SignalOrchestrator()
-        print(f"✓ Orchestrator initialized with {len(orchestrator.providers)} provider(s)")
+        print(
+            f"✓ Orchestrator initialized with {len(orchestrator.providers)} provider(s)"
+        )
         print()
 
         # Test connections
@@ -90,7 +97,7 @@ def test_signal_generation():
         exchange="binance",
         pair=pair,
         timeframe=timeframe,
-        limit=100  # Last 100 candles
+        limit=100,  # Last 100 candles
     )
 
     if df.empty:
@@ -104,15 +111,15 @@ def test_signal_generation():
     print()
 
     # Calculate indicators (simple example)
-    df['ema_20'] = df['close'].ewm(span=20).mean()
-    df['ema_50'] = df['close'].ewm(span=50).mean()
-    df['rsi'] = calculate_rsi(df['close'], 14)
+    df["ema_20"] = df["close"].ewm(span=20).mean()
+    df["ema_50"] = df["close"].ewm(span=50).mean()
+    df["rsi"] = calculate_rsi(df["close"], 14)
 
     indicators = {
-        'EMA_20': df['ema_20'].iloc[-1],
-        'EMA_50': df['ema_50'].iloc[-1],
-        'RSI': df['rsi'].iloc[-1],
-        'Volume_MA': df['volume'].tail(20).mean()
+        "EMA_20": df["ema_20"].iloc[-1],
+        "EMA_50": df["ema_50"].iloc[-1],
+        "RSI": df["rsi"].iloc[-1],
+        "Volume_MA": df["volume"].tail(20).mean(),
     }
 
     print("Technical Indicators:")
@@ -130,10 +137,7 @@ def test_signal_generation():
         orchestrator = SignalOrchestrator()
 
         signal = orchestrator.generate_signal(
-            pair=pair,
-            timeframe=timeframe,
-            ohlcv_data=df,
-            indicators=indicators
+            pair=pair, timeframe=timeframe, ohlcv_data=df, indicators=indicators
         )
 
         # Display results
@@ -144,7 +148,9 @@ def test_signal_generation():
         print(f"Direction:       {signal.direction.upper()}")
         print(f"Confidence:      {signal.confidence:.2%}")
         print(f"Consensus Score: {signal.consensus_score:.2%}")
-        print(f"Should Trade:    {'YES' if signal.should_trade() else 'NO'} (threshold: 60%)")
+        print(
+            f"Should Trade:    {'YES' if signal.should_trade() else 'NO'} (threshold: 60%)"
+        )
         print()
 
         # Provider status
@@ -153,9 +159,11 @@ def test_signal_generation():
         print("=" * 70)
         print()
         if signal.active_providers:
-            print(f"✓ Active: {', '.join(signal.active_providers)} ({len(signal.active_providers)}/{len(signal.active_providers) + len(signal.failed_providers or [])})")
+            print(
+                f"✓ Active: {', '.join(signal.active_providers)} ({len(signal.active_providers)}/{len(signal.active_providers) + len(signal.failed_providers or [])})"
+            )
             for provider in signal.active_providers:
-                model = signal.provider_models.get(provider, 'unknown')
+                model = signal.provider_models.get(provider, "unknown")
                 print(f"  → {provider}: {model}")
         if signal.failed_providers:
             print(f"✗ Failed: {', '.join(signal.failed_providers)}")
@@ -167,7 +175,7 @@ def test_signal_generation():
         print()
 
         if signal.chatgpt_analysis:
-            print(f"ChatGPT (40% weight):")
+            print("ChatGPT (40% weight):")
             print(f"  Direction: {signal.chatgpt_analysis.direction.upper()}")
             print(f"  Confidence: {signal.chatgpt_analysis.confidence:.2%}")
             summary = str(signal.chatgpt_analysis.technical_summary or "N/A")
@@ -175,7 +183,7 @@ def test_signal_generation():
             print()
 
         if signal.claude_analysis:
-            print(f"Claude (35% weight):")
+            print("Claude (35% weight):")
             print(f"  Direction: {signal.claude_analysis.direction.upper()}")
             print(f"  Confidence: {signal.claude_analysis.confidence:.2%}")
             risk = str(signal.claude_analysis.risk_assessment or "N/A")
@@ -183,7 +191,7 @@ def test_signal_generation():
             print()
 
         if signal.gemini_analysis:
-            print(f"Gemini (25% weight):")
+            print("Gemini (25% weight):")
             print(f"  Direction: {signal.gemini_analysis.direction.upper()}")
             print(f"  Confidence: {signal.gemini_analysis.confidence:.2%}")
             print(f"  Sentiment: {signal.gemini_analysis.sentiment}")
@@ -209,6 +217,7 @@ def test_signal_generation():
     except Exception as e:
         print(f"❌ Signal generation failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

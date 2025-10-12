@@ -17,7 +17,6 @@ Avoid: Strong trending markets (price may escape grid range)
 import sys
 from pathlib import Path
 from typing import Optional, Dict
-import pandas as pd
 from datetime import datetime
 
 # Add project root to Python path for imports
@@ -44,7 +43,7 @@ class GridTradingStrategy(IStrategy):
 
     # ROI table - Grid profits accumulate gradually
     minimal_roi = {
-        "0": 0.03,   # 3% profit per grid level
+        "0": 0.03,  # 3% profit per grid level
         "30": 0.02,  # After 30 min, 2% profit
         "60": 0.01,  # After 60 min, 1% profit
     }
@@ -56,7 +55,7 @@ class GridTradingStrategy(IStrategy):
     trailing_stop = False
 
     # Timeframe - Grid trading works on multiple timeframes
-    timeframe = '1h'
+    timeframe = "1h"
 
     # Run "populate_indicators()" only for new candle
     process_only_new_candles = True
@@ -66,17 +65,14 @@ class GridTradingStrategy(IStrategy):
 
     # Optional order types
     order_types = {
-        'entry': 'limit',
-        'exit': 'limit',
-        'stoploss': 'market',
-        'stoploss_on_exchange': False
+        "entry": "limit",
+        "exit": "limit",
+        "stoploss": "market",
+        "stoploss_on_exchange": False,
     }
 
     # Optional order time in force
-    order_time_in_force = {
-        'entry': 'GTC',
-        'exit': 'GTC'
-    }
+    order_time_in_force = {"entry": "GTC", "exit": "GTC"}
 
     # Grid parameters
     grid_spacing = 0.02  # 2% spacing between grids
@@ -118,26 +114,30 @@ class GridTradingStrategy(IStrategy):
             DataFrame with indicators added
         """
         # ATR - Average True Range (volatility)
-        dataframe['atr'] = ta.ATR(dataframe, timeperiod=14)
-        dataframe['atr_pct'] = dataframe['atr'] / dataframe['close']
+        dataframe["atr"] = ta.ATR(dataframe, timeperiod=14)
+        dataframe["atr_pct"] = dataframe["atr"] / dataframe["close"]
 
         # EMAs for trend detection
-        dataframe['ema_fast'] = ta.EMA(dataframe, timeperiod=20)
-        dataframe['ema_slow'] = ta.EMA(dataframe, timeperiod=50)
-        dataframe['ema_diff_pct'] = abs(dataframe['ema_fast'] - dataframe['ema_slow']) / dataframe['ema_slow']
+        dataframe["ema_fast"] = ta.EMA(dataframe, timeperiod=20)
+        dataframe["ema_slow"] = ta.EMA(dataframe, timeperiod=50)
+        dataframe["ema_diff_pct"] = (
+            abs(dataframe["ema_fast"] - dataframe["ema_slow"]) / dataframe["ema_slow"]
+        )
 
         # RSI for additional context
-        dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
+        dataframe["rsi"] = ta.RSI(dataframe, timeperiod=14)
 
         # Volume
-        dataframe['volume_mean'] = dataframe['volume'].rolling(window=20).mean()
+        dataframe["volume_mean"] = dataframe["volume"].rolling(window=20).mean()
 
         # Bollinger Bands for volatility context
         bollinger = ta.BBANDS(dataframe, timeperiod=20)
-        dataframe['bb_upper'] = bollinger['upperband']
-        dataframe['bb_middle'] = bollinger['middleband']
-        dataframe['bb_lower'] = bollinger['lowerband']
-        dataframe['bb_width'] = (dataframe['bb_upper'] - dataframe['bb_lower']) / dataframe['bb_middle']
+        dataframe["bb_upper"] = bollinger["upperband"]
+        dataframe["bb_middle"] = bollinger["middleband"]
+        dataframe["bb_lower"] = bollinger["lowerband"]
+        dataframe["bb_width"] = (
+            dataframe["bb_upper"] - dataframe["bb_lower"]
+        ) / dataframe["bb_middle"]
 
         return dataframe
 
@@ -194,25 +194,29 @@ class GridTradingStrategy(IStrategy):
         Returns:
             DataFrame with 'enter_long' column added
         """
-        pair = metadata['pair']
-        current_price = dataframe['close'].iloc[-1]
+        pair = metadata["pair"]
+        current_price = dataframe["close"].iloc[-1]
 
         # Initialize grids if not exists
         if pair not in self.grid_levels:
             buy_levels, sell_levels = self.calculate_grid_levels(current_price, pair)
         else:
-            buy_levels = [level for level in self.grid_levels[pair] if level < self.grid_center[pair]]
+            buy_levels = [
+                level
+                for level in self.grid_levels[pair]
+                if level < self.grid_center[pair]
+            ]
 
         # Market conditions suitable for grid trading
         market_conditions = (
             # High volatility
-            (dataframe['atr_pct'] > self.min_volatility_threshold) &
-
+            (dataframe["atr_pct"] > self.min_volatility_threshold)
+            &
             # Not strong trending
-            (dataframe['ema_diff_pct'] < self.max_trend_strength) &
-
+            (dataframe["ema_diff_pct"] < self.max_trend_strength)
+            &
             # Sufficient volume
-            (dataframe['volume'] > dataframe['volume_mean'] * 0.8)
+            (dataframe["volume"] > dataframe["volume_mean"] * 0.8)
         )
 
         # Check if price is at a buy grid level
@@ -220,15 +224,15 @@ class GridTradingStrategy(IStrategy):
         # and price is in lower half of BB (proxy for being at lower grid)
         grid_entry_conditions = (
             # Price in lower range
-            (dataframe['close'] < dataframe['bb_middle']) &
-
+            (dataframe["close"] < dataframe["bb_middle"])
+            &
             # RSI not extreme
-            (dataframe['rsi'] > 25) &
-            (dataframe['rsi'] < 45)
+            (dataframe["rsi"] > 25)
+            & (dataframe["rsi"] < 45)
         )
 
         # Combine conditions
-        dataframe.loc[market_conditions & grid_entry_conditions, 'enter_long'] = 1
+        dataframe.loc[market_conditions & grid_entry_conditions, "enter_long"] = 1
 
         return dataframe
 
@@ -251,24 +255,32 @@ class GridTradingStrategy(IStrategy):
         # Exit conditions
         exit_conditions = (
             # Price in upper range (reached sell grid)
-            (
-                (dataframe['close'] > dataframe['bb_middle']) &
-                (dataframe['rsi'] > 55)
-            ) |
+            ((dataframe["close"] > dataframe["bb_middle"]) & (dataframe["rsi"] > 55))
+            |
             # Strong trend emerged (exit grid)
-            (dataframe['ema_diff_pct'] > self.max_trend_strength) |
+            (dataframe["ema_diff_pct"] > self.max_trend_strength)
+            |
             # Volatility dropped (grid not profitable)
-            (dataframe['atr_pct'] < self.min_volatility_threshold * 0.7)
+            (dataframe["atr_pct"] < self.min_volatility_threshold * 0.7)
         )
 
-        dataframe.loc[exit_conditions, 'exit_long'] = 1
+        dataframe.loc[exit_conditions, "exit_long"] = 1
 
         return dataframe
 
-    def custom_stake_amount(self, pair: str, current_time: datetime, current_rate: float,
-                           proposed_stake: float, min_stake: Optional[float], max_stake: float,
-                           leverage: float, entry_tag: Optional[str], side: str,
-                           **kwargs) -> float:
+    def custom_stake_amount(
+        self,
+        pair: str,
+        current_time: datetime,
+        current_rate: float,
+        proposed_stake: float,
+        min_stake: Optional[float],
+        max_stake: float,
+        leverage: float,
+        entry_tag: Optional[str],
+        side: str,
+        **kwargs,
+    ) -> float:
         """
         Adjust position size for grid trading.
 
@@ -295,9 +307,18 @@ class GridTradingStrategy(IStrategy):
 
         return stake_per_grid
 
-    def confirm_trade_entry(self, pair: str, order_type: str, amount: float,
-                           rate: float, time_in_force: str, current_time,
-                           entry_tag, side: str, **kwargs) -> bool:
+    def confirm_trade_entry(
+        self,
+        pair: str,
+        order_type: str,
+        amount: float,
+        rate: float,
+        time_in_force: str,
+        current_time,
+        entry_tag,
+        side: str,
+        **kwargs,
+    ) -> bool:
         """
         Final confirmation before entering trade.
 

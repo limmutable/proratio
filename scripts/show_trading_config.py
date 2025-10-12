@@ -22,21 +22,11 @@ from proratio_utilities.config.trading_config import get_trading_config, Trading
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Show trading configuration')
+    parser = argparse.ArgumentParser(description="Show trading configuration")
+    parser.add_argument("--load", type=str, help="Load configuration from JSON file")
+    parser.add_argument("--save", type=str, help="Save configuration to JSON file")
     parser.add_argument(
-        '--load',
-        type=str,
-        help='Load configuration from JSON file'
-    )
-    parser.add_argument(
-        '--save',
-        type=str,
-        help='Save configuration to JSON file'
-    )
-    parser.add_argument(
-        '--validate',
-        action='store_true',
-        help='Validate configuration only'
+        "--validate", action="store_true", help="Validate configuration only"
     )
 
     args = parser.parse_args()
@@ -51,7 +41,9 @@ def main():
         print(f"✅ Loaded configuration from: {config_file}")
     else:
         # Use default config
-        default_config = project_root / 'proratio_core' / 'config' / 'trading_config.json'
+        default_config = (
+            project_root / "proratio_core" / "config" / "trading_config.json"
+        )
         if default_config.exists():
             config = TradingConfig.load_from_file(default_config)
             print(f"✅ Loaded default configuration from: {default_config}")
@@ -81,5 +73,5 @@ def main():
         print(f"\n💾 Saved configuration to: {save_path}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

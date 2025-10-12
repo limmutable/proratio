@@ -30,7 +30,7 @@ class DataLoader:
         timeframe: str,
         start_date: datetime,
         end_date: Optional[datetime] = None,
-        exchange: str = 'binance'
+        exchange: str = "binance",
     ) -> int:
         """
         Download historical data and store in database.
@@ -45,18 +45,15 @@ class DataLoader:
         Returns:
             Number of records inserted
         """
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print(f"Downloading {exchange.upper()} {pair} {timeframe} data")
         print(f"From: {start_date}")
         print(f"To: {end_date or 'now'}")
-        print(f"{'='*60}\n")
+        print(f"{'=' * 60}\n")
 
         # Fetch data
         data = self.collector.fetch_historical_data(
-            pair=pair,
-            timeframe=timeframe,
-            start_date=start_date,
-            end_date=end_date
+            pair=pair, timeframe=timeframe, start_date=start_date, end_date=end_date
         )
 
         if not data:
@@ -66,10 +63,7 @@ class DataLoader:
         # Store in database
         print(f"\nStoring {len(data)} records in database...")
         inserted = self.storage.insert_ohlcv(
-            exchange=exchange,
-            pair=pair,
-            timeframe=timeframe,
-            data=data
+            exchange=exchange, pair=pair, timeframe=timeframe, data=data
         )
 
         print(f"✓ Inserted {inserted} new records (duplicates skipped)")
@@ -81,7 +75,7 @@ class DataLoader:
         timeframes: List[str],
         start_date: datetime,
         end_date: Optional[datetime] = None,
-        exchange: str = 'binance'
+        exchange: str = "binance",
     ) -> dict:
         """
         Download data for multiple pairs and timeframes.
@@ -107,12 +101,12 @@ class DataLoader:
                         timeframe=timeframe,
                         start_date=start_date,
                         end_date=end_date,
-                        exchange=exchange
+                        exchange=exchange,
                     )
-                    results[key] = {'success': True, 'inserted': inserted}
+                    results[key] = {"success": True, "inserted": inserted}
                 except Exception as e:
                     print(f"✗ Error downloading {key}: {e}")
-                    results[key] = {'success': False, 'error': str(e)}
+                    results[key] = {"success": False, "error": str(e)}
 
         return results
 
@@ -132,19 +126,16 @@ class DataLoader:
         latest = self.storage.get_latest_timestamp(exchange, pair, timeframe)
 
         return {
-            'exchange': exchange,
-            'pair': pair,
-            'timeframe': timeframe,
-            'total_records': count,
-            'latest_timestamp': latest,
-            'data_available': count > 0
+            "exchange": exchange,
+            "pair": pair,
+            "timeframe": timeframe,
+            "total_records": count,
+            "latest_timestamp": latest,
+            "data_available": count > 0,
         }
 
     def update_recent_data(
-        self,
-        pair: str,
-        timeframe: str,
-        exchange: str = 'binance'
+        self, pair: str, timeframe: str, exchange: str = "binance"
     ) -> int:
         """
         Update with most recent data (from last stored timestamp to now).
@@ -161,7 +152,9 @@ class DataLoader:
         latest = self.storage.get_latest_timestamp(exchange, pair, timeframe)
 
         if latest is None:
-            print(f"No existing data for {pair} {timeframe}. Use download_and_store() first.")
+            print(
+                f"No existing data for {pair} {timeframe}. Use download_and_store() first."
+            )
             return 0
 
         # Download from last timestamp to now
@@ -173,7 +166,7 @@ class DataLoader:
             timeframe=timeframe,
             start_date=start_date,
             end_date=None,
-            exchange=exchange
+            exchange=exchange,
         )
 
     def close(self):

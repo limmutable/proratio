@@ -17,7 +17,6 @@ import sys
 from pathlib import Path
 import argparse
 import pandas as pd
-import numpy as np
 from typing import Optional, Tuple, Dict
 import logging
 
@@ -26,21 +25,20 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from proratio_utilities.data.loaders import DataLoader
-from proratio_quantlab.ml.feature_engineering import FeatureEngineer, create_target_labels
+from proratio_quantlab.ml.feature_engineering import (
+    FeatureEngineer,
+    create_target_labels,
+)
 from proratio_quantlab.ml.ensemble_predictor import EnsembleBuilder, EnsemblePredictor
-from proratio_quantlab.ml.lstm_data_pipeline import prepare_lstm_data
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 def load_and_prepare_data(
-    pair: str = 'BTC/USDT',
-    timeframe: str = '4h',
-    limit: int = 10000
+    pair: str = "BTC/USDT", timeframe: str = "4h", limit: int = 10000
 ) -> pd.DataFrame:
     """
     Load and prepare data for ensemble training.
@@ -57,10 +55,7 @@ def load_and_prepare_data(
 
     loader = DataLoader()
     df = loader.load_ohlcv(
-        exchange='binance',
-        symbol=pair,
-        timeframe=timeframe,
-        limit=limit
+        exchange="binance", symbol=pair, timeframe=timeframe, limit=limit
     )
 
     logger.info(f"✓ Loaded {len(df)} candles")
@@ -69,14 +64,14 @@ def load_and_prepare_data(
 
 def train_ensemble_model(
     dataframe: pd.DataFrame,
-    ensemble_method: str = 'stacking',
-    meta_model_type: str = 'ridge',
+    ensemble_method: str = "stacking",
+    meta_model_type: str = "ridge",
     sequence_length: int = 24,
     include_lstm: bool = True,
     include_lgbm: bool = True,
     include_xgb: bool = True,
-    target_column: str = 'target_return',
-    save_path: Optional[str] = None
+    target_column: str = "target_return",
+    save_path: Optional[str] = None,
 ) -> Tuple[EnsemblePredictor, Dict]:
     """
     Train ensemble model with multiple base models.
@@ -99,7 +94,7 @@ def train_ensemble_model(
     logger.info("[2/6] Engineering features...")
     fe = FeatureEngineer()
     df_features = fe.add_all_features(dataframe)
-    df_features = create_target_labels(df_features, target_type='regression')
+    df_features = create_target_labels(df_features, target_type="regression")
 
     logger.info(f"✓ Created {len(df_features.columns)} features")
 
@@ -128,35 +123,35 @@ def train_ensemble_model(
     if include_lgbm:
         logger.info("  Adding LightGBM...")
         builder.add_lightgbm(
-            name='lgbm',
+            name="lgbm",
             params={
-                'num_leaves': 31,
-                'learning_rate': 0.05,
-                'n_estimators': 500,
-                'random_state': 42
-            }
+                "num_leaves": 31,
+                "learning_rate": 0.05,
+                "n_estimators": 500,
+                "random_state": 42,
+            },
         )
 
     if include_xgb:
         logger.info("  Adding XGBoost...")
         builder.add_xgboost(
-            name='xgb',
+            name="xgb",
             params={
-                'max_depth': 6,
-                'learning_rate': 0.1,
-                'n_estimators': 300,
-                'random_state': 42
-            }
+                "max_depth": 6,
+                "learning_rate": 0.1,
+                "n_estimators": 300,
+                "random_state": 42,
+            },
         )
 
     if include_lstm:
         logger.info("  Adding LSTM...")
         builder.add_lstm(
-            name='lstm',
+            name="lstm",
             sequence_length=sequence_length,
             hidden_size=128,
             num_layers=2,
-            dropout=0.2
+            dropout=0.2,
         )
 
     # Train base models
@@ -186,9 +181,9 @@ def train_ensemble_model(
         print(f"  MSE:  {metrics['mse']:.6f}")
 
     # Compare ensemble vs best base model
-    ensemble_rmse = results['ensemble']['rmse']
-    base_models = {k: v for k, v in results.items() if k != 'ensemble'}
-    best_base_rmse = min(m['rmse'] for m in base_models.values())
+    ensemble_rmse = results["ensemble"]["rmse"]
+    base_models = {k: v for k, v in results.items() if k != "ensemble"}
+    best_base_rmse = min(m["rmse"] for m in base_models.values())
     improvement = ((best_base_rmse - ensemble_rmse) / best_base_rmse) * 100
 
     print("\n" + "-" * 60)
@@ -196,7 +191,7 @@ def train_ensemble_model(
     print("-" * 60)
 
     # Show model contributions
-    if ensemble_method == 'blending':
+    if ensemble_method == "blending":
         print("\nModel Weights:")
         for name, weight in ensemble.weights.items():
             print(f"  {name}: {weight:.4f}")
@@ -211,41 +206,52 @@ def train_ensemble_model(
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Train ensemble model')
+    parser = argparse.ArgumentParser(description="Train ensemble model")
 
     # Data parameters
-    parser.add_argument('--pair', type=str, default='BTC/USDT',
-                        help='Trading pair')
-    parser.add_argument('--timeframe', type=str, default='4h',
-                        help='Timeframe')
-    parser.add_argument('--limit', type=int, default=10000,
-                        help='Number of candles')
+    parser.add_argument("--pair", type=str, default="BTC/USDT", help="Trading pair")
+    parser.add_argument("--timeframe", type=str, default="4h", help="Timeframe")
+    parser.add_argument("--limit", type=int, default=10000, help="Number of candles")
 
     # Ensemble parameters
-    parser.add_argument('--ensemble-method', type=str, default='stacking',
-                        choices=['stacking', 'blending', 'voting'],
-                        help='Ensemble method')
-    parser.add_argument('--meta-model', type=str, default='ridge',
-                        choices=['ridge', 'lasso', 'rf'],
-                        help='Meta-model type for stacking')
+    parser.add_argument(
+        "--ensemble-method",
+        type=str,
+        default="stacking",
+        choices=["stacking", "blending", "voting"],
+        help="Ensemble method",
+    )
+    parser.add_argument(
+        "--meta-model",
+        type=str,
+        default="ridge",
+        choices=["ridge", "lasso", "rf"],
+        help="Meta-model type for stacking",
+    )
 
     # Base model selection
-    parser.add_argument('--no-lstm', action='store_true',
-                        help='Exclude LSTM from ensemble')
-    parser.add_argument('--no-lgbm', action='store_true',
-                        help='Exclude LightGBM from ensemble')
-    parser.add_argument('--no-xgb', action='store_true',
-                        help='Exclude XGBoost from ensemble')
+    parser.add_argument(
+        "--no-lstm", action="store_true", help="Exclude LSTM from ensemble"
+    )
+    parser.add_argument(
+        "--no-lgbm", action="store_true", help="Exclude LightGBM from ensemble"
+    )
+    parser.add_argument(
+        "--no-xgb", action="store_true", help="Exclude XGBoost from ensemble"
+    )
 
     # Model parameters
-    parser.add_argument('--sequence-length', type=int, default=24,
-                        help='LSTM sequence length')
-    parser.add_argument('--target', type=str, default='target_return',
-                        help='Target column')
+    parser.add_argument(
+        "--sequence-length", type=int, default=24, help="LSTM sequence length"
+    )
+    parser.add_argument(
+        "--target", type=str, default="target_return", help="Target column"
+    )
 
     # Output
-    parser.add_argument('--save', type=str, default=None,
-                        help='Path to save ensemble model')
+    parser.add_argument(
+        "--save", type=str, default=None, help="Path to save ensemble model"
+    )
 
     args = parser.parse_args()
 
@@ -267,7 +273,7 @@ def main():
             include_lgbm=not args.no_lgbm,
             include_xgb=not args.no_xgb,
             target_column=args.target,
-            save_path=args.save
+            save_path=args.save,
         )
 
         print("\n✓ Training complete!")
@@ -288,5 +294,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

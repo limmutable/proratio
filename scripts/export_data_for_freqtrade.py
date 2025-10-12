@@ -5,9 +5,7 @@ Freqtrade expects data in user_data/data/{exchange}/ directory.
 """
 
 import sys
-import json
 from pathlib import Path
-from datetime import datetime
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -23,7 +21,7 @@ def export_to_freqtrade_json(
     timeframe: str,
     output_dir: Path,
     start_date=None,
-    end_date=None
+    end_date=None,
 ):
     """
     Export OHLCV data to Freqtrade JSON format.
@@ -46,7 +44,7 @@ def export_to_freqtrade_json(
         timeframe=timeframe,
         start_time=start_date,
         end_time=end_date,
-        limit=None  # Get ALL records
+        limit=None,  # Get ALL records
     )
 
     if df.empty:
@@ -55,18 +53,18 @@ def export_to_freqtrade_json(
 
     # Prepare DataFrame for Freqtrade feather format
     # Freqtrade expects columns: date, open, high, low, close, volume
-    df_export = df.rename(columns={'timestamp': 'date'})
-    df_export = df_export[['date', 'open', 'high', 'low', 'close', 'volume']]
+    df_export = df.rename(columns={"timestamp": "date"})
+    df_export = df_export[["date", "open", "high", "low", "close", "volume"]]
 
     # Ensure date is datetime64[ms] (Freqtrade requirement)
-    df_export['date'] = df_export['date'].astype('datetime64[ms]')
+    df_export["date"] = df_export["date"].astype("datetime64[ms]")
 
     # Create output directory
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Freqtrade filename format: {pair}-{timeframe}.feather
     # Replace / with _ for filesystem compatibility
-    pair_filename = pair.replace('/', '_')
+    pair_filename = pair.replace("/", "_")
     output_file = output_dir / f"{pair_filename}-{timeframe}.feather"
 
     # Write feather format (Freqtrade's default)
@@ -79,22 +77,22 @@ def main():
     """Export all data to Freqtrade format"""
 
     # Configuration
-    EXCHANGE = 'binance'
-    PAIRS = ['BTC/USDT', 'ETH/USDT']
-    TIMEFRAMES = ['1h', '4h', '1d']
+    EXCHANGE = "binance"
+    PAIRS = ["BTC/USDT", "ETH/USDT"]
+    TIMEFRAMES = ["1h", "4h", "1d"]
 
     # Output directory (Freqtrade's data directory)
-    output_dir = Path('user_data/data') / EXCHANGE
+    output_dir = Path("user_data/data") / EXCHANGE
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("EXPORTING DATA TO FREQTRADE FORMAT")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
     print(f"Exchange: {EXCHANGE}")
     print(f"Pairs: {', '.join(PAIRS)}")
     print(f"Timeframes: {', '.join(TIMEFRAMES)}")
     print(f"Output: {output_dir}/\n")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Initialize storage
     storage = DatabaseStorage()
@@ -107,19 +105,19 @@ def main():
                 exchange=EXCHANGE,
                 pair=pair,
                 timeframe=timeframe,
-                output_dir=output_dir
+                output_dir=output_dir,
             )
 
     storage.close()
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("✓ EXPORT COMPLETE!")
-    print("="*70)
+    print("=" * 70)
     print(f"\nData available in: {output_dir}/")
     print("\nYou can now run backtests with:")
     print("  freqtrade backtesting --strategy SimpleTestStrategy --timeframe 1h")
     print("\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

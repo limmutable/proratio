@@ -6,7 +6,7 @@ Ensures consistent interface across different AI services.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import pandas as pd
@@ -49,11 +49,13 @@ class OHLCVData:
         """Convert recent OHLCV data to text summary for LLM"""
         recent = self.data.tail(lookback)
 
-        current_price = recent['close'].iloc[-1]
-        price_change_pct = ((current_price - recent['close'].iloc[0]) / recent['close'].iloc[0]) * 100
-        high_24h = recent['high'].max()
-        low_24h = recent['low'].min()
-        avg_volume = recent['volume'].mean()
+        current_price = recent["close"].iloc[-1]
+        price_change_pct = (
+            (current_price - recent["close"].iloc[0]) / recent["close"].iloc[0]
+        ) * 100
+        high_24h = recent["high"].max()
+        low_24h = recent["low"].min()
+        avg_volume = recent["volume"].mean()
 
         summary = f"""
 Pair: {self.pair}
@@ -107,7 +109,7 @@ class BaseLLMProvider(ABC):
         self,
         ohlcv_data: OHLCVData,
         prompt_template: str,
-        additional_context: Optional[Dict[str, Any]] = None
+        additional_context: Optional[Dict[str, Any]] = None,
     ) -> MarketAnalysis:
         """
         Analyze market data and return structured analysis.
@@ -135,7 +137,9 @@ class BaseLLMProvider(ABC):
         """
         pass
 
-    def _parse_response(self, raw_response: str, ohlcv_data: OHLCVData) -> MarketAnalysis:
+    def _parse_response(
+        self, raw_response: str, ohlcv_data: OHLCVData
+    ) -> MarketAnalysis:
         """
         Parse LLM response into structured MarketAnalysis.
 
@@ -152,7 +156,7 @@ class BaseLLMProvider(ABC):
         # Subclasses should override for provider-specific parsing
 
         # Default values
-        direction = 'neutral'
+        direction = "neutral"
         confidence = 0.5
         technical_summary = ""
         risk_assessment = ""
@@ -163,17 +167,25 @@ class BaseLLMProvider(ABC):
         response_lower = raw_response.lower()
 
         # Extract direction
-        if 'long' in response_lower or 'buy' in response_lower or 'bullish' in response_lower:
-            direction = 'long'
-        elif 'short' in response_lower or 'sell' in response_lower or 'bearish' in response_lower:
-            direction = 'short'
+        if (
+            "long" in response_lower
+            or "buy" in response_lower
+            or "bullish" in response_lower
+        ):
+            direction = "long"
+        elif (
+            "short" in response_lower
+            or "sell" in response_lower
+            or "bearish" in response_lower
+        ):
+            direction = "short"
 
         # Extract confidence (look for percentages or confidence indicators)
-        if 'high confidence' in response_lower or 'strong signal' in response_lower:
+        if "high confidence" in response_lower or "strong signal" in response_lower:
             confidence = 0.8
-        elif 'medium confidence' in response_lower or 'moderate' in response_lower:
+        elif "medium confidence" in response_lower or "moderate" in response_lower:
             confidence = 0.6
-        elif 'low confidence' in response_lower or 'weak signal' in response_lower:
+        elif "low confidence" in response_lower or "weak signal" in response_lower:
             confidence = 0.4
 
         return MarketAnalysis(
@@ -187,7 +199,7 @@ class BaseLLMProvider(ABC):
             timestamp=datetime.now(),
             pair=ohlcv_data.pair,
             timeframe=ohlcv_data.timeframe,
-            raw_response=raw_response
+            raw_response=raw_response,
         )
 
     def test_connection(self) -> bool:
@@ -199,7 +211,9 @@ class BaseLLMProvider(ABC):
         """
         try:
             # Simple test prompt
-            response = self._call_api("Hello, please respond with 'OK' if you can read this.")
+            response = self._call_api(
+                "Hello, please respond with 'OK' if you can read this."
+            )
             return len(response) > 0
         except Exception as e:
             print(f"Connection test failed for {self.provider_name}: {e}")

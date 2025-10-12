@@ -5,13 +5,13 @@ Tests the backtest engine wrapper functionality.
 """
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 from datetime import datetime
 from pathlib import Path
 
 from proratio_quantlab.backtesting.backtest_engine import (
     BacktestEngine,
-    BacktestResults
+    BacktestResults,
 )
 
 
@@ -40,7 +40,7 @@ class TestBacktestResults:
             end_date=datetime(2024, 6, 30),
             timeframe="1h",
             pairs=["BTC/USDT", "ETH/USDT"],
-            raw_output="test output"
+            raw_output="test output",
         )
 
         assert result.total_trades == 50
@@ -70,7 +70,7 @@ class TestBacktestResults:
             end_date=datetime(2024, 6, 30),
             timeframe="1h",
             pairs=["BTC/USDT"],
-            raw_output=""
+            raw_output="",
         )
 
         result_str = str(result)
@@ -85,7 +85,7 @@ class TestBacktestEngine:
     @pytest.fixture
     def engine(self):
         """Create engine with mocked paths"""
-        with patch.object(Path, 'exists', return_value=True):
+        with patch.object(Path, "exists", return_value=True):
             engine = BacktestEngine()
             return engine
 
@@ -96,7 +96,7 @@ class TestBacktestEngine:
 
     def test_initialization_missing_paths(self):
         """Test initialization with missing paths"""
-        with patch.object(Path, 'exists', return_value=False):
+        with patch.object(Path, "exists", return_value=False):
             with pytest.raises(FileNotFoundError):
                 BacktestEngine()
 
@@ -121,7 +121,7 @@ class TestBacktestEngine:
             timeframe="1h",
             start_date="2024-01-01",
             end_date="2024-06-30",
-            pairs=["BTC/USDT", "ETH/USDT"]
+            pairs=["BTC/USDT", "ETH/USDT"],
         )
 
         assert result.total_trades == 45
@@ -151,14 +151,14 @@ No trades made.
             timeframe="1h",
             start_date="2024-01-01",
             end_date="2024-06-30",
-            pairs=["BTC/USDT"]
+            pairs=["BTC/USDT"],
         )
 
         assert result.total_trades == 0
         assert result.winning_trades == 0
         assert result.losing_trades == 0
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_backtest_success(self, mock_run, engine):
         """Test successful backtest execution"""
         # Mock subprocess result
@@ -179,14 +179,14 @@ No trades made.
             start_date="2024-01-01",
             end_date="2024-06-30",
             pairs=["BTC/USDT"],
-            timeout=10
+            timeout=10,
         )
 
         assert result.total_trades == 50
         assert result.win_rate == 60.0
         assert mock_run.called
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_backtest_failure(self, mock_run, engine):
         """Test backtest failure handling"""
         mock_result = Mock()
@@ -199,13 +199,14 @@ No trades made.
                 strategy="InvalidStrategy",
                 timeframe="1h",
                 start_date="2024-01-01",
-                end_date="2024-06-30"
+                end_date="2024-06-30",
             )
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_backtest_timeout(self, mock_run, engine):
         """Test backtest timeout"""
         import subprocess
+
         mock_run.side_effect = subprocess.TimeoutExpired(cmd="freqtrade", timeout=10)
 
         with pytest.raises(TimeoutError):
@@ -214,14 +215,14 @@ No trades made.
                 timeframe="1h",
                 start_date="2024-01-01",
                 end_date="2024-06-30",
-                timeout=10
+                timeout=10,
             )
 
     def test_walk_forward_analysis_date_calculation(self, engine):
         """Test walk-forward date calculations"""
         # This would require mocking backtest calls
         # For now, test that the method exists and accepts parameters
-        with patch.object(engine, 'backtest') as mock_backtest:
+        with patch.object(engine, "backtest") as mock_backtest:
             mock_backtest.return_value = BacktestResults(
                 total_trades=10,
                 winning_trades=6,
@@ -242,7 +243,7 @@ No trades made.
                 end_date=datetime(2024, 6, 30),
                 timeframe="1h",
                 pairs=["BTC/USDT"],
-                raw_output=""
+                raw_output="",
             )
 
             results = engine.walk_forward_analysis(
@@ -251,14 +252,14 @@ No trades made.
                 start_date="2024-01-01",
                 end_date="2024-12-31",
                 train_window_months=6,
-                test_window_months=1
+                test_window_months=1,
             )
 
             # Should create multiple windows
             assert len(results) > 0
             assert all(isinstance(r, BacktestResults) for r in results)
 
-    @patch('subprocess.run')
+    @patch("subprocess.run")
     def test_compare_strategies(self, mock_run, engine):
         """Test strategy comparison"""
         mock_result = Mock()
@@ -276,7 +277,7 @@ No trades made.
             strategies=["Strategy1", "Strategy2"],
             timeframe="1h",
             start_date="2024-01-01",
-            end_date="2024-06-30"
+            end_date="2024-06-30",
         )
 
         assert len(results) == 2

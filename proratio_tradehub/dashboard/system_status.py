@@ -12,12 +12,13 @@ import os
 import sqlite3
 import requests
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict
 from dataclasses import dataclass
 
 # Load environment variables from .env file
 try:
     from dotenv import load_dotenv
+
     # Look for .env in project root
     env_path = Path(__file__).parent.parent.parent / ".env"
     if env_path.exists():
@@ -30,6 +31,7 @@ except ImportError:
 @dataclass
 class ServiceStatus:
     """Status of a system service"""
+
     name: str
     is_available: bool
     message: str
@@ -50,7 +52,7 @@ class SystemStatusChecker:
         self,
         freqtrade_url: str = "http://127.0.0.1:8080",
         db_path: str = "user_data/db/tradesv3.dryrun.sqlite",
-        config_path: str = "proratio_utilities/config/trading_config.json"
+        config_path: str = "proratio_utilities/config/trading_config.json",
     ):
         self.freqtrade_url = freqtrade_url
         self.db_path = Path(db_path)
@@ -59,29 +61,24 @@ class SystemStatusChecker:
     def check_freqtrade(self) -> ServiceStatus:
         """Check if Freqtrade API is responding"""
         try:
-            response = requests.get(
-                f"{self.freqtrade_url}/api/v1/ping",
-                timeout=2
-            )
+            response = requests.get(f"{self.freqtrade_url}/api/v1/ping", timeout=2)
             if response.status_code == 200:
                 data = response.json()
                 status = data.get("status", "unknown")
                 return ServiceStatus(
                     name="Freqtrade API",
                     is_available=True,
-                    message=f"Connected ({status})"
+                    message=f"Connected ({status})",
                 )
             else:
                 return ServiceStatus(
                     name="Freqtrade API",
                     is_available=False,
-                    message=f"HTTP {response.status_code}"
+                    message=f"HTTP {response.status_code}",
                 )
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             return ServiceStatus(
-                name="Freqtrade API",
-                is_available=False,
-                message="Not responding"
+                name="Freqtrade API", is_available=False, message="Not responding"
             )
 
     def check_database(self) -> ServiceStatus:
@@ -91,7 +88,7 @@ class SystemStatusChecker:
                 return ServiceStatus(
                     name="Trade Database",
                     is_available=False,
-                    message="Database file not found"
+                    message="Database file not found",
                 )
 
             # Try to connect and query
@@ -104,13 +101,13 @@ class SystemStatusChecker:
             return ServiceStatus(
                 name="Trade Database",
                 is_available=True,
-                message=f"Online ({trade_count} trades)"
+                message=f"Online ({trade_count} trades)",
             )
         except Exception as e:
             return ServiceStatus(
                 name="Trade Database",
                 is_available=False,
-                message=f"Error: {str(e)[:30]}"
+                message=f"Error: {str(e)[:30]}",
             )
 
     def check_openai(self) -> ServiceStatus:
@@ -121,21 +118,19 @@ class SystemStatusChecker:
             return ServiceStatus(
                 name="OpenAI (ChatGPT)",
                 is_available=False,
-                message="API key not configured"
+                message="API key not configured",
             )
 
         # Quick validation - just check if key format looks valid
         if api_key.startswith("sk-") and len(api_key) > 20:
             return ServiceStatus(
-                name="OpenAI (ChatGPT)",
-                is_available=True,
-                message="API key configured"
+                name="OpenAI (ChatGPT)", is_available=True, message="API key configured"
             )
         else:
             return ServiceStatus(
                 name="OpenAI (ChatGPT)",
                 is_available=False,
-                message="Invalid API key format"
+                message="Invalid API key format",
             )
 
     def check_anthropic(self) -> ServiceStatus:
@@ -146,7 +141,7 @@ class SystemStatusChecker:
             return ServiceStatus(
                 name="Anthropic (Claude)",
                 is_available=False,
-                message="API key not configured"
+                message="API key not configured",
             )
 
         # Quick validation - check if key format looks valid
@@ -154,13 +149,13 @@ class SystemStatusChecker:
             return ServiceStatus(
                 name="Anthropic (Claude)",
                 is_available=True,
-                message="API key configured"
+                message="API key configured",
             )
         else:
             return ServiceStatus(
                 name="Anthropic (Claude)",
                 is_available=False,
-                message="Invalid API key format"
+                message="Invalid API key format",
             )
 
     def check_gemini(self) -> ServiceStatus:
@@ -171,21 +166,19 @@ class SystemStatusChecker:
             return ServiceStatus(
                 name="Google Gemini",
                 is_available=False,
-                message="API key not configured"
+                message="API key not configured",
             )
 
         # Gemini keys are typically 39 characters
         if len(api_key) > 20:
             return ServiceStatus(
-                name="Google Gemini",
-                is_available=True,
-                message="API key configured"
+                name="Google Gemini", is_available=True, message="API key configured"
             )
         else:
             return ServiceStatus(
                 name="Google Gemini",
                 is_available=False,
-                message="Invalid API key format"
+                message="Invalid API key format",
             )
 
     def check_trading_config(self) -> ServiceStatus:
@@ -195,11 +188,12 @@ class SystemStatusChecker:
                 return ServiceStatus(
                     name="Trading Config",
                     is_available=False,
-                    message="Config file not found"
+                    message="Config file not found",
                 )
 
             # Try to load and validate
             from proratio_utilities.config.trading_config import TradingConfig
+
             config = TradingConfig.load_from_file(str(self.config_path))
             errors = config.validate()
 
@@ -208,19 +202,19 @@ class SystemStatusChecker:
                     name="Trading Config",
                     is_available=True,
                     message=f"Warning: {len(errors)} validation issues",
-                    icon="⚠️"
+                    icon="⚠️",
                 )
             else:
                 return ServiceStatus(
                     name="Trading Config",
                     is_available=True,
-                    message="Valid configuration"
+                    message="Valid configuration",
                 )
         except Exception as e:
             return ServiceStatus(
                 name="Trading Config",
                 is_available=False,
-                message=f"Error: {str(e)[:30]}"
+                message=f"Error: {str(e)[:30]}",
             )
 
     def check_binance_keys(self) -> ServiceStatus:
@@ -232,22 +226,18 @@ class SystemStatusChecker:
             return ServiceStatus(
                 name="Binance API",
                 is_available=False,
-                message="API keys not configured"
+                message="API keys not configured",
             )
 
         if len(api_key) > 20 and len(api_secret) > 20:
             testnet = os.getenv("BINANCE_TESTNET", "true").lower() == "true"
             mode = "Testnet" if testnet else "Mainnet"
             return ServiceStatus(
-                name="Binance API",
-                is_available=True,
-                message=f"Configured ({mode})"
+                name="Binance API", is_available=True, message=f"Configured ({mode})"
             )
         else:
             return ServiceStatus(
-                name="Binance API",
-                is_available=False,
-                message="Invalid API key format"
+                name="Binance API", is_available=False, message="Invalid API key format"
             )
 
     def get_all_status(self) -> Dict[str, ServiceStatus]:
@@ -275,5 +265,5 @@ class SystemStatusChecker:
             "available": available,
             "warnings": warnings,
             "unavailable": unavailable,
-            "health_pct": (available / len(all_status)) * 100 if all_status else 0
+            "health_pct": (available / len(all_status)) * 100 if all_status else 0,
         }

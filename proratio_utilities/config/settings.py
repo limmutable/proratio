@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     # Database
     database_url: str = Field(
         default="postgresql://proratio:proratio_password@localhost:5432/proratio",
-        env="DATABASE_URL"
+        env="DATABASE_URL",
     )
     redis_url: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
 
@@ -42,7 +42,9 @@ class Settings(BaseSettings):
     max_drawdown_percent: float = Field(default=10.0, env="MAX_DRAWDOWN_PERCENT")
 
     # Proratio Core
-    data_refresh_interval: int = Field(default=300, env="DATA_REFRESH_INTERVAL")  # seconds
+    data_refresh_interval: int = Field(
+        default=300, env="DATA_REFRESH_INTERVAL"
+    )  # seconds
 
     # Proratio Signals
     ai_consensus_threshold: float = Field(default=0.6, env="AI_CONSENSUS_THRESHOLD")

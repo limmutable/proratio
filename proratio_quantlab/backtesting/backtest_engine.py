@@ -10,9 +10,8 @@ Provides a clean Python API for running Freqtrade backtests with support for:
 """
 
 import subprocess
-import json
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import pandas as pd
@@ -59,10 +58,10 @@ class BacktestResults:
         """Human-readable summary"""
         return f"""
 Backtest Results: {self.strategy_name}
-{'=' * 60}
+{"=" * 60}
 Period: {self.start_date.date()} to {self.end_date.date()}
 Timeframe: {self.timeframe}
-Pairs: {', '.join(self.pairs)}
+Pairs: {", ".join(self.pairs)}
 
 Performance:
   Total Profit: {self.total_profit_pct:+.2f}% (${self.total_profit_abs:,.2f})
@@ -79,7 +78,7 @@ Trade Stats:
   Best Trade: {self.best_trade_pct:+.2f}%
   Worst Trade: {self.worst_trade_pct:+.2f}%
   Avg Duration: {self.avg_duration}
-{'=' * 60}
+{"=" * 60}
 """
 
 
@@ -95,9 +94,7 @@ class BacktestEngine:
     """
 
     def __init__(
-        self,
-        user_data_dir: Optional[Path] = None,
-        config_file: Optional[Path] = None
+        self, user_data_dir: Optional[Path] = None, config_file: Optional[Path] = None
     ):
         """
         Initialize backtest engine.
@@ -108,12 +105,21 @@ class BacktestEngine:
         """
         # Default paths
         project_root = Path(__file__).resolve().parents[2]
-        self.user_data_dir = user_data_dir or project_root / 'user_data'
-        self.config_file = config_file or project_root / 'proratio_core' / 'config' / 'freqtrade' / 'config_dry.json'
+        self.user_data_dir = user_data_dir or project_root / "user_data"
+        self.config_file = (
+            config_file
+            or project_root
+            / "proratio_core"
+            / "config"
+            / "freqtrade"
+            / "config_dry.json"
+        )
 
         # Ensure paths exist
         if not self.user_data_dir.exists():
-            raise FileNotFoundError(f"User data directory not found: {self.user_data_dir}")
+            raise FileNotFoundError(
+                f"User data directory not found: {self.user_data_dir}"
+            )
         if not self.config_file.exists():
             raise FileNotFoundError(f"Config file not found: {self.config_file}")
 
@@ -127,7 +133,7 @@ class BacktestEngine:
         initial_balance: float = 10000.0,
         stake_amount: float = 100.0,
         export_trades: bool = True,
-        timeout: int = 600
+        timeout: int = 600,
     ) -> BacktestResults:
         """
         Run backtest for a strategy.
@@ -147,36 +153,47 @@ class BacktestEngine:
             BacktestResults with parsed metrics
         """
         if pairs is None:
-            pairs = ['BTC/USDT', 'ETH/USDT']
+            pairs = ["BTC/USDT", "ETH/USDT"]
 
         # Convert dates to Freqtrade format (YYYYMMDD)
         timerange = f"{start_date.replace('-', '')}-{end_date.replace('-', '')}"
 
         # Build command
         cmd = [
-            'freqtrade',
-            'backtesting',
-            '--strategy', strategy,
-            '--timeframe', timeframe,
-            '--timerange', timerange,
-            '--starting-balance', str(initial_balance),
-            '--stake-amount', str(stake_amount),
-            '--config', str(self.config_file),
-            '--userdir', str(self.user_data_dir),
+            "freqtrade",
+            "backtesting",
+            "--strategy",
+            strategy,
+            "--timeframe",
+            timeframe,
+            "--timerange",
+            timerange,
+            "--starting-balance",
+            str(initial_balance),
+            "--stake-amount",
+            str(stake_amount),
+            "--config",
+            str(self.config_file),
+            "--userdir",
+            str(self.user_data_dir),
         ]
 
         # Add pairs
         if pairs:
-            cmd.extend(['--pairs'] + pairs)
+            cmd.extend(["--pairs"] + pairs)
 
         # Export trades
         if export_trades:
             export_file = f"{strategy}_{timeframe}_{start_date}.json"
-            cmd.extend(['--export', 'trades'])
-            cmd.extend(['--export-filename', f'user_data/backtest_results/{export_file}'])
+            cmd.extend(["--export", "trades"])
+            cmd.extend(
+                ["--export-filename", f"user_data/backtest_results/{export_file}"]
+            )
 
         # Run backtest
-        print(f"Running backtest: {strategy} | {timeframe} | {start_date} to {end_date}")
+        print(
+            f"Running backtest: {strategy} | {timeframe} | {start_date} to {end_date}"
+        )
 
         try:
             result = subprocess.run(
@@ -184,7 +201,7 @@ class BacktestEngine:
                 capture_output=True,
                 text=True,
                 timeout=timeout,
-                cwd=str(self.user_data_dir.parent)
+                cwd=str(self.user_data_dir.parent),
             )
 
             if result.returncode != 0:
@@ -197,7 +214,7 @@ class BacktestEngine:
                 timeframe=timeframe,
                 start_date=start_date,
                 end_date=end_date,
-                pairs=pairs
+                pairs=pairs,
             )
 
         except subprocess.TimeoutExpired:
@@ -213,7 +230,7 @@ class BacktestEngine:
         end_date: str,
         train_window_months: int = 6,
         test_window_months: int = 1,
-        pairs: Optional[List[str]] = None
+        pairs: Optional[List[str]] = None,
     ) -> List[BacktestResults]:
         """
         Run walk-forward analysis.
@@ -233,8 +250,8 @@ class BacktestEngine:
         Returns:
             List of BacktestResults for each test window
         """
-        start = datetime.strptime(start_date, '%Y-%m-%d')
-        end = datetime.strptime(end_date, '%Y-%m-%d')
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
 
         train_delta = timedelta(days=train_window_months * 30)
         test_delta = timedelta(days=test_window_months * 30)
@@ -259,10 +276,10 @@ class BacktestEngine:
             result = self.backtest(
                 strategy=strategy,
                 timeframe=timeframe,
-                start_date=test_start.strftime('%Y-%m-%d'),
-                end_date=test_end.strftime('%Y-%m-%d'),
+                start_date=test_start.strftime("%Y-%m-%d"),
+                end_date=test_end.strftime("%Y-%m-%d"),
                 pairs=pairs,
-                export_trades=False  # Don't export for each window
+                export_trades=False,  # Don't export for each window
             )
 
             results.append(result)
@@ -276,7 +293,9 @@ class BacktestEngine:
         print("=" * 80)
 
         total_profit = sum(r.total_profit_pct for r in results)
-        avg_sharpe = sum(r.sharpe_ratio for r in results) / len(results) if results else 0
+        avg_sharpe = (
+            sum(r.sharpe_ratio for r in results) / len(results) if results else 0
+        )
         max_dd = max(r.max_drawdown_pct for r in results) if results else 0
 
         print(f"Windows: {len(results)}")
@@ -293,7 +312,7 @@ class BacktestEngine:
         timeframe: str,
         start_date: str,
         end_date: str,
-        pairs: Optional[List[str]] = None
+        pairs: Optional[List[str]] = None,
     ) -> Dict[str, BacktestResults]:
         """
         Compare multiple strategies on the same data.
@@ -317,7 +336,7 @@ class BacktestEngine:
                 timeframe=timeframe,
                 start_date=start_date,
                 end_date=end_date,
-                pairs=pairs
+                pairs=pairs,
             )
             results[strategy] = result
 
@@ -333,143 +352,143 @@ class BacktestEngine:
         timeframe: str,
         start_date: str,
         end_date: str,
-        pairs: List[str]
+        pairs: List[str],
     ) -> BacktestResults:
         """Parse Freqtrade backtest output"""
 
         # Initialize default values
         metrics = {
-            'total_trades': 0,
-            'winning_trades': 0,
-            'losing_trades': 0,
-            'win_rate': 0.0,
-            'total_profit_pct': 0.0,
-            'total_profit_abs': 0.0,
-            'avg_profit_pct': 0.0,
-            'sharpe_ratio': 0.0,
-            'sortino_ratio': 0.0,
-            'max_drawdown_pct': 0.0,
-            'max_drawdown_abs': 0.0,
-            'avg_duration': '0:00',
-            'best_trade_pct': 0.0,
-            'worst_trade_pct': 0.0,
+            "total_trades": 0,
+            "winning_trades": 0,
+            "losing_trades": 0,
+            "win_rate": 0.0,
+            "total_profit_pct": 0.0,
+            "total_profit_abs": 0.0,
+            "avg_profit_pct": 0.0,
+            "sharpe_ratio": 0.0,
+            "sortino_ratio": 0.0,
+            "max_drawdown_pct": 0.0,
+            "max_drawdown_abs": 0.0,
+            "avg_duration": "0:00",
+            "best_trade_pct": 0.0,
+            "worst_trade_pct": 0.0,
         }
 
-        lines = output.split('\n')
+        lines = output.split("\n")
 
         for line in lines:
             # Parse from SUMMARY METRICS table
-            if 'Total/Daily Avg Trades' in line:
-                parts = line.split('│')
+            if "Total/Daily Avg Trades" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        trades_str = parts[2].strip().split('/')[0].strip()
-                        metrics['total_trades'] = int(trades_str)
+                        trades_str = parts[2].strip().split("/")[0].strip()
+                        metrics["total_trades"] = int(trades_str)
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Total profit %' in line and '│' in line:
-                parts = line.split('│')
+            elif "Total profit %" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        pct_str = parts[2].strip().replace('%', '').strip()
-                        metrics['total_profit_pct'] = float(pct_str)
+                        pct_str = parts[2].strip().replace("%", "").strip()
+                        metrics["total_profit_pct"] = float(pct_str)
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Absolute profit' in line and '│' in line:
-                parts = line.split('│')
+            elif "Absolute profit" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
                         profit_str = parts[2].strip().split()[0].strip()
-                        metrics['total_profit_abs'] = float(profit_str)
+                        metrics["total_profit_abs"] = float(profit_str)
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Sharpe' in line and '│' in line:
-                parts = line.split('│')
+            elif "Sharpe" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        metrics['sharpe_ratio'] = float(parts[2].strip())
+                        metrics["sharpe_ratio"] = float(parts[2].strip())
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Sortino' in line and '│' in line:
-                parts = line.split('│')
+            elif "Sortino" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        metrics['sortino_ratio'] = float(parts[2].strip())
+                        metrics["sortino_ratio"] = float(parts[2].strip())
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Max % of account underwater' in line and '│' in line:
-                parts = line.split('│')
+            elif "Max % of account underwater" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        dd_str = parts[2].strip().replace('%', '').strip()
-                        metrics['max_drawdown_pct'] = abs(float(dd_str))
+                        dd_str = parts[2].strip().replace("%", "").strip()
+                        metrics["max_drawdown_pct"] = abs(float(dd_str))
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Best trade' in line and '│' in line:
-                parts = line.split('│')
+            elif "Best trade" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        best_str = parts[2].strip().split()[1].replace('%', '')
-                        metrics['best_trade_pct'] = float(best_str)
+                        best_str = parts[2].strip().split()[1].replace("%", "")
+                        metrics["best_trade_pct"] = float(best_str)
                     except (ValueError, IndexError):
                         pass
 
-            elif 'Worst trade' in line and '│' in line:
-                parts = line.split('│')
+            elif "Worst trade" in line and "│" in line:
+                parts = line.split("│")
                 if len(parts) >= 3:
                     try:
-                        worst_str = parts[2].strip().split()[1].replace('%', '')
-                        metrics['worst_trade_pct'] = float(worst_str)
+                        worst_str = parts[2].strip().split()[1].replace("%", "")
+                        metrics["worst_trade_pct"] = float(worst_str)
                     except (ValueError, IndexError):
                         pass
 
             # Parse from BACKTESTING REPORT table (TOTAL row)
-            elif '│    TOTAL │' in line or '│ TOTAL │' in line:
-                parts = line.split('│')
+            elif "│    TOTAL │" in line or "│ TOTAL │" in line:
+                parts = line.split("│")
                 if len(parts) >= 8:
                     try:
                         # Win stats: "21     0    24  46.7"
                         win_stats = parts[-2].strip().split()
-                        metrics['winning_trades'] = int(win_stats[0])
-                        metrics['losing_trades'] = int(win_stats[2])
-                        metrics['win_rate'] = float(win_stats[-1])
+                        metrics["winning_trades"] = int(win_stats[0])
+                        metrics["losing_trades"] = int(win_stats[2])
+                        metrics["win_rate"] = float(win_stats[-1])
 
                         # Average duration
-                        metrics['avg_duration'] = parts[-3].strip()
+                        metrics["avg_duration"] = parts[-3].strip()
 
                         # Average profit (column 3)
                         avg_profit_str = parts[3].strip()
-                        metrics['avg_profit_pct'] = float(avg_profit_str)
+                        metrics["avg_profit_pct"] = float(avg_profit_str)
                     except (ValueError, IndexError):
                         pass
 
         return BacktestResults(
-            total_trades=metrics['total_trades'],
-            winning_trades=metrics['winning_trades'],
-            losing_trades=metrics['losing_trades'],
-            win_rate=metrics['win_rate'],
-            total_profit_pct=metrics['total_profit_pct'],
-            total_profit_abs=metrics['total_profit_abs'],
-            avg_profit_pct=metrics['avg_profit_pct'],
-            sharpe_ratio=metrics['sharpe_ratio'],
-            sortino_ratio=metrics['sortino_ratio'],
-            max_drawdown_pct=metrics['max_drawdown_pct'],
-            max_drawdown_abs=metrics['max_drawdown_abs'],
-            avg_duration=metrics['avg_duration'],
-            best_trade_pct=metrics['best_trade_pct'],
-            worst_trade_pct=metrics['worst_trade_pct'],
+            total_trades=metrics["total_trades"],
+            winning_trades=metrics["winning_trades"],
+            losing_trades=metrics["losing_trades"],
+            win_rate=metrics["win_rate"],
+            total_profit_pct=metrics["total_profit_pct"],
+            total_profit_abs=metrics["total_profit_abs"],
+            avg_profit_pct=metrics["avg_profit_pct"],
+            sharpe_ratio=metrics["sharpe_ratio"],
+            sortino_ratio=metrics["sortino_ratio"],
+            max_drawdown_pct=metrics["max_drawdown_pct"],
+            max_drawdown_abs=metrics["max_drawdown_abs"],
+            avg_duration=metrics["avg_duration"],
+            best_trade_pct=metrics["best_trade_pct"],
+            worst_trade_pct=metrics["worst_trade_pct"],
             strategy_name=strategy,
-            start_date=datetime.strptime(start_date, '%Y-%m-%d'),
-            end_date=datetime.strptime(end_date, '%Y-%m-%d'),
+            start_date=datetime.strptime(start_date, "%Y-%m-%d"),
+            end_date=datetime.strptime(end_date, "%Y-%m-%d"),
             timeframe=timeframe,
             pairs=pairs,
-            raw_output=output
+            raw_output=output,
         )
 
     def _print_comparison(self, results: Dict[str, BacktestResults]) -> None:
@@ -480,7 +499,9 @@ class BacktestEngine:
         print("=" * 100)
 
         # Headers
-        print(f"{'Strategy':<25} {'Profit %':<12} {'Sharpe':<10} {'Win Rate':<12} {'Trades':<10} {'Max DD':<10}")
+        print(
+            f"{'Strategy':<25} {'Profit %':<12} {'Sharpe':<10} {'Win Rate':<12} {'Trades':<10} {'Max DD':<10}"
+        )
         print("-" * 100)
 
         # Results

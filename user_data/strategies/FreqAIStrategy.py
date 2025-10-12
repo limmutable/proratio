@@ -26,8 +26,7 @@ Model:
 import sys
 from pathlib import Path
 from typing import Optional
-import pandas as pd
-from datetime import datetime, timezone
+from datetime import datetime
 import logging
 
 # Add project root to Python path for imports
@@ -38,10 +37,12 @@ if str(project_root) not in sys.path:
 import talib.abstract as ta
 from freqtrade.strategy import IStrategy, merge_informative_pair
 from pandas import DataFrame
-import numpy as np
 
 # Import our custom feature engineering
-from proratio_quantlab.ml.feature_engineering import FeatureEngineer, create_target_labels
+from proratio_quantlab.ml.feature_engineering import (
+    FeatureEngineer,
+    create_target_labels,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -57,9 +58,9 @@ class FreqAIStrategy(IStrategy):
 
     # ROI table (conservative with ML confidence)
     minimal_roi = {
-        "0": 0.20,   # 20% profit → exit (ML should catch bigger moves)
+        "0": 0.20,  # 20% profit → exit (ML should catch bigger moves)
         "60": 0.10,  # After 60 min, 10% profit → exit
-        "120": 0.05, # After 120 min, 5% profit → exit
+        "120": 0.05,  # After 120 min, 5% profit → exit
     }
 
     # Stoploss (tighter with ML prediction)
@@ -72,7 +73,7 @@ class FreqAIStrategy(IStrategy):
     trailing_only_offset_is_reached = True
 
     # Timeframe
-    timeframe = '4h'
+    timeframe = "4h"
 
     # Run "populate_indicators()" only for new candle
     process_only_new_candles = True
@@ -82,17 +83,14 @@ class FreqAIStrategy(IStrategy):
 
     # Optional order types
     order_types = {
-        'entry': 'limit',
-        'exit': 'limit',
-        'stoploss': 'market',
-        'stoploss_on_exchange': False
+        "entry": "limit",
+        "exit": "limit",
+        "stoploss": "market",
+        "stoploss_on_exchange": False,
     }
 
     # Optional order time in force
-    order_time_in_force = {
-        'entry': 'GTC',
-        'exit': 'GTC'
-    }
+    order_time_in_force = {"entry": "GTC", "exit": "GTC"}
 
     # ML Configuration
     ml_prediction_threshold = 0.01  # Minimum predicted return (1%)
@@ -123,9 +121,7 @@ class FreqAIStrategy(IStrategy):
         Called once by Freqtrade to fetch additional data.
         """
         # We want 1h data as additional features for 4h strategy
-        return [
-            (pair, '1h') for pair in self.dp.current_whitelist()
-        ]
+        return [(pair, "1h") for pair in self.dp.current_whitelist()]
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -143,19 +139,25 @@ class FreqAIStrategy(IStrategy):
 
         # Add informative 1h data
         if self.dp:
-            informative = self.dp.get_pair_dataframe(pair=metadata['pair'], timeframe='1h')
+            informative = self.dp.get_pair_dataframe(
+                pair=metadata["pair"], timeframe="1h"
+            )
             if not informative.empty:
                 # Add key indicators from 1h timeframe
-                informative['rsi_1h'] = ta.RSI(informative, timeperiod=14)
-                informative['ema9_1h'] = ta.EMA(informative, timeperiod=9)
-                informative['ema21_1h'] = ta.EMA(informative, timeperiod=21)
+                informative["rsi_1h"] = ta.RSI(informative, timeperiod=14)
+                informative["ema9_1h"] = ta.EMA(informative, timeperiod=9)
+                informative["ema21_1h"] = ta.EMA(informative, timeperiod=21)
 
                 # Merge with main dataframe
-                dataframe = merge_informative_pair(dataframe, informative, self.timeframe, '1h', ffill=True)
+                dataframe = merge_informative_pair(
+                    dataframe, informative, self.timeframe, "1h", ffill=True
+                )
 
         return dataframe
 
-    def feature_engineering_expand_all(self, dataframe: DataFrame, period: int, **kwargs) -> DataFrame:
+    def feature_engineering_expand_all(
+        self, dataframe: DataFrame, period: int, **kwargs
+    ) -> DataFrame:
         """
         FreqAI method: Create features for all periods.
         This is called by FreqAI during training and prediction.
@@ -168,18 +170,24 @@ class FreqAIStrategy(IStrategy):
             Dataframe with features
         """
         # Add custom features that FreqAI will use
-        dataframe[f"%-rsi-period"] = ta.RSI(dataframe, timeperiod=period)
-        dataframe[f"%-mfi-period"] = ta.MFI(dataframe, timeperiod=period)
-        dataframe[f"%-adx-period"] = ta.ADX(dataframe, timeperiod=period)
-        dataframe[f"%-cci-period"] = ta.CCI(dataframe, timeperiod=period)
+        dataframe["%-rsi-period"] = ta.RSI(dataframe, timeperiod=period)
+        dataframe["%-mfi-period"] = ta.MFI(dataframe, timeperiod=period)
+        dataframe["%-adx-period"] = ta.ADX(dataframe, timeperiod=period)
+        dataframe["%-cci-period"] = ta.CCI(dataframe, timeperiod=period)
 
         # Price momentum
-        dataframe[f"%-close_pct_change_{period}"] = dataframe['close'].pct_change(period)
-        dataframe[f"%-volume_pct_change_{period}"] = dataframe['volume'].pct_change(period)
+        dataframe[f"%-close_pct_change_{period}"] = dataframe["close"].pct_change(
+            period
+        )
+        dataframe[f"%-volume_pct_change_{period}"] = dataframe["volume"].pct_change(
+            period
+        )
 
         return dataframe
 
-    def feature_engineering_expand_basic(self, dataframe: DataFrame, **kwargs) -> DataFrame:
+    def feature_engineering_expand_basic(
+        self, dataframe: DataFrame, **kwargs
+    ) -> DataFrame:
         """
         FreqAI method: Basic feature engineering without period variations.
 
@@ -192,22 +200,28 @@ class FreqAIStrategy(IStrategy):
         # All our engineered features are already added in populate_indicators
         # Just ensure we have key features marked with %-prefix for FreqAI
 
-        if 'rsi_14' in dataframe.columns:
-            dataframe["%-rsi"] = dataframe['rsi_14']
-        if 'macd' in dataframe.columns:
-            dataframe["%-macd"] = dataframe['macd']
-        if 'macd_signal' in dataframe.columns:
-            dataframe["%-macd_signal"] = dataframe['macd_signal']
-        if 'bb_upperband' in dataframe.columns and 'bb_lowerband' in dataframe.columns:
-            dataframe["%-bb_width"] = (dataframe['bb_upperband'] - dataframe['bb_lowerband']) / dataframe['close']
-        if 'atr' in dataframe.columns:
-            dataframe["%-atr"] = dataframe['atr'] / dataframe['close']
-        if 'adx' in dataframe.columns:
-            dataframe["%-adx"] = dataframe['adx']
+        if "rsi_14" in dataframe.columns:
+            dataframe["%-rsi"] = dataframe["rsi_14"]
+        if "macd" in dataframe.columns:
+            dataframe["%-macd"] = dataframe["macd"]
+        if "macd_signal" in dataframe.columns:
+            dataframe["%-macd_signal"] = dataframe["macd_signal"]
+        if "bb_upperband" in dataframe.columns and "bb_lowerband" in dataframe.columns:
+            dataframe["%-bb_width"] = (
+                dataframe["bb_upperband"] - dataframe["bb_lowerband"]
+            ) / dataframe["close"]
+        if "atr" in dataframe.columns:
+            dataframe["%-atr"] = dataframe["atr"] / dataframe["close"]
+        if "adx" in dataframe.columns:
+            dataframe["%-adx"] = dataframe["adx"]
 
         # Price patterns
-        dataframe["%-close_to_high"] = (dataframe['high'] - dataframe['close']) / dataframe['close']
-        dataframe["%-close_to_low"] = (dataframe['close'] - dataframe['low']) / dataframe['close']
+        dataframe["%-close_to_high"] = (
+            dataframe["high"] - dataframe["close"]
+        ) / dataframe["close"]
+        dataframe["%-close_to_low"] = (
+            dataframe["close"] - dataframe["low"]
+        ) / dataframe["close"]
 
         return dataframe
 
@@ -239,24 +253,20 @@ class FreqAIStrategy(IStrategy):
         # Predict future price change (regression target)
         # lookahead_periods=4 means predict 4 candles ahead (16 hours for 4h timeframe)
         dataframe = create_target_labels(
-            dataframe,
-            target_type='regression',
-            lookahead_periods=4
+            dataframe, target_type="regression", lookahead_periods=4
         )
 
         # FreqAI expects target in column named with '&-' prefix
-        if 'target_price_change' in dataframe.columns:
-            dataframe["&-target"] = dataframe['target_price_change']
+        if "target_price_change" in dataframe.columns:
+            dataframe["&-target"] = dataframe["target_price_change"]
 
         # Also create classification target (optional, for confidence scoring)
         dataframe = create_target_labels(
-            dataframe,
-            target_type='classification',
-            lookahead_periods=4
+            dataframe, target_type="classification", lookahead_periods=4
         )
 
-        if 'target_direction' in dataframe.columns:
-            dataframe["&-target_direction"] = dataframe['target_direction']
+        if "target_direction" in dataframe.columns:
+            dataframe["&-target_direction"] = dataframe["target_direction"]
 
         return dataframe
 
@@ -274,33 +284,36 @@ class FreqAIStrategy(IStrategy):
         conditions = []
 
         # ML Prediction conditions (if FreqAI is enabled)
-        if 'do_predict' in dataframe.columns:
+        if "do_predict" in dataframe.columns:
             # FreqAI predictions are in columns with '&-' prefix
             ml_conditions = (
-                (dataframe['do_predict'] == 1) &  # FreqAI says we should predict
-                (dataframe['&-target'] > self.ml_prediction_threshold) &  # Positive prediction
-                (dataframe['DI_values'] < 1)  # Dissimilarity Index check (data quality)
+                (dataframe["do_predict"] == 1)  # FreqAI says we should predict
+                & (
+                    dataframe["&-target"] > self.ml_prediction_threshold
+                )  # Positive prediction
+                & (
+                    dataframe["DI_values"] < 1
+                )  # Dissimilarity Index check (data quality)
             )
             conditions.append(ml_conditions)
 
         # Technical confirmation conditions
         technical_conditions = (
-            (dataframe['volume'] > 0) &  # Volume check
-            (dataframe['close'] > dataframe['ema21']) &  # Price above EMA21
-            (dataframe['ema9'] > dataframe['ema21']) &  # EMA9 > EMA21 (uptrend)
-            (dataframe['rsi_14'] > 30) &  # RSI not oversold (avoid falling knives)
-            (dataframe['rsi_14'] < 70) &  # RSI not overbought (room to grow)
-            (dataframe['close'] > dataframe['bb_lowerband']) &  # Above lower Bollinger Band
-            (dataframe['adx'] > 20)  # ADX shows trend strength
+            (dataframe["volume"] > 0)  # Volume check
+            & (dataframe["close"] > dataframe["ema21"])  # Price above EMA21
+            & (dataframe["ema9"] > dataframe["ema21"])  # EMA9 > EMA21 (uptrend)
+            & (dataframe["rsi_14"] > 30)  # RSI not oversold (avoid falling knives)
+            & (dataframe["rsi_14"] < 70)  # RSI not overbought (room to grow)
+            & (
+                dataframe["close"] > dataframe["bb_lowerband"]
+            )  # Above lower Bollinger Band
+            & (dataframe["adx"] > 20)  # ADX shows trend strength
         )
         conditions.append(technical_conditions)
 
         # Combine all conditions
         if conditions:
-            dataframe.loc[
-                reduce(lambda x, y: x & y, conditions),
-                'enter_long'
-            ] = 1
+            dataframe.loc[reduce(lambda x, y: x & y, conditions), "enter_long"] = 1
 
         return dataframe
 
@@ -318,35 +331,45 @@ class FreqAIStrategy(IStrategy):
         conditions = []
 
         # ML Prediction reversal (if FreqAI is enabled)
-        if 'do_predict' in dataframe.columns and '&-target' in dataframe.columns:
+        if "do_predict" in dataframe.columns and "&-target" in dataframe.columns:
             ml_exit_conditions = (
-                (dataframe['do_predict'] == 1) &  # FreqAI is active
-                (dataframe['&-target'] < -self.ml_prediction_threshold)  # Negative prediction
+                (dataframe["do_predict"] == 1)  # FreqAI is active
+                & (
+                    dataframe["&-target"] < -self.ml_prediction_threshold
+                )  # Negative prediction
             )
             conditions.append(ml_exit_conditions)
 
         # Technical exit conditions
         technical_exit = (
-            (dataframe['close'] < dataframe['ema9']) |  # Price below EMA9
-            (dataframe['ema9'] < dataframe['ema21']) |  # EMA9 < EMA21 (downtrend)
-            (dataframe['rsi_14'] > 75) |  # RSI overbought
-            (dataframe['close'] > dataframe['bb_upperband'])  # Above upper Bollinger Band
+            (dataframe["close"] < dataframe["ema9"])  # Price below EMA9
+            | (dataframe["ema9"] < dataframe["ema21"])  # EMA9 < EMA21 (downtrend)
+            | (dataframe["rsi_14"] > 75)  # RSI overbought
+            | (
+                dataframe["close"] > dataframe["bb_upperband"]
+            )  # Above upper Bollinger Band
         )
         conditions.append(technical_exit)
 
         # Exit if any condition is true (OR logic for exits)
         if conditions:
-            dataframe.loc[
-                reduce(lambda x, y: x | y, conditions),
-                'exit_long'
-            ] = 1
+            dataframe.loc[reduce(lambda x, y: x | y, conditions), "exit_long"] = 1
 
         return dataframe
 
-    def custom_stake_amount(self, pair: str, current_time: datetime, current_rate: float,
-                           proposed_stake: float, min_stake: Optional[float], max_stake: float,
-                           leverage: float, entry_tag: Optional[str], side: str,
-                           **kwargs) -> float:
+    def custom_stake_amount(
+        self,
+        pair: str,
+        current_time: datetime,
+        current_rate: float,
+        proposed_stake: float,
+        min_stake: Optional[float],
+        max_stake: float,
+        leverage: float,
+        entry_tag: Optional[str],
+        side: str,
+        **kwargs,
+    ) -> float:
         """
         Adjust stake amount based on ML confidence.
 
@@ -373,18 +396,18 @@ class FreqAIStrategy(IStrategy):
         # Get ML confidence from FreqAI (if available)
         last_candle = dataframe.iloc[-1]
 
-        if '&-target' in last_candle:
+        if "&-target" in last_candle:
             # ML prediction confidence based on absolute predicted return
-            ml_prediction = abs(last_candle['&-target'])
+            ml_prediction = abs(last_candle["&-target"])
 
             # Map prediction to confidence multiplier (0.01 = 65%, 0.05 = 95%)
             confidence = min(0.95, 0.65 + (ml_prediction - 0.01) * 10)
             confidence = max(0.65, confidence)
 
             # Calculate multiplier (65% → 0.8x, 80% → 1.0x, 95% → 1.2x)
-            multiplier = self.ml_confidence_multiplier_min + \
-                        (confidence - 0.65) / (0.95 - 0.65) * \
-                        (self.ml_confidence_multiplier_max - self.ml_confidence_multiplier_min)
+            multiplier = self.ml_confidence_multiplier_min + (confidence - 0.65) / (
+                0.95 - 0.65
+            ) * (self.ml_confidence_multiplier_max - self.ml_confidence_multiplier_min)
 
             # Apply multiplier to proposed stake
             adjusted_stake = proposed_stake * multiplier
@@ -394,8 +417,10 @@ class FreqAIStrategy(IStrategy):
                 adjusted_stake = max(adjusted_stake, min_stake)
             adjusted_stake = min(adjusted_stake, max_stake)
 
-            logger.info(f"ML confidence: {confidence:.2%}, multiplier: {multiplier:.2f}, "
-                       f"stake: {proposed_stake:.2f} → {adjusted_stake:.2f}")
+            logger.info(
+                f"ML confidence: {confidence:.2%}, multiplier: {multiplier:.2f}, "
+                f"stake: {proposed_stake:.2f} → {adjusted_stake:.2f}"
+            )
 
             return adjusted_stake
 

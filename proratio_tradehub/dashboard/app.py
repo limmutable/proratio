@@ -7,20 +7,17 @@ Provides live status, AI consensus visualization, risk monitoring, and emergency
 
 import streamlit as st
 import plotly.graph_objects as go
-import plotly.express as px
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 import sys
-from typing import Dict, List, Optional
+from typing import Dict
 
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from proratio_utilities.config.trading_config import TradingConfig
-from proratio_tradehub.risk.risk_manager import RiskManager
-from proratio_signals.orchestrator import SignalOrchestrator
 from proratio_tradehub.dashboard.system_status import SystemStatusChecker
 
 # Page configuration
@@ -32,7 +29,8 @@ st.set_page_config(
 )
 
 # Custom CSS for better styling
-st.markdown("""
+st.markdown(
+    """
 <style>
     .metric-card {
         background-color: #f0f2f6;
@@ -53,15 +51,17 @@ st.markdown("""
     .consensus-bearish { background-color: #f8d7da; color: #721c24; }
     .consensus-neutral { background-color: #fff3cd; color: #856404; }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 
 # Initialize session state
-if 'trading_enabled' not in st.session_state:
+if "trading_enabled" not in st.session_state:
     st.session_state.trading_enabled = False
-if 'emergency_stop' not in st.session_state:
+if "emergency_stop" not in st.session_state:
     st.session_state.emergency_stop = False
-if 'last_update' not in st.session_state:
+if "last_update" not in st.session_state:
     st.session_state.last_update = datetime.now()
 
 
@@ -109,8 +109,8 @@ def get_mock_trading_data() -> Dict:
                 "pnl_pct": -0.48,
                 "pnl_usd": -48.00,
                 "duration": "45m",
-            }
-        ]
+            },
+        ],
     }
 
 
@@ -126,22 +126,30 @@ def get_ai_signals() -> Dict:
             "direction": "long",
             "confidence": 0.72,
             "providers": {
-                "chatgpt": {"signal": "long", "confidence": 0.68, "status": "unavailable"},
+                "chatgpt": {
+                    "signal": "long",
+                    "confidence": 0.68,
+                    "status": "unavailable",
+                },
                 "claude": {"signal": "long", "confidence": 0.78, "status": "active"},
-                "gemini": {"signal": "long", "confidence": 0.70, "status": "active"}
+                "gemini": {"signal": "long", "confidence": 0.70, "status": "active"},
             },
-            "reasoning": "Strong uptrend confirmed by multiple indicators. RSI showing momentum, price above EMA crossover."
+            "reasoning": "Strong uptrend confirmed by multiple indicators. RSI showing momentum, price above EMA crossover.",
         },
         "eth_usdt": {
             "direction": "neutral",
             "confidence": 0.45,
             "providers": {
-                "chatgpt": {"signal": "neutral", "confidence": 0.50, "status": "unavailable"},
+                "chatgpt": {
+                    "signal": "neutral",
+                    "confidence": 0.50,
+                    "status": "unavailable",
+                },
                 "claude": {"signal": "short", "confidence": 0.40, "status": "active"},
-                "gemini": {"signal": "neutral", "confidence": 0.45, "status": "active"}
+                "gemini": {"signal": "neutral", "confidence": 0.45, "status": "active"},
             },
-            "reasoning": "Mixed signals. Consolidation pattern forming, awaiting breakout direction."
-        }
+            "reasoning": "Mixed signals. Consolidation pattern forming, awaiting breakout direction.",
+        },
     }
 
 
@@ -174,7 +182,7 @@ def render_sidebar():
         st.session_state.trading_enabled = st.toggle(
             "Enable Trading",
             value=st.session_state.trading_enabled,
-            help="Enable/disable automated trading"
+            help="Enable/disable automated trading",
         )
 
         auto_refresh = st.checkbox("Auto-refresh (10s)", value=True)
@@ -185,12 +193,21 @@ def render_sidebar():
         st.subheader("📊 Quick Stats")
         config = load_trading_config()
 
-        st.metric("Risk Level", f"{config.risk.max_loss_per_trade_pct:.1f}%",
-                 help="Maximum loss per trade")
-        st.metric("Position Size", f"{config.position_sizing.base_risk_pct:.1f}%",
-                 help="Base risk percentage")
-        st.metric("Max Positions", config.risk.max_concurrent_positions,
-                 help="Maximum concurrent positions")
+        st.metric(
+            "Risk Level",
+            f"{config.risk.max_loss_per_trade_pct:.1f}%",
+            help="Maximum loss per trade",
+        )
+        st.metric(
+            "Position Size",
+            f"{config.position_sizing.base_risk_pct:.1f}%",
+            help="Base risk percentage",
+        )
+        st.metric(
+            "Max Positions",
+            config.risk.max_concurrent_positions,
+            help="Maximum concurrent positions",
+        )
 
         st.markdown("---")
 
@@ -203,7 +220,7 @@ def render_sidebar():
         summary = status_checker.get_summary()
 
         # Display overall health
-        health_pct = summary['health_pct']
+        health_pct = summary["health_pct"]
         if health_pct >= 85:
             health_color = "🟢"
             health_text = "Healthy"
@@ -214,8 +231,12 @@ def render_sidebar():
             health_color = "🔴"
             health_text = "Critical"
 
-        st.caption(f"{health_color} System Health: **{health_text}** ({health_pct:.0f}%)")
-        st.caption(f"✅ {summary['available']} | ⚠️ {summary['warnings']} | ❌ {summary['unavailable']}")
+        st.caption(
+            f"{health_color} System Health: **{health_text}** ({health_pct:.0f}%)"
+        )
+        st.caption(
+            f"✅ {summary['available']} | ⚠️ {summary['warnings']} | ❌ {summary['unavailable']}"
+        )
 
         # Display individual service status
         for service_key, status in all_status.items():
@@ -249,14 +270,14 @@ def render_performance_overview():
         st.metric(
             label="Total P&L",
             value=f"${data['total_pnl']:.2f}",
-            delta=f"{data['pnl_pct']:.2f}%"
+            delta=f"{data['pnl_pct']:.2f}%",
         )
 
     with col2:
         st.metric(
             label="Win Rate",
             value=f"{data['win_rate']:.1f}%",
-            delta=f"{data['total_profit_trades']}/{data['total_trades']} wins"
+            delta=f"{data['total_profit_trades']}/{data['total_trades']} wins",
         )
 
     with col3:
@@ -266,19 +287,21 @@ def render_performance_overview():
         )
 
     with col4:
-        drawdown_delta = f"{data['current_drawdown']:.1f}% / {data['max_drawdown']:.1f}% max"
+        drawdown_delta = (
+            f"{data['current_drawdown']:.1f}% / {data['max_drawdown']:.1f}% max"
+        )
         st.metric(
             label="Drawdown",
             value=f"{data['current_drawdown']:.1f}%",
             delta=drawdown_delta,
-            delta_color="inverse"
+            delta_color="inverse",
         )
 
     with col5:
         st.metric(
             label="Sharpe Ratio",
             value=f"{data['sharpe_ratio']:.2f}",
-            delta="Good" if data['sharpe_ratio'] > 1.5 else "Fair"
+            delta="Good" if data["sharpe_ratio"] > 1.5 else "Fair",
         )
 
     # Additional metrics row
@@ -294,7 +317,7 @@ def render_performance_overview():
         st.metric("Avg Loss", f"{data['avg_loss']:.2f}%")
 
     with col4:
-        st.metric("Total Trades", data['total_trades'])
+        st.metric("Total Trades", data["total_trades"])
 
 
 def render_active_positions():
@@ -303,26 +326,26 @@ def render_active_positions():
 
     data = get_mock_trading_data()
 
-    if not data['active_trades']:
+    if not data["active_trades"]:
         st.info("No active positions")
         return
 
     # Create DataFrame for positions
-    df = pd.DataFrame(data['active_trades'])
+    df = pd.DataFrame(data["active_trades"])
 
     # Format columns
-    df['Entry Price'] = df['entry_price'].apply(lambda x: f"${x:,.2f}")
-    df['Current Price'] = df['current_price'].apply(lambda x: f"${x:,.2f}")
-    df['P&L %'] = df['pnl_pct'].apply(lambda x: f"{x:+.2f}%")
-    df['P&L USD'] = df['pnl_usd'].apply(lambda x: f"${x:+.2f}")
-    df['Pair'] = df['pair']
-    df['Duration'] = df['duration']
+    df["Entry Price"] = df["entry_price"].apply(lambda x: f"${x:,.2f}")
+    df["Current Price"] = df["current_price"].apply(lambda x: f"${x:,.2f}")
+    df["P&L %"] = df["pnl_pct"].apply(lambda x: f"{x:+.2f}%")
+    df["P&L USD"] = df["pnl_usd"].apply(lambda x: f"${x:+.2f}")
+    df["Pair"] = df["pair"]
+    df["Duration"] = df["duration"]
 
     # Display table
     st.dataframe(
-        df[['Pair', 'Entry Price', 'Current Price', 'P&L %', 'P&L USD', 'Duration']],
+        df[["Pair", "Entry Price", "Current Price", "P&L %", "P&L USD", "Duration"]],
         width="stretch",
-        hide_index=True
+        hide_index=True,
     )
 
 
@@ -336,13 +359,13 @@ def render_ai_consensus():
         st.subheader(f"{pair.replace('_', '/').upper()}")
 
         # Overall consensus
-        direction = signal_data['direction']
-        confidence = signal_data['confidence']
+        direction = signal_data["direction"]
+        confidence = signal_data["confidence"]
 
         consensus_class = {
-            'long': 'consensus-bullish',
-            'short': 'consensus-bearish',
-            'neutral': 'consensus-neutral'
+            "long": "consensus-bullish",
+            "short": "consensus-bearish",
+            "neutral": "consensus-neutral",
         }[direction]
 
         col1, col2, col3 = st.columns([2, 1, 3])
@@ -353,52 +376,56 @@ def render_ai_consensus():
                 f"<strong>Signal:</strong> {direction.upper()} | "
                 f"<strong>Confidence:</strong> {confidence:.0%}"
                 f"</div>",
-                unsafe_allow_html=True
+                unsafe_allow_html=True,
             )
 
         with col2:
             # Confidence gauge
-            fig = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=confidence * 100,
-                domain={'x': [0, 1], 'y': [0, 1]},
-                gauge={
-                    'axis': {'range': [None, 100]},
-                    'bar': {'color': "darkblue"},
-                    'steps': [
-                        {'range': [0, 40], 'color': "lightgray"},
-                        {'range': [40, 60], 'color': "yellow"},
-                        {'range': [60, 100], 'color': "lightgreen"}
-                    ],
-                    'threshold': {
-                        'line': {'color': "red", 'width': 4},
-                        'thickness': 0.75,
-                        'value': 60
-                    }
-                }
-            ))
+            fig = go.Figure(
+                go.Indicator(
+                    mode="gauge+number",
+                    value=confidence * 100,
+                    domain={"x": [0, 1], "y": [0, 1]},
+                    gauge={
+                        "axis": {"range": [None, 100]},
+                        "bar": {"color": "darkblue"},
+                        "steps": [
+                            {"range": [0, 40], "color": "lightgray"},
+                            {"range": [40, 60], "color": "yellow"},
+                            {"range": [60, 100], "color": "lightgreen"},
+                        ],
+                        "threshold": {
+                            "line": {"color": "red", "width": 4},
+                            "thickness": 0.75,
+                            "value": 60,
+                        },
+                    },
+                )
+            )
             fig.update_layout(height=150, margin=dict(l=20, r=20, t=20, b=20))
             st.plotly_chart(fig, use_container_width=True)
 
         with col3:
             st.caption("**Reasoning:**")
-            st.write(signal_data['reasoning'])
+            st.write(signal_data["reasoning"])
 
         # Individual provider signals
         st.markdown("**Provider Breakdown:**")
 
         provider_cols = st.columns(3)
 
-        for idx, (provider, provider_data) in enumerate(signal_data['providers'].items()):
+        for idx, (provider, provider_data) in enumerate(
+            signal_data["providers"].items()
+        ):
             with provider_cols[idx]:
-                status = provider_data['status']
+                status = provider_data["status"]
                 status_icon = "✅" if status == "active" else "❌"
 
                 st.markdown(
                     f"**{provider.title()}** {status_icon}<br>"
                     f"Signal: {provider_data['signal'].upper()}<br>"
                     f"Confidence: {provider_data['confidence']:.0%}",
-                    unsafe_allow_html=True
+                    unsafe_allow_html=True,
                 )
 
         st.markdown("---")
@@ -412,7 +439,7 @@ def render_risk_dashboard():
     data = get_mock_trading_data()
 
     # Risk status indicator
-    current_drawdown = data['current_drawdown']
+    current_drawdown = data["current_drawdown"]
     max_drawdown_limit = config.risk.max_total_drawdown_pct
 
     if current_drawdown >= max_drawdown_limit:
@@ -430,7 +457,7 @@ def render_risk_dashboard():
 
     st.markdown(
         f"<h2 class='{risk_class}'>Risk Level: {risk_level}</h2>",
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
     # Risk metrics
@@ -441,23 +468,21 @@ def render_risk_dashboard():
             "Current Drawdown",
             f"{current_drawdown:.2f}%",
             delta=f"{max_drawdown_limit:.1f}% limit",
-            delta_color="inverse"
+            delta_color="inverse",
         )
 
     with col2:
-        position_usage = (data['open_positions'] / data['max_positions']) * 100
+        position_usage = (data["open_positions"] / data["max_positions"]) * 100
         st.metric(
             "Position Usage",
             f"{position_usage:.0f}%",
-            delta=f"{data['open_positions']}/{data['max_positions']} used"
+            delta=f"{data['open_positions']}/{data['max_positions']} used",
         )
 
     with col3:
         max_loss_per_trade = config.risk.max_loss_per_trade_pct * 100
         st.metric(
-            "Max Loss/Trade",
-            f"{max_loss_per_trade:.1f}%",
-            delta="Per position limit"
+            "Max Loss/Trade", f"{max_loss_per_trade:.1f}%", delta="Per position limit"
         )
 
     with col4:
@@ -465,14 +490,16 @@ def render_risk_dashboard():
         st.metric(
             "Max Leverage",
             f"{max_leverage:.1f}x",
-            delta="Spot only" if max_leverage == 1.0 else "Futures enabled"
+            delta="Spot only" if max_leverage == 1.0 else "Futures enabled",
         )
 
     # Drawdown progress bar
     st.subheader("Drawdown vs. Limit")
     drawdown_pct = (current_drawdown / max_drawdown_limit) * 100
     st.progress(min(drawdown_pct / 100, 1.0))
-    st.caption(f"{current_drawdown:.2f}% / {max_drawdown_limit:.1f}% maximum ({drawdown_pct:.0f}% of limit)")
+    st.caption(
+        f"{current_drawdown:.2f}% / {max_drawdown_limit:.1f}% maximum ({drawdown_pct:.0f}% of limit)"
+    )
 
     # Risk limits table
     st.subheader("Risk Limits Configuration")
@@ -500,19 +527,17 @@ def render_risk_dashboard():
             f"{config.position_sizing.base_risk_pct:.1f}%",
         ],
         "Status": [
-            "✅ OK" if abs(data['avg_loss']) < config.risk.max_loss_per_trade_pct else "⚠️ WARNING",
+            "✅ OK"
+            if abs(data["avg_loss"]) < config.risk.max_loss_per_trade_pct
+            else "⚠️ WARNING",
             "✅ OK",
             "✅ OK" if current_drawdown < max_drawdown_limit else "🚨 CRITICAL",
             "✅ OK",
             "✅ OK",
-        ]
+        ],
     }
 
-    st.dataframe(
-        pd.DataFrame(limits_data),
-        width="stretch",
-        hide_index=True
-    )
+    st.dataframe(pd.DataFrame(limits_data), width="stretch", hide_index=True)
 
 
 def render_configuration_viewer():
@@ -545,7 +570,7 @@ def render_configuration_viewer():
                 str(config.risk.max_concurrent_positions),
                 str(config.risk.max_positions_per_pair),
                 f"{config.risk.max_leverage:.1f}x",
-            ]
+            ],
         }
         st.dataframe(pd.DataFrame(risk_data), width="stretch", hide_index=True)
 
@@ -565,7 +590,7 @@ def render_configuration_viewer():
                 f"{config.position_sizing.ai_confidence_min:.0%}",
                 f"{config.position_sizing.ai_confidence_multiplier_min:.2f}x",
                 f"{config.position_sizing.ai_confidence_multiplier_max:.2f}x",
-            ]
+            ],
         }
         st.dataframe(pd.DataFrame(pos_data), width="stretch", hide_index=True)
 
@@ -587,7 +612,7 @@ def render_configuration_viewer():
                 str(config.strategy.ema_fast_period),
                 str(config.strategy.ema_slow_period),
                 str(config.strategy.rsi_period),
-            ]
+            ],
         }
         st.dataframe(pd.DataFrame(strat_data), width="stretch", hide_index=True)
 
@@ -608,8 +633,10 @@ def render_configuration_viewer():
                 f"{config.ai.chatgpt_weight:.0%}",
                 f"{config.ai.claude_weight:.0%}",
                 f"{config.ai.gemini_weight:.0%}",
-                f"{config.ai.signal_timeout_seconds}s" if hasattr(config.ai, 'signal_timeout_seconds') else "N/A",
-            ]
+                f"{config.ai.signal_timeout_seconds}s"
+                if hasattr(config.ai, "signal_timeout_seconds")
+                else "N/A",
+            ],
         }
         st.dataframe(pd.DataFrame(ai_data), width="stretch", hide_index=True)
 
@@ -631,7 +658,7 @@ def render_configuration_viewer():
                 config.execution.exit_order_type,
                 config.execution.stoploss_order_type,
                 "✅ Yes" if config.execution.stoploss_on_exchange else "❌ No",
-            ]
+            ],
         }
         st.dataframe(pd.DataFrame(exec_data), width="stretch", hide_index=True)
 
@@ -648,15 +675,14 @@ def main():
 
     # Emergency stop banner
     if st.session_state.emergency_stop:
-        st.error("🚨 **EMERGENCY STOP ACTIVATED** - All trading halted. Reset in sidebar to resume.")
+        st.error(
+            "🚨 **EMERGENCY STOP ACTIVATED** - All trading halted. Reset in sidebar to resume."
+        )
 
     # Create tabs for different views
-    tab1, tab2, tab3, tab4 = st.tabs([
-        "📈 Live Trading",
-        "🤖 AI Signals",
-        "⚠️ Risk Management",
-        "⚙️ Configuration"
-    ])
+    tab1, tab2, tab3, tab4 = st.tabs(
+        ["📈 Live Trading", "🤖 AI Signals", "⚠️ Risk Management", "⚙️ Configuration"]
+    )
 
     with tab1:
         render_performance_overview()

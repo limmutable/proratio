@@ -31,7 +31,7 @@ class ChatGPTProvider(BaseLLMProvider):
 
     def _validate_api_key(self) -> None:
         """Validate OpenAI API key format"""
-        if not self.api_key or not self.api_key.startswith('sk-'):
+        if not self.api_key or not self.api_key.startswith("sk-"):
             raise ValueError("Invalid OpenAI API key format (should start with 'sk-')")
 
         # Initialize OpenAI client
@@ -53,16 +53,13 @@ class ChatGPTProvider(BaseLLMProvider):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an expert cryptocurrency technical analyst. Analyze market data and provide clear, actionable trading signals."
+                        "content": "You are an expert cryptocurrency technical analyst. Analyze market data and provide clear, actionable trading signals.",
                     },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
+                    {"role": "user", "content": prompt},
                 ],
                 temperature=0.3,  # Lower temperature for more consistent analysis
                 max_tokens=1000,
-                response_format={"type": "json_object"}  # Request JSON response
+                response_format={"type": "json_object"},  # Request JSON response
             )
 
             return response.choices[0].message.content
@@ -74,7 +71,7 @@ class ChatGPTProvider(BaseLLMProvider):
         self,
         ohlcv_data: OHLCVData,
         prompt_template: str,
-        additional_context: Optional[Dict[str, Any]] = None
+        additional_context: Optional[Dict[str, Any]] = None,
     ) -> MarketAnalysis:
         """
         Analyze market using ChatGPT.
@@ -94,7 +91,9 @@ class ChatGPTProvider(BaseLLMProvider):
             market_data=market_summary,
             pair=ohlcv_data.pair,
             timeframe=ohlcv_data.timeframe,
-            additional_context=json.dumps(additional_context) if additional_context else ""
+            additional_context=json.dumps(additional_context)
+            if additional_context
+            else "",
         )
 
         # Call API
@@ -103,7 +102,9 @@ class ChatGPTProvider(BaseLLMProvider):
         # Parse JSON response
         return self._parse_json_response(raw_response, ohlcv_data)
 
-    def _parse_json_response(self, raw_response: str, ohlcv_data: OHLCVData) -> MarketAnalysis:
+    def _parse_json_response(
+        self, raw_response: str, ohlcv_data: OHLCVData
+    ) -> MarketAnalysis:
         """
         Parse JSON response from ChatGPT.
 
@@ -118,12 +119,12 @@ class ChatGPTProvider(BaseLLMProvider):
             data = json.loads(raw_response)
 
             # Extract fields with defaults
-            direction = data.get('direction', 'neutral').lower()
-            confidence = float(data.get('confidence', 0.5))
+            direction = data.get("direction", "neutral").lower()
+            confidence = float(data.get("confidence", 0.5))
 
             # Validate direction
-            if direction not in ['long', 'short', 'neutral']:
-                direction = 'neutral'
+            if direction not in ["long", "short", "neutral"]:
+                direction = "neutral"
 
             # Clamp confidence to [0, 1]
             confidence = max(0.0, min(1.0, confidence))
@@ -131,15 +132,15 @@ class ChatGPTProvider(BaseLLMProvider):
             return MarketAnalysis(
                 direction=direction,
                 confidence=confidence,
-                technical_summary=data.get('technical_summary', ''),
-                risk_assessment=data.get('risk_assessment', ''),
-                sentiment=data.get('sentiment', 'neutral'),
-                reasoning=data.get('reasoning', raw_response),
+                technical_summary=data.get("technical_summary", ""),
+                risk_assessment=data.get("risk_assessment", ""),
+                sentiment=data.get("sentiment", "neutral"),
+                reasoning=data.get("reasoning", raw_response),
                 provider=self.provider_name,
                 timestamp=pd.Timestamp.now(),
                 pair=ohlcv_data.pair,
                 timeframe=ohlcv_data.timeframe,
-                raw_response=raw_response
+                raw_response=raw_response,
             )
 
         except json.JSONDecodeError as e:

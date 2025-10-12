@@ -10,7 +10,7 @@ from datetime import datetime
 from proratio_signals.llm_providers.base import (
     BaseLLMProvider,
     MarketAnalysis,
-    OHLCVData
+    OHLCVData,
 )
 
 
@@ -35,14 +35,14 @@ class MockLLMProvider(BaseLLMProvider):
 
 def create_sample_ohlcv() -> pd.DataFrame:
     """Create sample OHLCV data for testing"""
-    dates = pd.date_range(start='2024-01-01', periods=100, freq='1H')
+    dates = pd.date_range(start="2024-01-01", periods=100, freq="1H")
     data = {
-        'timestamp': dates,
-        'open': [100 + i for i in range(100)],
-        'high': [105 + i for i in range(100)],
-        'low': [95 + i for i in range(100)],
-        'close': [102 + i for i in range(100)],
-        'volume': [1000 + i*10 for i in range(100)]
+        "timestamp": dates,
+        "open": [100 + i for i in range(100)],
+        "high": [105 + i for i in range(100)],
+        "low": [95 + i for i in range(100)],
+        "close": [102 + i for i in range(100)],
+        "volume": [1000 + i * 10 for i in range(100)],
     }
     return pd.DataFrame(data)
 
@@ -57,13 +57,13 @@ class TestOHLCVData:
             pair="BTC/USDT",
             timeframe="1h",
             data=df,
-            indicators={'RSI': 50.0, 'EMA_20': 100.5}
+            indicators={"RSI": 50.0, "EMA_20": 100.5},
         )
 
         assert ohlcv.pair == "BTC/USDT"
         assert ohlcv.timeframe == "1h"
         assert len(ohlcv.data) == 100
-        assert ohlcv.indicators['RSI'] == 50.0
+        assert ohlcv.indicators["RSI"] == 50.0
 
     def test_to_summary_text(self):
         """Test conversion to summary text"""
@@ -72,7 +72,7 @@ class TestOHLCVData:
             pair="BTC/USDT",
             timeframe="1h",
             data=df,
-            indicators={'RSI': 50.0, 'MACD': 2.5}
+            indicators={"RSI": 50.0, "MACD": 2.5},
         )
 
         summary = ohlcv.to_summary_text(lookback=20)
@@ -90,7 +90,7 @@ class TestMarketAnalysis:
     def test_creation(self):
         """Test MarketAnalysis creation"""
         analysis = MarketAnalysis(
-            direction='long',
+            direction="long",
             confidence=0.8,
             technical_summary="Strong uptrend",
             risk_assessment="Low risk",
@@ -99,17 +99,17 @@ class TestMarketAnalysis:
             provider="test",
             timestamp=datetime.now(),
             pair="BTC/USDT",
-            timeframe="1h"
+            timeframe="1h",
         )
 
-        assert analysis.direction == 'long'
+        assert analysis.direction == "long"
         assert analysis.confidence == 0.8
         assert analysis.provider == "test"
 
     def test_validation(self):
         """Test that all required fields are present"""
         with pytest.raises(TypeError):
-            MarketAnalysis(direction='long')  # Missing required fields
+            MarketAnalysis(direction="long")  # Missing required fields
 
 
 class TestBaseLLMProvider:
@@ -135,7 +135,7 @@ class TestBaseLLMProvider:
         response = "This is a strong LONG signal with high confidence. Buy recommended."
         analysis = provider._parse_response(response, ohlcv)
 
-        assert analysis.direction == 'long'
+        assert analysis.direction == "long"
         assert analysis.confidence > 0.5
         assert analysis.pair == "BTC/USDT"
 
@@ -148,7 +148,7 @@ class TestBaseLLMProvider:
         response = "Bearish signal detected. Sell recommended with short position."
         analysis = provider._parse_response(response, ohlcv)
 
-        assert analysis.direction == 'short'
+        assert analysis.direction == "short"
         assert analysis.pair == "BTC/USDT"
 
     def test_parse_response_neutral_signal(self):
@@ -160,7 +160,7 @@ class TestBaseLLMProvider:
         response = "Market conditions are unclear. No clear signal."
         analysis = provider._parse_response(response, ohlcv)
 
-        assert analysis.direction == 'neutral'
+        assert analysis.direction == "neutral"
 
     def test_test_connection(self):
         """Test connection testing"""
@@ -179,13 +179,12 @@ class TestProviderAnalyzeMarket:
         ohlcv = OHLCVData(pair="BTC/USDT", timeframe="1h", data=df)
 
         analysis = provider.analyze_market(
-            ohlcv_data=ohlcv,
-            prompt_template="Analyze this: {market_data}"
+            ohlcv_data=ohlcv, prompt_template="Analyze this: {market_data}"
         )
 
         assert isinstance(analysis, MarketAnalysis)
         assert analysis.provider == "mock"
-        assert analysis.direction in ['long', 'short', 'neutral']
+        assert analysis.direction in ["long", "short", "neutral"]
 
     def test_analyze_market_with_indicators(self):
         """Test market analysis with technical indicators"""
@@ -195,12 +194,12 @@ class TestProviderAnalyzeMarket:
             pair="BTC/USDT",
             timeframe="1h",
             data=df,
-            indicators={'RSI': 65.0, 'MACD': 1.5}
+            indicators={"RSI": 65.0, "MACD": 1.5},
         )
 
         analysis = provider.analyze_market(
             ohlcv_data=ohlcv,
-            prompt_template="Analyze {pair} on {timeframe}: {market_data}"
+            prompt_template="Analyze {pair} on {timeframe}: {market_data}",
         )
 
         assert analysis.pair == "BTC/USDT"

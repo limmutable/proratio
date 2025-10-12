@@ -7,7 +7,7 @@ database, and AI signal orchestrator.
 
 import requests
 from typing import Dict, List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 import sqlite3
 from pathlib import Path
 
@@ -18,7 +18,12 @@ from proratio_signals.orchestrator import SignalOrchestrator
 class FreqtradeAPIClient:
     """Client for Freqtrade REST API"""
 
-    def __init__(self, base_url: str = "http://127.0.0.1:8080", username: str = "", password: str = ""):
+    def __init__(
+        self,
+        base_url: str = "http://127.0.0.1:8080",
+        username: str = "",
+        password: str = "",
+    ):
         """
         Initialize Freqtrade API client
 
@@ -27,7 +32,7 @@ class FreqtradeAPIClient:
             username: API username (if auth enabled)
             password: API password (if auth enabled)
         """
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.auth = (username, password) if username and password else None
         self.session = requests.Session()
 
@@ -169,11 +174,15 @@ class TradeDatabaseReader:
         total_trades = cursor.fetchone()[0]
 
         # Winning trades
-        cursor.execute("SELECT COUNT(*) FROM trades WHERE is_open = 0 AND close_profit > 0")
+        cursor.execute(
+            "SELECT COUNT(*) FROM trades WHERE is_open = 0 AND close_profit > 0"
+        )
         winning_trades = cursor.fetchone()[0]
 
         # Losing trades
-        cursor.execute("SELECT COUNT(*) FROM trades WHERE is_open = 0 AND close_profit <= 0")
+        cursor.execute(
+            "SELECT COUNT(*) FROM trades WHERE is_open = 0 AND close_profit <= 0"
+        )
         losing_trades = cursor.fetchone()[0]
 
         # Total profit
@@ -181,11 +190,15 @@ class TradeDatabaseReader:
         total_profit = cursor.fetchone()[0] or 0.0
 
         # Average profit
-        cursor.execute("SELECT AVG(close_profit) FROM trades WHERE is_open = 0 AND close_profit > 0")
+        cursor.execute(
+            "SELECT AVG(close_profit) FROM trades WHERE is_open = 0 AND close_profit > 0"
+        )
         avg_profit = cursor.fetchone()[0] or 0.0
 
         # Average loss
-        cursor.execute("SELECT AVG(close_profit) FROM trades WHERE is_open = 0 AND close_profit <= 0")
+        cursor.execute(
+            "SELECT AVG(close_profit) FROM trades WHERE is_open = 0 AND close_profit <= 0"
+        )
         avg_loss = cursor.fetchone()[0] or 0.0
 
         conn.close()
@@ -218,7 +231,7 @@ class DashboardDataFetcher:
         self,
         freqtrade_url: str = "http://127.0.0.1:8080",
         db_path: str = "user_data/db/tradesv3.dryrun.sqlite",
-        config_path: str = "proratio_utilities/config/trading_config.json"
+        config_path: str = "proratio_utilities/config/trading_config.json",
     ):
         """
         Initialize data fetcher
@@ -302,31 +315,29 @@ class DashboardDataFetcher:
         for trade in open_trades:
             # Calculate duration
             open_timestamp = trade.get("open_timestamp", 0)
-            duration_seconds = (datetime.now().timestamp() - open_timestamp / 1000)
+            duration_seconds = datetime.now().timestamp() - open_timestamp / 1000
             hours = int(duration_seconds // 3600)
             minutes = int((duration_seconds % 3600) // 60)
             duration_str = f"{hours}h {minutes}m"
 
-            detailed_trades.append({
-                "pair": trade.get("pair"),
-                "entry_price": trade.get("open_rate"),
-                "current_price": trade.get("current_rate"),
-                "pnl_pct": trade.get("profit_ratio", 0) * 100,
-                "pnl_usd": trade.get("profit_abs", 0),
-                "duration": duration_str,
-                "trade_id": trade.get("trade_id"),
-                "amount": trade.get("amount"),
-            })
+            detailed_trades.append(
+                {
+                    "pair": trade.get("pair"),
+                    "entry_price": trade.get("open_rate"),
+                    "current_price": trade.get("current_rate"),
+                    "pnl_pct": trade.get("profit_ratio", 0) * 100,
+                    "pnl_usd": trade.get("profit_abs", 0),
+                    "duration": duration_str,
+                    "trade_id": trade.get("trade_id"),
+                    "amount": trade.get("amount"),
+                }
+            )
 
         return detailed_trades
 
     def emergency_stop_all(self) -> Dict:
         """Emergency stop - close all positions and stop trading"""
-        result = {
-            "trades_closed": 0,
-            "bot_stopped": False,
-            "errors": []
-        }
+        result = {"trades_closed": 0, "bot_stopped": False, "errors": []}
 
         try:
             # Force exit all trades

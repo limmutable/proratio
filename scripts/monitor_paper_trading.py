@@ -8,7 +8,7 @@ import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List
 import sys
 
 # Add project root to path
@@ -103,23 +103,23 @@ class PaperTradingMonitor:
         if row[0] == 0:  # No closed trades yet
             conn.close()
             return {
-                'total_trades': 0,
-                'winning_trades': 0,
-                'win_rate': 0,
-                'total_profit_usdt': 0,
-                'avg_profit_pct': 0,
-                'max_profit_pct': 0,
-                'max_loss_pct': 0
+                "total_trades": 0,
+                "winning_trades": 0,
+                "win_rate": 0,
+                "total_profit_usdt": 0,
+                "avg_profit_pct": 0,
+                "max_profit_pct": 0,
+                "max_loss_pct": 0,
             }
 
         stats = {
-            'total_trades': row[0],
-            'winning_trades': row[1],
-            'win_rate': (row[1] / row[0] * 100) if row[0] > 0 else 0,
-            'total_profit_usdt': row[2] or 0,
-            'avg_profit_pct': row[3] or 0,
-            'max_profit_pct': row[4] or 0,
-            'max_loss_pct': row[5] or 0
+            "total_trades": row[0],
+            "winning_trades": row[1],
+            "win_rate": (row[1] / row[0] * 100) if row[0] > 0 else 0,
+            "total_profit_usdt": row[2] or 0,
+            "avg_profit_pct": row[3] or 0,
+            "max_profit_pct": row[4] or 0,
+            "max_loss_pct": row[5] or 0,
         }
 
         conn.close()
@@ -172,20 +172,22 @@ class PaperTradingMonitor:
         # Recent Closed Trades
         closed_trades = self.get_closed_trades(limit=5)
 
-        print(f"🔒 RECENT CLOSED TRADES (Last 5)")
+        print("🔒 RECENT CLOSED TRADES (Last 5)")
         print("-" * 80)
 
         if closed_trades:
             for trade in closed_trades:
-                profit_sign = "+" if trade['close_profit'] > 0 else ""
-                emoji = "✅" if trade['close_profit'] > 0 else "❌"
+                profit_sign = "+" if trade["close_profit"] > 0 else ""
+                emoji = "✅" if trade["close_profit"] > 0 else "❌"
 
                 print(f"{emoji} #{trade['id']} {trade['pair']}")
                 print(f"  Opened:     {trade['open_date']}")
                 print(f"  Closed:     {trade['close_date']}")
                 print(f"  Entry:      ${trade['open_rate']:.2f}")
                 print(f"  Exit:       ${trade['close_rate']:.2f}")
-                print(f"  Profit:     {profit_sign}${trade['close_profit_abs']:.2f} USDT ({profit_sign}{trade['close_profit']:.2f}%)")
+                print(
+                    f"  Profit:     {profit_sign}${trade['close_profit_abs']:.2f} USDT ({profit_sign}{trade['close_profit']:.2f}%)"
+                )
                 print()
         else:
             print("  No closed trades yet")
@@ -220,20 +222,18 @@ def main():
 
     parser = argparse.ArgumentParser(description="Monitor Proratio Paper Trading")
     parser.add_argument(
-        '--db',
-        default='user_data/tradesv3_dryrun.sqlite',
-        help='Path to Freqtrade database (default: user_data/tradesv3_dryrun.sqlite)'
+        "--db",
+        default="user_data/tradesv3_dryrun.sqlite",
+        help="Path to Freqtrade database (default: user_data/tradesv3_dryrun.sqlite)",
     )
     parser.add_argument(
-        '--interval',
+        "--interval",
         type=int,
         default=10,
-        help='Update interval in seconds (default: 10)'
+        help="Update interval in seconds (default: 10)",
     )
     parser.add_argument(
-        '--once',
-        action='store_true',
-        help='Show dashboard once and exit (no loop)'
+        "--once", action="store_true", help="Show dashboard once and exit (no loop)"
     )
 
     args = parser.parse_args()
@@ -254,5 +254,5 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

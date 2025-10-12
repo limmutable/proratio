@@ -18,9 +18,9 @@ from proratio_utilities.data.loaders import DataLoader
 def main():
     """Test the data pipeline with a small download"""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TESTING DATA PIPELINE")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Initialize loader (no API keys needed for public data)
     loader = DataLoader(testnet=False)
@@ -40,11 +40,11 @@ def main():
 
     try:
         inserted = loader.download_and_store(
-            pair='BTC/USDT',
-            timeframe='1h',
+            pair="BTC/USDT",
+            timeframe="1h",
             start_date=start_date,
             end_date=end_date,
-            exchange='binance'
+            exchange="binance",
         )
         print(f"   ✓ Successfully inserted {inserted} records\n")
     except Exception as e:
@@ -53,7 +53,7 @@ def main():
 
     # Check data status
     print("3. Checking data status...")
-    status = loader.get_data_status('binance', 'BTC/USDT', '1h')
+    status = loader.get_data_status("binance", "BTC/USDT", "1h")
     print(f"   Total records: {status['total_records']}")
     print(f"   Latest timestamp: {status['latest_timestamp']}")
     print(f"   Data available: {status['data_available']}\n")
@@ -62,9 +62,7 @@ def main():
     print("4. Testing update (fetch new data since last timestamp)...")
     try:
         new_records = loader.update_recent_data(
-            pair='BTC/USDT',
-            timeframe='1h',
-            exchange='binance'
+            pair="BTC/USDT", timeframe="1h", exchange="binance"
         )
         print(f"   ✓ Updated with {new_records} new records\n")
     except Exception as e:
@@ -72,12 +70,12 @@ def main():
 
     loader.close()
 
-    print("="*70)
+    print("=" * 70)
     print("✓ DATA PIPELINE TEST COMPLETE!")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

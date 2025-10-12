@@ -67,11 +67,17 @@ def create_status_table(title: str, data: List[Dict[str, str]]) -> Table:
     table.add_column("Details", style="white")
 
     for row in data:
-        status_style = "green" if row['status'] == "✅" else "red" if row['status'] == "❌" else "yellow"
+        status_style = (
+            "green"
+            if row["status"] == "✅"
+            else "red"
+            if row["status"] == "❌"
+            else "yellow"
+        )
         table.add_row(
-            row['component'],
-            Text(row['status'], style=status_style),
-            row.get('details', '')
+            row["component"],
+            Text(row["status"], style=status_style),
+            row.get("details", ""),
         )
 
     return table
@@ -99,10 +105,10 @@ def create_strategy_table(strategies: List[Dict[str, Any]]) -> Table:
 
     for strategy in strategies:
         table.add_row(
-            strategy['name'],
-            strategy['type'],
-            strategy.get('status', 'Unknown'),
-            f"{strategy.get('sharpe', 0.0):.2f}"
+            strategy["name"],
+            strategy["type"],
+            strategy.get("status", "Unknown"),
+            f"{strategy.get('sharpe', 0.0):.2f}",
         )
 
     return table
@@ -121,14 +127,14 @@ def print_loading_status(title: str, checks: List[Dict[str, Any]]):
     with Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
-        console=console
+        console=console,
     ) as progress:
         for check in checks:
             task = progress.add_task(f"Checking {check['name']}...", total=1)
 
             # Run the check
             try:
-                result = check['func'](*check.get('args', []))
+                result = check["func"](*check.get("args", []))
                 if result:
                     progress.update(task, description=f"✅ {check['name']}")
                 else:
@@ -166,9 +172,13 @@ def print_separator(char: str = "─", length: int = 80):
     console.print(char * length, style="dim")
 
 
-def print_key_value(key: str, value: str, key_style: str = "cyan", value_style: str = "white"):
+def print_key_value(
+    key: str, value: str, key_style: str = "cyan", value_style: str = "white"
+):
     """Print key-value pair."""
-    console.print(f"{Text(key + ':', style=key_style)} {Text(str(value), style=value_style)}")
+    console.print(
+        f"{Text(key + ':', style=key_style)} {Text(str(value), style=value_style)}"
+    )
 
 
 def print_section_header(title: str):
@@ -195,5 +205,5 @@ def show_progress_bar(total: int, description: str = "Processing"):
     return Progress(
         SpinnerColumn(),
         TextColumn("[progress.description]{task.description}"),
-        console=console
+        console=console,
     )

@@ -10,7 +10,7 @@ from proratio_tradehub.risk.risk_manager import (
     RiskLimits,
     PortfolioState,
     RiskStatus,
-    get_risk_manager
+    get_risk_manager,
 )
 
 
@@ -31,7 +31,7 @@ class TestRiskLimits:
         limits = RiskLimits(
             max_loss_per_trade_pct=3.0,
             max_total_drawdown_pct=15.0,
-            max_concurrent_positions=5
+            max_concurrent_positions=5,
         )
 
         assert limits.max_loss_per_trade_pct == 3.0
@@ -63,7 +63,7 @@ class TestPortfolioState:
             peak_balance=11000.0,
             open_positions=2,
             position_pairs=["BTC/USDT", "ETH/USDT"],
-            unrealized_pnl=-200.0
+            unrealized_pnl=-200.0,
         )
 
         assert portfolio.balance == 10000.0
@@ -74,28 +74,19 @@ class TestPortfolioState:
         """Test drawdown calculation"""
         # No drawdown
         portfolio = PortfolioState(
-            balance=10000.0,
-            peak_balance=10000.0,
-            open_positions=0,
-            position_pairs=[]
+            balance=10000.0, peak_balance=10000.0, open_positions=0, position_pairs=[]
         )
         assert portfolio.current_drawdown_pct == 0.0
 
         # 10% drawdown
         portfolio = PortfolioState(
-            balance=9000.0,
-            peak_balance=10000.0,
-            open_positions=0,
-            position_pairs=[]
+            balance=9000.0, peak_balance=10000.0, open_positions=0, position_pairs=[]
         )
         assert portfolio.current_drawdown_pct == 10.0
 
         # 25% drawdown
         portfolio = PortfolioState(
-            balance=7500.0,
-            peak_balance=10000.0,
-            open_positions=0,
-            position_pairs=[]
+            balance=7500.0, peak_balance=10000.0, open_positions=0, position_pairs=[]
         )
         assert portfolio.current_drawdown_pct == 25.0
 
@@ -106,7 +97,7 @@ class TestPortfolioState:
             peak_balance=10000.0,
             open_positions=1,
             position_pairs=["BTC/USDT"],
-            unrealized_pnl=500.0
+            unrealized_pnl=500.0,
         )
 
         assert portfolio.total_value == 10500.0
@@ -132,7 +123,7 @@ class TestRiskManager:
             peak_balance=10000.0,
             open_positions=0,
             position_pairs=[],
-            unrealized_pnl=0.0
+            unrealized_pnl=0.0,
         )
 
     def test_initialization(self, manager):
@@ -147,7 +138,7 @@ class TestRiskManager:
             pair="BTC/USDT",
             proposed_stake=500.0,  # 5% of portfolio
             portfolio=portfolio,
-            stop_loss_pct=4.0  # 4% stop-loss
+            stop_loss_pct=4.0,  # 4% stop-loss
         )
 
         assert allowed == True
@@ -161,7 +152,7 @@ class TestRiskManager:
             pair="BTC/USDT",
             proposed_stake=500.0,
             portfolio=portfolio,
-            stop_loss_pct=4.0
+            stop_loss_pct=4.0,
         )
 
         assert allowed == False
@@ -173,14 +164,14 @@ class TestRiskManager:
             balance=8500.0,  # 15% drawdown
             peak_balance=10000.0,
             open_positions=0,
-            position_pairs=[]
+            position_pairs=[],
         )
 
         allowed, reason = manager.check_entry_allowed(
             pair="BTC/USDT",
             proposed_stake=500.0,
             portfolio=portfolio,
-            stop_loss_pct=4.0
+            stop_loss_pct=4.0,
         )
 
         assert allowed == False
@@ -193,14 +184,14 @@ class TestRiskManager:
             balance=10000.0,
             peak_balance=10000.0,
             open_positions=3,  # Max is 3
-            position_pairs=["BTC/USDT", "ETH/USDT", "SOL/USDT"]
+            position_pairs=["BTC/USDT", "ETH/USDT", "SOL/USDT"],
         )
 
         allowed, reason = manager.check_entry_allowed(
             pair="AVAX/USDT",
             proposed_stake=500.0,
             portfolio=portfolio,
-            stop_loss_pct=4.0
+            stop_loss_pct=4.0,
         )
 
         assert allowed == False
@@ -212,7 +203,7 @@ class TestRiskManager:
             pair="BTC/USDT",
             proposed_stake=1500.0,  # 15% of portfolio (max is 10%)
             portfolio=portfolio,
-            stop_loss_pct=4.0
+            stop_loss_pct=4.0,
         )
 
         assert allowed == False
@@ -225,7 +216,7 @@ class TestRiskManager:
             pair="BTC/USDT",
             proposed_stake=800.0,  # 8% of portfolio
             portfolio=portfolio,
-            stop_loss_pct=5.0  # 5% stop → 40 USD risk (0.4% of portfolio, OK)
+            stop_loss_pct=5.0,  # 5% stop → 40 USD risk (0.4% of portfolio, OK)
         )
 
         assert allowed == True  # This should be OK
@@ -235,17 +226,14 @@ class TestRiskManager:
             pair="BTC/USDT",
             proposed_stake=1000.0,  # 10% of portfolio
             portfolio=portfolio,
-            stop_loss_pct=3.0  # 3% stop → 30 USD risk (0.3%, still OK)
+            stop_loss_pct=3.0,  # 3% stop → 30 USD risk (0.3%, still OK)
         )
 
         assert allowed == True  # Still OK
 
     def test_calculate_max_stake(self, manager, portfolio):
         """Test max stake calculation"""
-        max_stake = manager.calculate_max_stake(
-            portfolio=portfolio,
-            stop_loss_pct=4.0
-        )
+        max_stake = manager.calculate_max_stake(portfolio=portfolio, stop_loss_pct=4.0)
 
         # Max loss is 2% of 10000 = 200
         # Max stake for 4% SL = 200 / 0.04 = 5000
@@ -264,7 +252,7 @@ class TestRiskManager:
             balance=9300.0,  # 7% drawdown (warning threshold)
             peak_balance=10000.0,
             open_positions=0,
-            position_pairs=[]
+            position_pairs=[],
         )
 
         status = manager.get_risk_status(portfolio)
@@ -276,7 +264,7 @@ class TestRiskManager:
             balance=9000.0,  # 10% drawdown (max threshold)
             peak_balance=10000.0,
             open_positions=0,
-            position_pairs=[]
+            position_pairs=[],
         )
 
         status = manager.get_risk_status(portfolio)

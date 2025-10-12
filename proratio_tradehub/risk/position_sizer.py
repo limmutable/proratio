@@ -11,16 +11,16 @@ Implements various position sizing methods:
 
 from typing import Optional
 from enum import Enum
-import math
 
 
 class SizingMethod(Enum):
     """Position sizing methods"""
-    FIXED_FRACTION = "fixed_fraction"      # Fixed % of portfolio
-    RISK_BASED = "risk_based"              # Based on stop-loss risk
-    KELLY = "kelly"                        # Kelly Criterion
-    AI_WEIGHTED = "ai_weighted"            # AI confidence weighted
-    ATR_BASED = "atr_based"                # Volatility-adjusted
+
+    FIXED_FRACTION = "fixed_fraction"  # Fixed % of portfolio
+    RISK_BASED = "risk_based"  # Based on stop-loss risk
+    KELLY = "kelly"  # Kelly Criterion
+    AI_WEIGHTED = "ai_weighted"  # AI confidence weighted
+    ATR_BASED = "atr_based"  # Volatility-adjusted
 
 
 class PositionSizer:
@@ -39,7 +39,7 @@ class PositionSizer:
         method: SizingMethod = SizingMethod.RISK_BASED,
         base_risk_pct: float = 2.0,
         max_position_pct: float = 10.0,
-        min_position_pct: float = 1.0
+        min_position_pct: float = 1.0,
     ):
         """
         Initialize position sizer.
@@ -64,7 +64,7 @@ class PositionSizer:
         atr: Optional[float] = None,
         win_rate: Optional[float] = None,
         avg_win: Optional[float] = None,
-        avg_loss: Optional[float] = None
+        avg_loss: Optional[float] = None,
     ) -> float:
         """
         Calculate position size (in quote currency).
@@ -120,10 +120,7 @@ class PositionSizer:
         return balance * (self.base_risk_pct / 100)
 
     def _risk_based(
-        self,
-        balance: float,
-        entry_price: float,
-        stop_loss_price: float
+        self, balance: float, entry_price: float, stop_loss_price: float
     ) -> float:
         """
         Risk-based sizing: Size position so stop-loss = fixed % of portfolio.
@@ -154,11 +151,7 @@ class PositionSizer:
         return self._apply_limits(position_size, balance)
 
     def _kelly(
-        self,
-        balance: float,
-        win_rate: float,
-        avg_win: float,
-        avg_loss: float
+        self, balance: float, win_rate: float, avg_win: float, avg_loss: float
     ) -> float:
         """
         Kelly Criterion sizing.
@@ -201,10 +194,7 @@ class PositionSizer:
         return self._apply_limits(position_size, balance)
 
     def _ai_weighted(
-        self,
-        base_size: float,
-        balance: float,
-        ai_confidence: Optional[float]
+        self, base_size: float, balance: float, ai_confidence: Optional[float]
     ) -> float:
         """
         AI confidence-weighted sizing.
@@ -231,7 +221,9 @@ class PositionSizer:
             return 0.0  # Don't trade
 
         # Scale confidence to multiplier range (0.8x - 1.2x)
-        confidence_normalized = (ai_confidence - min_confidence) / (1.0 - min_confidence)
+        confidence_normalized = (ai_confidence - min_confidence) / (
+            1.0 - min_confidence
+        )
         multiplier = 0.8 + (confidence_normalized * 0.4)  # 0.8 to 1.2
 
         adjusted_size = base_size * multiplier
@@ -243,7 +235,7 @@ class PositionSizer:
         balance: float,
         entry_price: float,
         atr: float,
-        atr_multiplier: float = 2.0
+        atr_multiplier: float = 2.0,
     ) -> float:
         """
         ATR-based volatility sizing.
@@ -285,11 +277,7 @@ class PositionSizer:
 
         return max(min_size, min(position_size, max_size))
 
-    def calculate_units(
-        self,
-        position_size_usd: float,
-        entry_price: float
-    ) -> float:
+    def calculate_units(self, position_size_usd: float, entry_price: float) -> float:
         """
         Convert position size (USD) to units.
 
@@ -307,7 +295,7 @@ class PositionSizer:
         entry_price: float,
         atr: float,
         direction: str = "long",
-        atr_multiplier: float = 2.0
+        atr_multiplier: float = 2.0,
     ) -> float:
         """
         Calculate stop-loss price from ATR.
@@ -334,7 +322,7 @@ def get_position_size_for_ai_strategy(
     entry_price: float,
     stop_loss_price: float,
     ai_confidence: float,
-    base_risk_pct: float = 2.0
+    base_risk_pct: float = 2.0,
 ) -> float:
     """
     Helper function for AI-enhanced strategies.
@@ -353,12 +341,12 @@ def get_position_size_for_ai_strategy(
         method=SizingMethod.AI_WEIGHTED,
         base_risk_pct=base_risk_pct,
         max_position_pct=10.0,
-        min_position_pct=1.0
+        min_position_pct=1.0,
     )
 
     return sizer.calculate_position_size(
         balance=balance,
         entry_price=entry_price,
         stop_loss_price=stop_loss_price,
-        ai_confidence=ai_confidence
+        ai_confidence=ai_confidence,
     )

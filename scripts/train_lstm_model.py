@@ -24,7 +24,10 @@ from typing import Optional, Tuple
 project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
-from proratio_quantlab.ml.feature_engineering import FeatureEngineer, create_target_labels
+from proratio_quantlab.ml.feature_engineering import (
+    FeatureEngineer,
+    create_target_labels,
+)
 from proratio_quantlab.ml.lstm_predictor import LSTMPredictor
 from proratio_quantlab.ml.lstm_data_pipeline import prepare_lstm_data
 
@@ -56,7 +59,7 @@ def load_historical_data(pair: str, timeframe: str, days: int = 180) -> pd.DataF
 
 def train_lstm_model(
     dataframe: pd.DataFrame,
-    model_type: str = 'lstm',
+    model_type: str = "lstm",
     sequence_length: int = 24,
     hidden_size: int = 128,
     num_layers: int = 2,
@@ -64,8 +67,8 @@ def train_lstm_model(
     epochs: int = 100,
     batch_size: int = 32,
     learning_rate: float = 0.001,
-    target_column: str = 'target_return',
-    save_path: Optional[str] = None
+    target_column: str = "target_return",
+    save_path: Optional[str] = None,
 ) -> Tuple[LSTMPredictor, dict]:
     """
     Train LSTM model on prepared data.
@@ -86,9 +89,9 @@ def train_lstm_model(
     Returns:
         Trained predictor, training history
     """
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("LSTM Model Training Pipeline")
-    print("="*60)
+    print("=" * 60)
 
     # Step 1: Feature Engineering
     print("\n[1/5] Feature Engineering...")
@@ -96,19 +99,23 @@ def train_lstm_model(
     df_features = fe.add_all_features(dataframe.copy())
 
     # Add target labels
-    df_features = create_target_labels(df_features, target_type='regression', lookahead_periods=4)
+    df_features = create_target_labels(
+        df_features, target_type="regression", lookahead_periods=4
+    )
 
     print(f"  - Generated {len(df_features.columns)} total columns")
     print(f"  - {len(df_features)} samples after feature engineering")
 
     # Step 2: Data Preparation
     print("\n[2/5] Data Preparation...")
-    (X_train, y_train), (X_val, y_val), (X_test, y_test), feature_cols = prepare_lstm_data(
-        df_features,
-        target_column=target_column,
-        train_ratio=0.7,
-        val_ratio=0.15,
-        test_ratio=0.15
+    (X_train, y_train), (X_val, y_val), (X_test, y_test), feature_cols = (
+        prepare_lstm_data(
+            df_features,
+            target_column=target_column,
+            train_ratio=0.7,
+            val_ratio=0.15,
+            test_ratio=0.15,
+        )
     )
 
     print(f"  - Train: {len(X_train)} samples")
@@ -125,40 +132,42 @@ def train_lstm_model(
         num_layers=num_layers,
         dropout=dropout,
         learning_rate=learning_rate,
-        batch_size=batch_size
+        batch_size=batch_size,
     )
 
     # Preprocess data (fit scaler)
     X_train_scaled, _ = predictor.preprocess_data(
         pd.DataFrame(X_train, columns=feature_cols).assign(**{target_column: y_train}),
         target_column=target_column,
-        fit_scaler=True
+        fit_scaler=True,
     )
 
     X_val_scaled, _ = predictor.preprocess_data(
         pd.DataFrame(X_val, columns=feature_cols).assign(**{target_column: y_val}),
         target_column=target_column,
-        fit_scaler=False
+        fit_scaler=False,
     )
 
     X_test_scaled, _ = predictor.preprocess_data(
         pd.DataFrame(X_test, columns=feature_cols).assign(**{target_column: y_test}),
         target_column=target_column,
-        fit_scaler=False
+        fit_scaler=False,
     )
 
     # Step 4: Training
     print(f"\n[4/5] Training Model ({epochs} epochs)...")
     history = predictor.train(
-        X_train_scaled, y_train,
-        X_val_scaled, y_val,
+        X_train_scaled,
+        y_train,
+        X_val_scaled,
+        y_val,
         epochs=epochs,
         early_stopping_patience=15,
-        verbose=True
+        verbose=True,
     )
 
     # Step 5: Evaluation
-    print(f"\n[5/5] Evaluating Model...")
+    print("\n[5/5] Evaluating Model...")
     predictions = predictor.predict(X_test_scaled)
 
     # Calculate metrics (account for sequence_length reduction)
@@ -172,7 +181,7 @@ def train_lstm_model(
     actual_direction = (actual_test > 0).astype(int)
     direction_accuracy = (pred_direction == actual_direction).mean()
 
-    print(f"\nTest Set Metrics:")
+    print("\nTest Set Metrics:")
     print(f"  - RMSE: {rmse:.6f}")
     print(f"  - MAE: {mae:.6f}")
     print(f"  - Direction Accuracy: {direction_accuracy:.2%}")
@@ -188,12 +197,12 @@ def train_lstm_model(
 def plot_training_history(history: dict, save_path: Optional[str] = None):
     """Plot training and validation loss."""
     plt.figure(figsize=(10, 6))
-    plt.plot(history['train_loss'], label='Train Loss')
-    if 'val_loss' in history:
-        plt.plot(history['val_loss'], label='Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss (MSE)')
-    plt.title('LSTM Training History')
+    plt.plot(history["train_loss"], label="Train Loss")
+    if "val_loss" in history:
+        plt.plot(history["val_loss"], label="Validation Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss (MSE)")
+    plt.title("LSTM Training History")
     plt.legend()
     plt.grid(True)
 
@@ -205,19 +214,31 @@ def plot_training_history(history: dict, save_path: Optional[str] = None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Train LSTM price prediction model')
-    parser.add_argument('--pair', type=str, default='BTC/USDT', help='Trading pair')
-    parser.add_argument('--timeframe', type=str, default='4h', help='Timeframe')
-    parser.add_argument('--days', type=int, default=180, help='Days of history')
-    parser.add_argument('--model-type', type=str, default='lstm', choices=['lstm', 'gru'], help='Model type')
-    parser.add_argument('--sequence-length', type=int, default=24, help='Sequence length')
-    parser.add_argument('--hidden-size', type=int, default=128, help='Hidden size')
-    parser.add_argument('--num-layers', type=int, default=2, help='Number of layers')
-    parser.add_argument('--dropout', type=float, default=0.2, help='Dropout rate')
-    parser.add_argument('--epochs', type=int, default=100, help='Training epochs')
-    parser.add_argument('--batch-size', type=int, default=32, help='Batch size')
-    parser.add_argument('--learning-rate', type=float, default=0.001, help='Learning rate')
-    parser.add_argument('--save-path', type=str, default=None, help='Path to save model')
+    parser = argparse.ArgumentParser(description="Train LSTM price prediction model")
+    parser.add_argument("--pair", type=str, default="BTC/USDT", help="Trading pair")
+    parser.add_argument("--timeframe", type=str, default="4h", help="Timeframe")
+    parser.add_argument("--days", type=int, default=180, help="Days of history")
+    parser.add_argument(
+        "--model-type",
+        type=str,
+        default="lstm",
+        choices=["lstm", "gru"],
+        help="Model type",
+    )
+    parser.add_argument(
+        "--sequence-length", type=int, default=24, help="Sequence length"
+    )
+    parser.add_argument("--hidden-size", type=int, default=128, help="Hidden size")
+    parser.add_argument("--num-layers", type=int, default=2, help="Number of layers")
+    parser.add_argument("--dropout", type=float, default=0.2, help="Dropout rate")
+    parser.add_argument("--epochs", type=int, default=100, help="Training epochs")
+    parser.add_argument("--batch-size", type=int, default=32, help="Batch size")
+    parser.add_argument(
+        "--learning-rate", type=float, default=0.001, help="Learning rate"
+    )
+    parser.add_argument(
+        "--save-path", type=str, default=None, help="Path to save model"
+    )
 
     args = parser.parse_args()
 
@@ -229,5 +250,5 @@ def main():
     print("  predictor, history = train_lstm_model(your_dataframe)")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

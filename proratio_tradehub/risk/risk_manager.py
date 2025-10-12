@@ -9,7 +9,7 @@ Enforces risk controls and limits for trading strategies:
 - Emergency stop mechanisms
 """
 
-from typing import Dict, List, Optional
+from typing import List, Optional
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -17,10 +17,11 @@ from enum import Enum
 
 class RiskStatus(Enum):
     """Risk status indicators"""
-    NORMAL = "normal"           # Trading allowed
-    WARNING = "warning"         # Approaching limits
-    CRITICAL = "critical"       # Near emergency stop
-    HALT = "halt"              # Trading halted
+
+    NORMAL = "normal"  # Trading allowed
+    WARNING = "warning"  # Approaching limits
+    CRITICAL = "critical"  # Near emergency stop
+    HALT = "halt"  # Trading halted
 
 
 @dataclass
@@ -33,7 +34,7 @@ class RiskLimits:
 
     # Portfolio limits
     max_total_drawdown_pct: float = 10.0  # Emergency stop
-    warning_drawdown_pct: float = 7.0    # Warning threshold
+    warning_drawdown_pct: float = 7.0  # Warning threshold
 
     # Position limits
     max_concurrent_positions: int = 3
@@ -100,7 +101,7 @@ class RiskManager:
         pair: str,
         proposed_stake: float,
         portfolio: PortfolioState,
-        stop_loss_pct: float
+        stop_loss_pct: float,
     ) -> tuple[bool, str]:
         """
         Check if new entry is allowed.
@@ -120,37 +121,55 @@ class RiskManager:
 
         # Check drawdown limit
         if portfolio.current_drawdown_pct >= self.limits.max_total_drawdown_pct:
-            self.halt_trading(f"Max drawdown reached: {portfolio.current_drawdown_pct:.2f}%")
-            return False, f"Emergency stop: Drawdown {portfolio.current_drawdown_pct:.2f}%"
+            self.halt_trading(
+                f"Max drawdown reached: {portfolio.current_drawdown_pct:.2f}%"
+            )
+            return (
+                False,
+                f"Emergency stop: Drawdown {portfolio.current_drawdown_pct:.2f}%",
+            )
 
         # Check concurrent positions
         if portfolio.open_positions >= self.limits.max_concurrent_positions:
-            return False, f"Max concurrent positions ({self.limits.max_concurrent_positions}) reached"
+            return (
+                False,
+                f"Max concurrent positions ({self.limits.max_concurrent_positions}) reached",
+            )
 
         # Check positions per pair
         if pair in portfolio.position_pairs:
-            if portfolio.position_pairs.count(pair) >= self.limits.max_positions_per_pair:
-                return False, f"Max positions for {pair} ({self.limits.max_positions_per_pair}) reached"
+            if (
+                portfolio.position_pairs.count(pair)
+                >= self.limits.max_positions_per_pair
+            ):
+                return (
+                    False,
+                    f"Max positions for {pair} ({self.limits.max_positions_per_pair}) reached",
+                )
 
         # Check position size limit
         position_size_pct = (proposed_stake / portfolio.balance) * 100
         if position_size_pct > self.limits.max_position_size_pct:
-            return False, f"Position size {position_size_pct:.1f}% exceeds limit {self.limits.max_position_size_pct}%"
+            return (
+                False,
+                f"Position size {position_size_pct:.1f}% exceeds limit {self.limits.max_position_size_pct}%",
+            )
 
         # Check risk per trade (stake * stop_loss%)
         max_loss = proposed_stake * (stop_loss_pct / 100)
         max_loss_pct = (max_loss / portfolio.balance) * 100
 
         if max_loss_pct > self.limits.max_loss_per_trade_pct:
-            return False, f"Risk {max_loss_pct:.2f}% exceeds limit {self.limits.max_loss_per_trade_pct}%"
+            return (
+                False,
+                f"Risk {max_loss_pct:.2f}% exceeds limit {self.limits.max_loss_per_trade_pct}%",
+            )
 
         # All checks passed
         return True, "Entry allowed"
 
     def calculate_max_stake(
-        self,
-        portfolio: PortfolioState,
-        stop_loss_pct: float
+        self, portfolio: PortfolioState, stop_loss_pct: float
     ) -> float:
         """
         Calculate maximum allowed stake based on risk limits.
@@ -169,7 +188,9 @@ class RiskManager:
         max_stake_from_risk = max_loss_amount / (stop_loss_pct / 100)
 
         # Calculate based on max position size
-        max_stake_from_position = portfolio.balance * (self.limits.max_position_size_pct / 100)
+        max_stake_from_position = portfolio.balance * (
+            self.limits.max_position_size_pct / 100
+        )
 
         # Use the smaller of the two
         return min(max_stake_from_risk, max_stake_from_position)
@@ -239,9 +260,9 @@ class RiskManager:
         status = self.get_risk_status(portfolio)
 
         report = f"""
-{'=' * 80}
+{"=" * 80}
 RISK MANAGEMENT REPORT
-{'=' * 80}
+{"=" * 80}
 Generated: {datetime.now()}
 
 Portfolio Status:

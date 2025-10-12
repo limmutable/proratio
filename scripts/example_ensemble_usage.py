@@ -15,7 +15,6 @@ Phase: 3.3 - Ensemble Learning
 import sys
 from pathlib import Path
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 # Add project root to path
 project_root = Path(__file__).parent.parent
@@ -58,21 +57,21 @@ def main():
     X_train = X[:train_size]
     y_train = y[:train_size]
 
-    X_val = X[train_size:train_size + val_size]
-    y_val = y[train_size:train_size + val_size]
+    X_val = X[train_size : train_size + val_size]
+    y_val = y[train_size : train_size + val_size]
 
-    X_test = X[train_size + val_size:]
-    y_test = y[train_size + val_size:]
+    X_test = X[train_size + val_size :]
+    y_test = y[train_size + val_size :]
 
     print(f"✓ Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
 
     # [2] Build Stacking Ensemble
     print("\n[2/5] Building stacking ensemble...")
-    builder = EnsembleBuilder(ensemble_method='stacking')
+    builder = EnsembleBuilder(ensemble_method="stacking")
 
     # Add base models (excluding LSTM for this example)
-    builder.add_lightgbm(name='lgbm', params={'num_leaves': 31, 'n_estimators': 100})
-    builder.add_xgboost(name='xgb', params={'max_depth': 6, 'n_estimators': 100})
+    builder.add_lightgbm(name="lgbm", params={"num_leaves": 31, "n_estimators": 100})
+    builder.add_xgboost(name="xgb", params={"max_depth": 6, "n_estimators": 100})
 
     print("  Added 2 base models: LightGBM, XGBoost")
 
@@ -83,7 +82,7 @@ def main():
 
     # [4] Build ensemble
     print("\n[4/5] Building ensemble with Ridge meta-model...")
-    ensemble = builder.build_ensemble(X_val, y_val, meta_model_type='ridge')
+    ensemble = builder.build_ensemble(X_val, y_val, meta_model_type="ridge")
     print("✓ Ensemble built")
 
     # [5] Evaluate
@@ -101,9 +100,9 @@ def main():
         print(f"  MSE:  {metrics['mse']:.6f}")
 
     # Calculate improvement
-    ensemble_rmse = results['ensemble']['rmse']
-    base_models = {k: v for k, v in results.items() if k != 'ensemble'}
-    best_base_rmse = min(m['rmse'] for m in base_models.values())
+    ensemble_rmse = results["ensemble"]["rmse"]
+    base_models = {k: v for k, v in results.items() if k != "ensemble"}
+    best_base_rmse = min(m["rmse"] for m in base_models.values())
     improvement = ((best_base_rmse - ensemble_rmse) / best_base_rmse) * 100
 
     print("\n" + "-" * 60)
@@ -115,26 +114,28 @@ def main():
     print("COMPARING ENSEMBLE METHODS")
     print("=" * 60)
 
-    methods = ['stacking', 'blending', 'voting']
+    methods = ["stacking", "blending", "voting"]
     method_results = {}
 
     for method in methods:
         print(f"\nTraining {method} ensemble...")
 
         builder = EnsembleBuilder(ensemble_method=method)
-        builder.add_lightgbm(name='lgbm', params={'num_leaves': 31, 'n_estimators': 100})
-        builder.add_xgboost(name='xgb', params={'max_depth': 6, 'n_estimators': 100})
+        builder.add_lightgbm(
+            name="lgbm", params={"num_leaves": 31, "n_estimators": 100}
+        )
+        builder.add_xgboost(name="xgb", params={"max_depth": 6, "n_estimators": 100})
 
         # Skip training if models already trained
         builder.trained_models = {
-            'lgbm': results  # Reuse previous training
+            "lgbm": results  # Reuse previous training
         }
 
         builder.train_all(X_train, y_train, X_val, y_val)
         ensemble = builder.build_ensemble(X_val, y_val)
 
         eval_results = ensemble.evaluate(X_test, y_test)
-        method_results[method] = eval_results['ensemble']['rmse']
+        method_results[method] = eval_results["ensemble"]["rmse"]
 
         print(f"  {method.capitalize()} RMSE: {eval_results['ensemble']['rmse']:.6f}")
 
@@ -152,5 +153,5 @@ def main():
     print("  3. Integrate with Freqtrade strategy")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

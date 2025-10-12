@@ -31,32 +31,27 @@ class TestDatabaseStorage:
 
         # Insert
         inserted = storage.insert_ohlcv(
-            exchange='binance',
-            pair='BTC/USDT',
-            timeframe='1h',
-            data=test_data
+            exchange="binance", pair="BTC/USDT", timeframe="1h", data=test_data
         )
         assert inserted >= 0  # May be 0 if duplicates
 
         # Query
         df = storage.get_ohlcv(
-            exchange='binance',
-            pair='BTC/USDT',
-            timeframe='1h',
+            exchange="binance",
+            pair="BTC/USDT",
+            timeframe="1h",
             start_time=datetime(2024, 1, 1),
-            limit=10
+            limit=10,
         )
 
         assert not df.empty
-        assert 'timestamp' in df.columns
-        assert 'close' in df.columns
+        assert "timestamp" in df.columns
+        assert "close" in df.columns
 
     def test_latest_timestamp(self, storage):
         """Test getting latest timestamp"""
         latest = storage.get_latest_timestamp(
-            exchange='binance',
-            pair='BTC/USDT',
-            timeframe='1h'
+            exchange="binance", pair="BTC/USDT", timeframe="1h"
         )
         # Should return datetime or None
         assert latest is None or isinstance(latest, datetime)
@@ -64,9 +59,7 @@ class TestDatabaseStorage:
     def test_count_records(self, storage):
         """Test counting records"""
         count = storage.count_ohlcv_records(
-            exchange='binance',
-            pair='BTC/USDT',
-            timeframe='1h'
+            exchange="binance", pair="BTC/USDT", timeframe="1h"
         )
         assert isinstance(count, int)
         assert count >= 0
@@ -74,12 +67,12 @@ class TestDatabaseStorage:
     def test_metadata(self, storage):
         """Test metadata operations"""
         # Update
-        storage.update_metadata('test_key', {'status': 'testing'})
+        storage.update_metadata("test_key", {"status": "testing"})
 
         # Get
-        value = storage.get_metadata('test_key')
+        value = storage.get_metadata("test_key")
         assert value is not None
-        assert value['status'] == 'testing'
+        assert value["status"] == "testing"
 
     def test_context_manager(self):
         """Test context manager protocol"""

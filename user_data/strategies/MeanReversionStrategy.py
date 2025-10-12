@@ -17,7 +17,6 @@ Avoid: Strong trending markets (use trend-following instead)
 import sys
 from pathlib import Path
 from typing import Optional
-import pandas as pd
 from datetime import datetime, timezone
 
 # Add project root to Python path for imports
@@ -53,7 +52,7 @@ class MeanReversionStrategy(IStrategy):
 
     # ROI table - Take profit at mean reversion
     minimal_roi = {
-        "0": 0.05,   # 5% profit → exit (mean reversion complete)
+        "0": 0.05,  # 5% profit → exit (mean reversion complete)
         "30": 0.03,  # After 30 min, 3% profit → exit
         "60": 0.02,  # After 60 min, 2% profit → exit
     }
@@ -68,7 +67,7 @@ class MeanReversionStrategy(IStrategy):
     trailing_only_offset_is_reached = True
 
     # Timeframe - Mean reversion works on shorter timeframes
-    timeframe = '1h'
+    timeframe = "1h"
 
     # Run "populate_indicators()" only for new candle
     process_only_new_candles = True
@@ -78,17 +77,14 @@ class MeanReversionStrategy(IStrategy):
 
     # Optional order types
     order_types = {
-        'entry': 'limit',
-        'exit': 'limit',
-        'stoploss': 'market',
-        'stoploss_on_exchange': False
+        "entry": "limit",
+        "exit": "limit",
+        "stoploss": "market",
+        "stoploss_on_exchange": False,
     }
 
     # Optional order time in force
-    order_time_in_force = {
-        'entry': 'GTC',
-        'exit': 'GTC'
-    }
+    order_time_in_force = {"entry": "GTC", "exit": "GTC"}
 
     # Strategy parameters
     rsi_oversold = 30
@@ -147,28 +143,37 @@ class MeanReversionStrategy(IStrategy):
             DataFrame with indicators added
         """
         # RSI - Relative Strength Index
-        dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
+        dataframe["rsi"] = ta.RSI(dataframe, timeperiod=14)
 
         # Bollinger Bands
-        bollinger = ta.BBANDS(dataframe, timeperiod=self.bb_period, nbdevup=self.bb_std, nbdevdn=self.bb_std)
-        dataframe['bb_upper'] = bollinger['upperband']
-        dataframe['bb_middle'] = bollinger['middleband']
-        dataframe['bb_lower'] = bollinger['lowerband']
+        bollinger = ta.BBANDS(
+            dataframe,
+            timeperiod=self.bb_period,
+            nbdevup=self.bb_std,
+            nbdevdn=self.bb_std,
+        )
+        dataframe["bb_upper"] = bollinger["upperband"]
+        dataframe["bb_middle"] = bollinger["middleband"]
+        dataframe["bb_lower"] = bollinger["lowerband"]
 
         # BB bandwidth (volatility measure)
-        dataframe['bb_width'] = (dataframe['bb_upper'] - dataframe['bb_lower']) / dataframe['bb_middle']
+        dataframe["bb_width"] = (
+            dataframe["bb_upper"] - dataframe["bb_lower"]
+        ) / dataframe["bb_middle"]
 
         # Additional indicators for context
-        dataframe['atr'] = ta.ATR(dataframe, timeperiod=14)  # Volatility
-        dataframe['volume_mean'] = dataframe['volume'].rolling(window=20).mean()
+        dataframe["atr"] = ta.ATR(dataframe, timeperiod=14)  # Volatility
+        dataframe["volume_mean"] = dataframe["volume"].rolling(window=20).mean()
 
         # EMA for trend context (avoid mean reversion in strong trends)
-        dataframe['ema_fast'] = ta.EMA(dataframe, timeperiod=20)
-        dataframe['ema_slow'] = ta.EMA(dataframe, timeperiod=50)
+        dataframe["ema_fast"] = ta.EMA(dataframe, timeperiod=20)
+        dataframe["ema_slow"] = ta.EMA(dataframe, timeperiod=50)
 
         return dataframe
 
-    def get_ai_signal(self, dataframe: DataFrame, metadata: dict) -> Optional[ConsensusSignal]:
+    def get_ai_signal(
+        self, dataframe: DataFrame, metadata: dict
+    ) -> Optional[ConsensusSignal]:
         """
         Get AI consensus signal for the current market state.
         Uses caching to avoid API spam.
@@ -183,39 +188,49 @@ class MeanReversionStrategy(IStrategy):
         if not self.ai_enabled:
             return None
 
-        pair = metadata['pair']
+        pair = metadata["pair"]
         current_time = datetime.now(timezone.utc)
 
         # Check cache first
         if pair in self.ai_signal_cache:
             cached = self.ai_signal_cache[pair]
-            age_minutes = (current_time - cached['timestamp']).total_seconds() / 60
+            age_minutes = (current_time - cached["timestamp"]).total_seconds() / 60
 
             if age_minutes < self.ai_cache_minutes:
-                return cached['signal']
+                return cached["signal"]
 
         # Generate new AI signal
         try:
             recent_data = dataframe.tail(self.ai_lookback_candles).copy()
 
             # Ensure timestamp column exists
-            if 'timestamp' not in recent_data.columns:
+            if "timestamp" not in recent_data.columns:
                 recent_data.reset_index(inplace=True)
-                if 'date' in recent_data.columns:
-                    recent_data.rename(columns={'date': 'timestamp'}, inplace=True)
+                if "date" in recent_data.columns:
+                    recent_data.rename(columns={"date": "timestamp"}, inplace=True)
 
             # Convert to OHLCVData format
             ohlcv = OHLCVData(
                 pair=pair,
                 timeframe=self.timeframe,
-                data=recent_data[['open', 'high', 'low', 'close', 'volume']].copy(),
+                data=recent_data[["open", "high", "low", "close", "volume"]].copy(),
                 indicators={
-                    'rsi': recent_data['rsi'].iloc[-1] if 'rsi' in recent_data.columns else None,
-                    'bb_upper': recent_data['bb_upper'].iloc[-1] if 'bb_upper' in recent_data.columns else None,
-                    'bb_middle': recent_data['bb_middle'].iloc[-1] if 'bb_middle' in recent_data.columns else None,
-                    'bb_lower': recent_data['bb_lower'].iloc[-1] if 'bb_lower' in recent_data.columns else None,
-                    'atr': recent_data['atr'].iloc[-1] if 'atr' in recent_data.columns else None,
-                }
+                    "rsi": recent_data["rsi"].iloc[-1]
+                    if "rsi" in recent_data.columns
+                    else None,
+                    "bb_upper": recent_data["bb_upper"].iloc[-1]
+                    if "bb_upper" in recent_data.columns
+                    else None,
+                    "bb_middle": recent_data["bb_middle"].iloc[-1]
+                    if "bb_middle" in recent_data.columns
+                    else None,
+                    "bb_lower": recent_data["bb_lower"].iloc[-1]
+                    if "bb_lower" in recent_data.columns
+                    else None,
+                    "atr": recent_data["atr"].iloc[-1]
+                    if "atr" in recent_data.columns
+                    else None,
+                },
             )
 
             # Generate AI consensus
@@ -223,14 +238,11 @@ class MeanReversionStrategy(IStrategy):
                 pair=pair,
                 timeframe=self.timeframe,
                 ohlcv_data=ohlcv.data,
-                indicators=ohlcv.indicators
+                indicators=ohlcv.indicators,
             )
 
             # Cache the signal
-            self.ai_signal_cache[pair] = {
-                'signal': signal,
-                'timestamp': current_time
-            }
+            self.ai_signal_cache[pair] = {"signal": signal, "timestamp": current_time}
 
             return signal
 
@@ -261,40 +273,43 @@ class MeanReversionStrategy(IStrategy):
         # Technical conditions for long entry
         technical_conditions = (
             # RSI oversold
-            (dataframe['rsi'] < self.rsi_oversold) &
-
+            (dataframe["rsi"] < self.rsi_oversold)
+            &
             # Price below lower Bollinger Band
-            (dataframe['close'] < dataframe['bb_lower']) &
-
+            (dataframe["close"] < dataframe["bb_lower"])
+            &
             # Sufficient volatility for mean reversion
-            (dataframe['bb_width'] > 0.02) &  # At least 2% bandwidth
-
+            (dataframe["bb_width"] > 0.02)  # At least 2% bandwidth
+            &
             # Volume confirmation
-            (dataframe['volume'] > dataframe['volume_mean'])
+            (dataframe["volume"] > dataframe["volume_mean"])
         )
 
         # AI conditions
         if ai_signal and ai_signal.should_trade():
             # AI agrees with mean reversion
-            ai_conditions = (
-                (ai_signal.direction.lower() == 'long') &
-                (ai_signal.confidence >= self.ai_min_confidence)
+            ai_conditions = (ai_signal.direction.lower() == "long") & (
+                ai_signal.confidence >= self.ai_min_confidence
             )
 
             # Combine technical + AI
-            dataframe.loc[technical_conditions & ai_conditions, 'enter_long'] = 1
+            dataframe.loc[technical_conditions & ai_conditions, "enter_long"] = 1
 
             if ai_conditions:
-                print(f"✓ Mean Reversion ENTRY for {metadata['pair']}: "
-                      f"RSI={dataframe['rsi'].iloc[-1]:.1f}, "
-                      f"Price below BB_lower, "
-                      f"AI confidence={ai_signal.confidence:.1%}")
+                print(
+                    f"✓ Mean Reversion ENTRY for {metadata['pair']}: "
+                    f"RSI={dataframe['rsi'].iloc[-1]:.1f}, "
+                    f"Price below BB_lower, "
+                    f"AI confidence={ai_signal.confidence:.1%}"
+                )
         else:
             # Fallback to technical-only if AI unavailable or disabled
-            dataframe.loc[technical_conditions, 'enter_long'] = 1
+            dataframe.loc[technical_conditions, "enter_long"] = 1
 
             if self.ai_enabled and not ai_signal:
-                print(f"⚠ Mean Reversion: AI unavailable for {metadata['pair']}, using technical-only")
+                print(
+                    f"⚠ Mean Reversion: AI unavailable for {metadata['pair']}, using technical-only"
+                )
 
         return dataframe
 
@@ -318,23 +333,34 @@ class MeanReversionStrategy(IStrategy):
         exit_conditions = (
             # Price returned to mean
             (
-                (dataframe['close'] >= dataframe['bb_middle']) &
-                (dataframe['close'].shift(1) < dataframe['bb_middle'].shift(1))
-            ) |
+                (dataframe["close"] >= dataframe["bb_middle"])
+                & (dataframe["close"].shift(1) < dataframe["bb_middle"].shift(1))
+            )
+            |
             # RSI returned to neutral or overbought
-            (dataframe['rsi'] > 60) |
+            (dataframe["rsi"] > 60)
+            |
             # Price above upper BB (overextended)
-            (dataframe['close'] > dataframe['bb_upper'])
+            (dataframe["close"] > dataframe["bb_upper"])
         )
 
-        dataframe.loc[exit_conditions, 'exit_long'] = 1
+        dataframe.loc[exit_conditions, "exit_long"] = 1
 
         return dataframe
 
-    def custom_stake_amount(self, pair: str, current_time: datetime, current_rate: float,
-                           proposed_stake: float, min_stake: Optional[float], max_stake: float,
-                           leverage: float, entry_tag: Optional[str], side: str,
-                           **kwargs) -> float:
+    def custom_stake_amount(
+        self,
+        pair: str,
+        current_time: datetime,
+        current_rate: float,
+        proposed_stake: float,
+        min_stake: Optional[float],
+        max_stake: float,
+        leverage: float,
+        entry_tag: Optional[str],
+        side: str,
+        **kwargs,
+    ) -> float:
         """
         Adjust position size based on AI confidence and mean reversion strength.
 
@@ -348,13 +374,19 @@ class MeanReversionStrategy(IStrategy):
         """
         # Get cached AI signal
         if pair in self.ai_signal_cache:
-            signal = self.ai_signal_cache[pair]['signal']
+            signal = self.ai_signal_cache[pair]["signal"]
 
             if signal and signal.confidence >= self.ai_min_confidence:
                 # Calculate multiplier based on confidence
-                confidence_normalized = (signal.confidence - self.ai_min_confidence) / (1.0 - self.ai_min_confidence)
+                confidence_normalized = (signal.confidence - self.ai_min_confidence) / (
+                    1.0 - self.ai_min_confidence
+                )
                 multiplier = self.ai_confidence_multiplier_min + (
-                    confidence_normalized * (self.ai_confidence_multiplier_max - self.ai_confidence_multiplier_min)
+                    confidence_normalized
+                    * (
+                        self.ai_confidence_multiplier_max
+                        - self.ai_confidence_multiplier_min
+                    )
                 )
 
                 adjusted_stake = proposed_stake * multiplier
@@ -365,17 +397,28 @@ class MeanReversionStrategy(IStrategy):
                 if adjusted_stake > max_stake:
                     adjusted_stake = max_stake
 
-                print(f"💰 Mean Reversion position sizing for {pair}: "
-                      f"base={proposed_stake:.2f} → adjusted={adjusted_stake:.2f} "
-                      f"(confidence={signal.confidence:.1%}, multiplier={multiplier:.2f}x)")
+                print(
+                    f"💰 Mean Reversion position sizing for {pair}: "
+                    f"base={proposed_stake:.2f} → adjusted={adjusted_stake:.2f} "
+                    f"(confidence={signal.confidence:.1%}, multiplier={multiplier:.2f}x)"
+                )
 
                 return adjusted_stake
 
         return proposed_stake
 
-    def confirm_trade_entry(self, pair: str, order_type: str, amount: float,
-                           rate: float, time_in_force: str, current_time,
-                           entry_tag, side: str, **kwargs) -> bool:
+    def confirm_trade_entry(
+        self,
+        pair: str,
+        order_type: str,
+        amount: float,
+        rate: float,
+        time_in_force: str,
+        current_time,
+        entry_tag,
+        side: str,
+        **kwargs,
+    ) -> bool:
         """
         Final confirmation before entering trade.
         Double-check AI signal is still valid.
@@ -385,8 +428,10 @@ class MeanReversionStrategy(IStrategy):
         """
         if pair in self.ai_signal_cache:
             cached = self.ai_signal_cache[pair]
-            signal = cached['signal']
-            age_minutes = (datetime.now(timezone.utc) - cached['timestamp']).total_seconds() / 60
+            signal = cached["signal"]
+            age_minutes = (
+                datetime.now(timezone.utc) - cached["timestamp"]
+            ).total_seconds() / 60
 
             # Reject if signal expired or confidence dropped
             if age_minutes >= self.ai_cache_minutes:
@@ -397,7 +442,7 @@ class MeanReversionStrategy(IStrategy):
                 print(f"✗ Mean Reversion: Rejecting {pair} - Low confidence")
                 return False
 
-            if signal.direction.lower() != 'long':
+            if signal.direction.lower() != "long":
                 print(f"✗ Mean Reversion: Rejecting {pair} - Direction changed")
                 return False
 

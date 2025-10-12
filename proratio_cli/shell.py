@@ -9,17 +9,10 @@ Date: 2025-10-11
 """
 
 import sys
-from typing import Optional
-from rich.console import Console
-from rich.panel import Panel
-from rich.table import Table
-from rich import box
-from rich.text import Text
-from rich.progress import Progress, SpinnerColumn, TextColumn
 
 from proratio_cli.utils.checks import run_all_checks, check_llm_providers
-from proratio_cli.utils.display import console, print_header
-from proratio_cli.commands import status, strategy, config, data, trade, help_cmd
+from proratio_cli.utils.display import console
+from proratio_cli.commands import status, strategy, config, data, trade
 
 
 class ProratioShell:
@@ -34,7 +27,9 @@ class ProratioShell:
         """Perform startup initialization and system checks."""
         # Display simple header
         self.console.print()
-        self.console.print("[bold cyan]Proratio v0.8.0[/bold cyan] - AI Crypto Trading System")
+        self.console.print(
+            "[bold cyan]Proratio v0.8.0[/bold cyan] - AI Crypto Trading System"
+        )
         self.console.print()
 
         # Run system checks silently
@@ -51,33 +46,46 @@ class ProratioShell:
         # Count status
         passed = sum(1 for status, _ in checks.values() if status)
         total = len(checks)
-        critical_ok = all(checks.get(c, (False, ''))[0] for c in ['Environment', 'Database', 'Freqtrade'])
+        critical_ok = all(
+            checks.get(c, (False, ""))[0]
+            for c in ["Environment", "Database", "Freqtrade"]
+        )
 
         # Show critical systems only
         self.console.print("[bold]System Status:[/bold]")
 
         # Core systems
-        for component in ['Database', 'Freqtrade', 'Strategies']:
+        for component in ["Database", "Freqtrade", "Strategies"]:
             if component in checks:
                 status, details = checks[component]
                 icon = "✅" if status else "❌"
                 color = "green" if status else "red"
-                self.console.print(f"  {icon} [dim]{component}:[/dim] [{color}]{details[:40]}[/{color}]")
+                self.console.print(
+                    f"  {icon} [dim]{component}:[/dim] [{color}]{details[:40]}[/{color}]"
+                )
 
         # LLM Providers (compact)
         provider_count = sum(1 for status, _ in providers.values() if status)
         if provider_count > 0:
-            self.console.print(f"  ✅ [dim]AI Providers:[/dim] [green]{provider_count}/3 configured[/green]")
+            self.console.print(
+                f"  ✅ [dim]AI Providers:[/dim] [green]{provider_count}/3 configured[/green]"
+            )
         else:
-            self.console.print(f"  ⚠️  [dim]AI Providers:[/dim] [yellow]None configured[/yellow]")
+            self.console.print(
+                "  ⚠️  [dim]AI Providers:[/dim] [yellow]None configured[/yellow]"
+            )
 
         self.console.print()
 
         # Overall status - one line
         if critical_ok:
-            self.console.print("[green]✅ Ready to use[/green] | Type [cyan]/help[/cyan] for commands or [cyan]/quit[/cyan] to exit")
+            self.console.print(
+                "[green]✅ Ready to use[/green] | Type [cyan]/help[/cyan] for commands or [cyan]/quit[/cyan] to exit"
+            )
         else:
-            self.console.print("[yellow]⚠️  Some systems need configuration[/yellow] | Type [cyan]/status all[/cyan] for details")
+            self.console.print(
+                "[yellow]⚠️  Some systems need configuration[/yellow] | Type [cyan]/status all[/cyan] for details"
+            )
 
         self.console.print()
 
@@ -102,7 +110,9 @@ class ProratioShell:
                 self.process_command(user_input)
 
             except KeyboardInterrupt:
-                self.console.print("\n[yellow]Use /quit or /exit to exit properly[/yellow]")
+                self.console.print(
+                    "\n[yellow]Use /quit or /exit to exit properly[/yellow]"
+                )
                 continue
             except EOFError:
                 self.console.print()
@@ -112,7 +122,7 @@ class ProratioShell:
     def process_command(self, command: str):
         """Process a user command."""
         # Check if command starts with /
-        if not command.startswith('/'):
+        if not command.startswith("/"):
             self.console.print("[red]❌ Commands must start with /[/red]")
             self.console.print("[dim]Example: /help, /status, /quit[/dim]")
             return
@@ -128,21 +138,21 @@ class ProratioShell:
         args = parts[1:] if len(parts) > 1 else []
 
         # Route to appropriate handler
-        if cmd in ['exit', 'quit', 'q']:
+        if cmd in ["exit", "quit", "q"]:
             self.shutdown()
-        elif cmd == 'help':
+        elif cmd == "help":
             self.cmd_help(args)
-        elif cmd == 'status':
+        elif cmd == "status":
             self.cmd_status(args)
-        elif cmd == 'strategy':
+        elif cmd == "strategy":
             self.cmd_strategy(args)
-        elif cmd == 'config':
+        elif cmd == "config":
             self.cmd_config(args)
-        elif cmd == 'data':
+        elif cmd == "data":
             self.cmd_data(args)
-        elif cmd == 'trade':
+        elif cmd == "trade":
             self.cmd_trade(args)
-        elif cmd == 'clear':
+        elif cmd == "clear":
             self.console.clear()
         else:
             self.console.print(f"[red]❌ Unknown command: /{cmd}[/red]")
@@ -156,7 +166,9 @@ class ProratioShell:
             self.console.print("[bold cyan]Available Commands:[/bold cyan]")
             self.console.print()
             self.console.print("  [cyan]/help[/cyan]              Show this help")
-            self.console.print("  [cyan]/help <command>[/cyan]    Show help for specific command")
+            self.console.print(
+                "  [cyan]/help <command>[/cyan]    Show help for specific command"
+            )
             self.console.print("  [cyan]/status[/cyan]            Check system status")
             self.console.print("  [cyan]/strategy[/cyan]          Manage strategies")
             self.console.print("  [cyan]/config[/cyan]            Manage configuration")
@@ -168,18 +180,20 @@ class ProratioShell:
         else:
             # Show help for specific command
             subcmd = args[0].lower()
-            if subcmd == 'status':
+            if subcmd == "status":
                 self._help_status()
-            elif subcmd == 'strategy':
+            elif subcmd == "strategy":
                 self._help_strategy()
-            elif subcmd == 'config':
+            elif subcmd == "config":
                 self._help_config()
-            elif subcmd == 'data':
+            elif subcmd == "data":
                 self._help_data()
-            elif subcmd == 'trade':
+            elif subcmd == "trade":
                 self._help_trade()
             else:
-                self.console.print(f"[yellow]No detailed help available for: {subcmd}[/yellow]")
+                self.console.print(
+                    f"[yellow]No detailed help available for: {subcmd}[/yellow]"
+                )
 
     def _help_status(self):
         """Show help for status command."""
@@ -250,23 +264,27 @@ class ProratioShell:
 
     def cmd_status(self, args: list):
         """Handle status command."""
-        subcommand = args[0] if args else 'all'
+        subcommand = args[0] if args else "all"
 
         # Import status command module and call appropriate function
         try:
-            if subcommand == 'all':
+            if subcommand == "all":
                 status.all()
-            elif subcommand == 'quick':
+            elif subcommand == "quick":
                 status.quick()
-            elif subcommand == 'providers':
+            elif subcommand == "providers":
                 status.providers()
-            elif subcommand == 'data':
+            elif subcommand == "data":
                 status.data_status()
-            elif subcommand == 'models':
+            elif subcommand == "models":
                 status.models()
             else:
-                self.console.print(f"[red]Unknown status subcommand: {subcommand}[/red]")
-                self.console.print("[dim]Use: /status [all|quick|providers|data|models][/dim]")
+                self.console.print(
+                    f"[red]Unknown status subcommand: {subcommand}[/red]"
+                )
+                self.console.print(
+                    "[dim]Use: /status [all|quick|providers|data|models][/dim]"
+                )
         except Exception as e:
             self.console.print(f"[red]Error executing status command: {e}[/red]")
 
@@ -274,31 +292,35 @@ class ProratioShell:
         """Handle strategy command."""
         if not args:
             self.console.print("[red]Strategy command requires a subcommand[/red]")
-            self.console.print("[dim]Use: /strategy [list|show|validate|backtest][/dim]")
+            self.console.print(
+                "[dim]Use: /strategy [list|show|validate|backtest][/dim]"
+            )
             return
 
         subcommand = args[0]
 
         try:
-            if subcommand == 'list':
+            if subcommand == "list":
                 strategy.list()
-            elif subcommand == 'show':
+            elif subcommand == "show":
                 if len(args) < 2:
                     self.console.print("[red]Strategy name required[/red]")
                     return
                 strategy.show(args[1])
-            elif subcommand == 'validate':
+            elif subcommand == "validate":
                 if len(args) < 2:
                     self.console.print("[red]Strategy name required[/red]")
                     return
                 strategy.validate(args[1])
-            elif subcommand == 'backtest':
+            elif subcommand == "backtest":
                 if len(args) < 2:
                     self.console.print("[red]Strategy name required[/red]")
                     return
                 strategy.backtest(args[1])
             else:
-                self.console.print(f"[red]Unknown strategy subcommand: {subcommand}[/red]")
+                self.console.print(
+                    f"[red]Unknown strategy subcommand: {subcommand}[/red]"
+                )
         except Exception as e:
             self.console.print(f"[red]Error executing strategy command: {e}[/red]")
 
@@ -311,18 +333,20 @@ class ProratioShell:
         subcommand = args[0]
 
         try:
-            if subcommand == 'show':
+            if subcommand == "show":
                 section = args[1] if len(args) > 1 else None
                 config.show(section)
-            elif subcommand == 'set':
+            elif subcommand == "set":
                 if len(args) < 3:
                     self.console.print("[red]Usage: /config set <key> <value>[/red]")
                     return
                 config.set(args[1], args[2])
-            elif subcommand == 'validate':
+            elif subcommand == "validate":
                 config.validate()
             else:
-                self.console.print(f"[red]Unknown config subcommand: {subcommand}[/red]")
+                self.console.print(
+                    f"[red]Unknown config subcommand: {subcommand}[/red]"
+                )
         except Exception as e:
             self.console.print(f"[red]Error executing config command: {e}[/red]")
 
@@ -335,11 +359,11 @@ class ProratioShell:
         subcommand = args[0]
 
         try:
-            if subcommand == 'download':
+            if subcommand == "download":
                 # Parse download options
                 # For now, use defaults
                 data.download()
-            elif subcommand == 'status':
+            elif subcommand == "status":
                 data.status()
             else:
                 self.console.print(f"[red]Unknown data subcommand: {subcommand}[/red]")
@@ -356,11 +380,11 @@ class ProratioShell:
         subcommand = args[0]
 
         try:
-            if subcommand == 'start':
+            if subcommand == "start":
                 trade.start()
-            elif subcommand == 'stop':
+            elif subcommand == "stop":
                 trade.stop()
-            elif subcommand == 'monitor':
+            elif subcommand == "monitor":
                 trade.monitor()
             else:
                 self.console.print(f"[red]Unknown trade subcommand: {subcommand}[/red]")

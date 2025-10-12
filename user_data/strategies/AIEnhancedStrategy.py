@@ -19,7 +19,6 @@ This strategy requires:
 import sys
 from pathlib import Path
 from typing import Optional
-import pandas as pd
 from datetime import datetime, timezone
 
 # Add project root to Python path for imports
@@ -46,9 +45,9 @@ class AIEnhancedStrategy(IStrategy):
 
     # ROI table (slightly more conservative than SimpleTestStrategy)
     minimal_roi = {
-        "0": 0.15,   # 15% profit → exit (wait for bigger moves with AI confirmation)
+        "0": 0.15,  # 15% profit → exit (wait for bigger moves with AI confirmation)
         "60": 0.08,  # After 60 min, 8% profit → exit
-        "120": 0.04, # After 120 min, 4% profit → exit
+        "120": 0.04,  # After 120 min, 4% profit → exit
     }
 
     # Stoploss (slightly tighter with AI confirmation)
@@ -61,7 +60,7 @@ class AIEnhancedStrategy(IStrategy):
     trailing_only_offset_is_reached = True
 
     # Timeframe (AI analysis works best on 1h-4h timeframes)
-    timeframe = '1h'
+    timeframe = "1h"
 
     # Run "populate_indicators()" only for new candle
     process_only_new_candles = True
@@ -71,17 +70,14 @@ class AIEnhancedStrategy(IStrategy):
 
     # Optional order types
     order_types = {
-        'entry': 'limit',
-        'exit': 'limit',
-        'stoploss': 'market',
-        'stoploss_on_exchange': False
+        "entry": "limit",
+        "exit": "limit",
+        "stoploss": "market",
+        "stoploss_on_exchange": False,
     }
 
     # Optional order time in force
-    order_time_in_force = {
-        'entry': 'GTC',
-        'exit': 'GTC'
-    }
+    order_time_in_force = {"entry": "GTC", "exit": "GTC"}
 
     # AI Configuration
     ai_min_confidence = 0.60  # Minimum AI confidence to enter (60%)
@@ -129,28 +125,30 @@ class AIEnhancedStrategy(IStrategy):
             DataFrame with indicators added
         """
         # EMA indicators (same as SimpleTestStrategy)
-        dataframe['ema_fast'] = ta.EMA(dataframe, timeperiod=20)
-        dataframe['ema_slow'] = ta.EMA(dataframe, timeperiod=50)
+        dataframe["ema_fast"] = ta.EMA(dataframe, timeperiod=20)
+        dataframe["ema_slow"] = ta.EMA(dataframe, timeperiod=50)
 
         # RSI
-        dataframe['rsi'] = ta.RSI(dataframe, timeperiod=14)
+        dataframe["rsi"] = ta.RSI(dataframe, timeperiod=14)
 
         # Volume
-        dataframe['volume_mean'] = dataframe['volume'].rolling(window=20).mean()
+        dataframe["volume_mean"] = dataframe["volume"].rolling(window=20).mean()
 
         # Additional indicators for AI context
-        dataframe['atr'] = ta.ATR(dataframe, timeperiod=14)  # Volatility
-        dataframe['adx'] = ta.ADX(dataframe, timeperiod=14)  # Trend strength
+        dataframe["atr"] = ta.ATR(dataframe, timeperiod=14)  # Volatility
+        dataframe["adx"] = ta.ADX(dataframe, timeperiod=14)  # Trend strength
 
         # Bollinger Bands (for volatility context)
         bollinger = ta.BBANDS(dataframe, timeperiod=20)
-        dataframe['bb_upper'] = bollinger['upperband']
-        dataframe['bb_middle'] = bollinger['middleband']
-        dataframe['bb_lower'] = bollinger['lowerband']
+        dataframe["bb_upper"] = bollinger["upperband"]
+        dataframe["bb_middle"] = bollinger["middleband"]
+        dataframe["bb_lower"] = bollinger["lowerband"]
 
         return dataframe
 
-    def get_ai_signal(self, dataframe: DataFrame, metadata: dict) -> Optional[ConsensusSignal]:
+    def get_ai_signal(
+        self, dataframe: DataFrame, metadata: dict
+    ) -> Optional[ConsensusSignal]:
         """
         Get AI consensus signal for the current market state.
         Uses caching to avoid API spam.
@@ -165,17 +163,17 @@ class AIEnhancedStrategy(IStrategy):
         if not self.ai_enabled:
             return None
 
-        pair = metadata['pair']
+        pair = metadata["pair"]
         current_time = datetime.now(timezone.utc)
 
         # Check cache first
         if pair in self.ai_signal_cache:
             cached = self.ai_signal_cache[pair]
-            age_minutes = (current_time - cached['timestamp']).total_seconds() / 60
+            age_minutes = (current_time - cached["timestamp"]).total_seconds() / 60
 
             if age_minutes < self.ai_cache_minutes:
                 # Cache is still valid
-                return cached['signal']
+                return cached["signal"]
 
         # Generate new AI signal
         try:
@@ -183,23 +181,33 @@ class AIEnhancedStrategy(IStrategy):
             recent_data = dataframe.tail(self.ai_lookback_candles).copy()
 
             # Ensure timestamp column exists
-            if 'timestamp' not in recent_data.columns:
+            if "timestamp" not in recent_data.columns:
                 recent_data.reset_index(inplace=True)
-                if 'date' in recent_data.columns:
-                    recent_data.rename(columns={'date': 'timestamp'}, inplace=True)
+                if "date" in recent_data.columns:
+                    recent_data.rename(columns={"date": "timestamp"}, inplace=True)
 
             # Convert to OHLCVData format
             ohlcv = OHLCVData(
                 pair=pair,
                 timeframe=self.timeframe,
-                data=recent_data[['open', 'high', 'low', 'close', 'volume']].copy(),
+                data=recent_data[["open", "high", "low", "close", "volume"]].copy(),
                 indicators={
-                    'ema_fast': recent_data['ema_fast'].iloc[-1] if 'ema_fast' in recent_data.columns else None,
-                    'ema_slow': recent_data['ema_slow'].iloc[-1] if 'ema_slow' in recent_data.columns else None,
-                    'rsi': recent_data['rsi'].iloc[-1] if 'rsi' in recent_data.columns else None,
-                    'atr': recent_data['atr'].iloc[-1] if 'atr' in recent_data.columns else None,
-                    'adx': recent_data['adx'].iloc[-1] if 'adx' in recent_data.columns else None,
-                }
+                    "ema_fast": recent_data["ema_fast"].iloc[-1]
+                    if "ema_fast" in recent_data.columns
+                    else None,
+                    "ema_slow": recent_data["ema_slow"].iloc[-1]
+                    if "ema_slow" in recent_data.columns
+                    else None,
+                    "rsi": recent_data["rsi"].iloc[-1]
+                    if "rsi" in recent_data.columns
+                    else None,
+                    "atr": recent_data["atr"].iloc[-1]
+                    if "atr" in recent_data.columns
+                    else None,
+                    "adx": recent_data["adx"].iloc[-1]
+                    if "adx" in recent_data.columns
+                    else None,
+                },
             )
 
             # Generate AI consensus
@@ -207,14 +215,11 @@ class AIEnhancedStrategy(IStrategy):
                 pair=pair,
                 timeframe=self.timeframe,
                 ohlcv_data=ohlcv.data,
-                indicators=ohlcv.indicators
+                indicators=ohlcv.indicators,
             )
 
             # Cache the signal
-            self.ai_signal_cache[pair] = {
-                'signal': signal,
-                'timestamp': current_time
-            }
+            self.ai_signal_cache[pair] = {"signal": signal, "timestamp": current_time}
 
             return signal
 
@@ -243,42 +248,45 @@ class AIEnhancedStrategy(IStrategy):
         # Technical conditions (from SimpleTestStrategy)
         technical_conditions = (
             # EMA crossover: fast crosses above slow
-            (dataframe['ema_fast'] > dataframe['ema_slow']) &
-            (dataframe['ema_fast'].shift(1) <= dataframe['ema_slow'].shift(1)) &
-
+            (dataframe["ema_fast"] > dataframe["ema_slow"])
+            & (dataframe["ema_fast"].shift(1) <= dataframe["ema_slow"].shift(1))
+            &
             # RSI not overbought
-            (dataframe['rsi'] > 30) &
-            (dataframe['rsi'] < 70) &
-
+            (dataframe["rsi"] > 30)
+            & (dataframe["rsi"] < 70)
+            &
             # Volume confirmation
-            (dataframe['volume'] > dataframe['volume_mean']) &
-
+            (dataframe["volume"] > dataframe["volume_mean"])
+            &
             # Trend strength (ADX > 20 = trending market)
-            (dataframe['adx'] > 20)
+            (dataframe["adx"] > 20)
         )
 
         # AI conditions
         if ai_signal and ai_signal.should_trade():
-            ai_conditions = (
-                (ai_signal.direction.lower() == 'long') &
-                (ai_signal.confidence >= self.ai_min_confidence)
+            ai_conditions = (ai_signal.direction.lower() == "long") & (
+                ai_signal.confidence >= self.ai_min_confidence
             )
 
             # Combine technical + AI
-            dataframe.loc[technical_conditions & ai_conditions, 'enter_long'] = 1
+            dataframe.loc[technical_conditions & ai_conditions, "enter_long"] = 1
 
             # Debug logging
             if ai_conditions:
-                print(f"✓ AI ENTRY signal for {metadata['pair']}: "
-                      f"direction={ai_signal.direction}, "
-                      f"confidence={ai_signal.confidence:.1%}, "
-                      f"providers={len(ai_signal.active_providers or [])}")
+                print(
+                    f"✓ AI ENTRY signal for {metadata['pair']}: "
+                    f"direction={ai_signal.direction}, "
+                    f"confidence={ai_signal.confidence:.1%}, "
+                    f"providers={len(ai_signal.active_providers or [])}"
+                )
         else:
             # Fallback to technical-only if AI unavailable
-            dataframe.loc[technical_conditions, 'enter_long'] = 1
+            dataframe.loc[technical_conditions, "enter_long"] = 1
 
             if self.ai_enabled:
-                print(f"⚠ AI signal unavailable for {metadata['pair']}, using technical-only entry")
+                print(
+                    f"⚠ AI signal unavailable for {metadata['pair']}, using technical-only entry"
+                )
 
         return dataframe
 
@@ -304,37 +312,49 @@ class AIEnhancedStrategy(IStrategy):
         technical_exit = (
             # EMA crossover: fast crosses below slow
             (
-                (dataframe['ema_fast'] < dataframe['ema_slow']) &
-                (dataframe['ema_fast'].shift(1) >= dataframe['ema_slow'].shift(1))
-            ) |
+                (dataframe["ema_fast"] < dataframe["ema_slow"])
+                & (dataframe["ema_fast"].shift(1) >= dataframe["ema_slow"].shift(1))
+            )
+            |
             # RSI overbought
-            (dataframe['rsi'] > 70)
+            (dataframe["rsi"] > 70)
         )
 
         # AI exit conditions (direction changes or low confidence)
         if ai_signal:
             ai_exit = (
-                (ai_signal.direction.lower() in ['short', 'neutral']) &
-                (ai_signal.confidence >= 0.65)  # Slightly higher threshold for exit
+                (ai_signal.direction.lower() in ["short", "neutral"])
+                & (ai_signal.confidence >= 0.65)  # Slightly higher threshold for exit
             )
 
             # Exit if technical OR AI says exit
-            dataframe.loc[technical_exit | ai_exit, 'exit_long'] = 1
+            dataframe.loc[technical_exit | ai_exit, "exit_long"] = 1
 
             if ai_exit:
-                print(f"✓ AI EXIT signal for {metadata['pair']}: "
-                      f"direction={ai_signal.direction}, "
-                      f"confidence={ai_signal.confidence:.1%}")
+                print(
+                    f"✓ AI EXIT signal for {metadata['pair']}: "
+                    f"direction={ai_signal.direction}, "
+                    f"confidence={ai_signal.confidence:.1%}"
+                )
         else:
             # Fallback to technical-only
-            dataframe.loc[technical_exit, 'exit_long'] = 1
+            dataframe.loc[technical_exit, "exit_long"] = 1
 
         return dataframe
 
-    def custom_stake_amount(self, pair: str, current_time: datetime, current_rate: float,
-                           proposed_stake: float, min_stake: Optional[float], max_stake: float,
-                           leverage: float, entry_tag: Optional[str], side: str,
-                           **kwargs) -> float:
+    def custom_stake_amount(
+        self,
+        pair: str,
+        current_time: datetime,
+        current_rate: float,
+        proposed_stake: float,
+        min_stake: Optional[float],
+        max_stake: float,
+        leverage: float,
+        entry_tag: Optional[str],
+        side: str,
+        **kwargs,
+    ) -> float:
         """
         Adjust position size based on AI confidence.
 
@@ -350,7 +370,7 @@ class AIEnhancedStrategy(IStrategy):
         """
         # Get cached AI signal (should exist from populate_entry_trend)
         if pair in self.ai_signal_cache:
-            signal = self.ai_signal_cache[pair]['signal']
+            signal = self.ai_signal_cache[pair]["signal"]
 
             if signal and signal.confidence >= self.ai_min_confidence:
                 # Calculate multiplier based on confidence
@@ -358,9 +378,15 @@ class AIEnhancedStrategy(IStrategy):
                 # 80% confidence → 1.0x stake
                 # 100% confidence → 1.2x stake
                 # Formula: normalize confidence (0.6-1.0) to multiplier range (0.8-1.2)
-                confidence_normalized = (signal.confidence - self.ai_min_confidence) / (1.0 - self.ai_min_confidence)
+                confidence_normalized = (signal.confidence - self.ai_min_confidence) / (
+                    1.0 - self.ai_min_confidence
+                )
                 multiplier = self.ai_confidence_multiplier_min + (
-                    confidence_normalized * (self.ai_confidence_multiplier_max - self.ai_confidence_multiplier_min)
+                    confidence_normalized
+                    * (
+                        self.ai_confidence_multiplier_max
+                        - self.ai_confidence_multiplier_min
+                    )
                 )
                 # At 60%: (0.6-0.6)/(1-0.6) = 0.0 → 0.8 + 0.0*(1.2-0.8) = 0.8x
                 # At 80%: (0.8-0.6)/(1-0.6) = 0.5 → 0.8 + 0.5*0.4 = 1.0x
@@ -374,19 +400,30 @@ class AIEnhancedStrategy(IStrategy):
                 if adjusted_stake > max_stake:
                     adjusted_stake = max_stake
 
-                print(f"💰 Position sizing for {pair}: "
-                      f"base={proposed_stake:.2f} → "
-                      f"adjusted={adjusted_stake:.2f} "
-                      f"(AI confidence={signal.confidence:.1%}, multiplier={multiplier:.2f}x)")
+                print(
+                    f"💰 Position sizing for {pair}: "
+                    f"base={proposed_stake:.2f} → "
+                    f"adjusted={adjusted_stake:.2f} "
+                    f"(AI confidence={signal.confidence:.1%}, multiplier={multiplier:.2f}x)"
+                )
 
                 return adjusted_stake
 
         # Fallback to base stake if no AI signal
         return proposed_stake
 
-    def confirm_trade_entry(self, pair: str, order_type: str, amount: float,
-                           rate: float, time_in_force: str, current_time,
-                           entry_tag, side: str, **kwargs) -> bool:
+    def confirm_trade_entry(
+        self,
+        pair: str,
+        order_type: str,
+        amount: float,
+        rate: float,
+        time_in_force: str,
+        current_time,
+        entry_tag,
+        side: str,
+        **kwargs,
+    ) -> bool:
         """
         Final confirmation before entering trade.
         Double-check AI signal is still valid.
@@ -397,20 +434,28 @@ class AIEnhancedStrategy(IStrategy):
         # Check if AI signal is still cached and valid
         if pair in self.ai_signal_cache:
             cached = self.ai_signal_cache[pair]
-            signal = cached['signal']
-            age_minutes = (datetime.now(timezone.utc) - cached['timestamp']).total_seconds() / 60
+            signal = cached["signal"]
+            age_minutes = (
+                datetime.now(timezone.utc) - cached["timestamp"]
+            ).total_seconds() / 60
 
             # Reject if signal expired or confidence dropped
             if age_minutes >= self.ai_cache_minutes:
-                print(f"✗ Rejecting {pair} entry: AI signal expired ({age_minutes:.1f} min old)")
+                print(
+                    f"✗ Rejecting {pair} entry: AI signal expired ({age_minutes:.1f} min old)"
+                )
                 return False
 
             if signal.confidence < self.ai_min_confidence:
-                print(f"✗ Rejecting {pair} entry: AI confidence too low ({signal.confidence:.1%})")
+                print(
+                    f"✗ Rejecting {pair} entry: AI confidence too low ({signal.confidence:.1%})"
+                )
                 return False
 
-            if signal.direction.lower() != 'long':
-                print(f"✗ Rejecting {pair} entry: AI direction changed to {signal.direction}")
+            if signal.direction.lower() != "long":
+                print(
+                    f"✗ Rejecting {pair} entry: AI direction changed to {signal.direction}"
+                )
                 return False
 
         # Allow entry if all checks pass

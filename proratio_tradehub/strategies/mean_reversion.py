@@ -14,12 +14,11 @@ Best for: Range-bound markets, sideways consolidation
 Avoid: Strong trending markets (use trend-following instead)
 """
 
-from typing import Dict, Optional
+from typing import Dict
 import pandas as pd
 
 from proratio_tradehub.strategies.base_strategy import BaseStrategy, TradeSignal
 from proratio_signals import SignalOrchestrator
-from proratio_utilities.config.settings import get_settings
 
 
 class MeanReversionStrategy(BaseStrategy):
@@ -41,7 +40,7 @@ class MeanReversionStrategy(BaseStrategy):
         rsi_overbought: float = 70,
         bb_std: float = 2.0,
         use_ai_confirmation: bool = True,
-        ai_confidence_threshold: float = 0.5
+        ai_confidence_threshold: float = 0.5,
     ):
         """
         Initialize Mean Reversion Strategy.
@@ -72,14 +71,16 @@ class MeanReversionStrategy(BaseStrategy):
                 self.use_ai_confirmation = False
 
         self.config = {
-            'rsi_oversold': rsi_oversold,
-            'rsi_overbought': rsi_overbought,
-            'bb_std': bb_std,
-            'use_ai_confirmation': use_ai_confirmation,
-            'ai_confidence_threshold': ai_confidence_threshold
+            "rsi_oversold": rsi_oversold,
+            "rsi_overbought": rsi_overbought,
+            "bb_std": bb_std,
+            "use_ai_confirmation": use_ai_confirmation,
+            "ai_confidence_threshold": ai_confidence_threshold,
         }
 
-    def should_enter_long(self, pair: str, dataframe: pd.DataFrame, **kwargs) -> TradeSignal:
+    def should_enter_long(
+        self, pair: str, dataframe: pd.DataFrame, **kwargs
+    ) -> TradeSignal:
         """
         Check if conditions are met for long entry (buy).
 
@@ -97,10 +98,10 @@ class MeanReversionStrategy(BaseStrategy):
             TradeSignal indicating whether to enter long
         """
         # Get latest values
-        current_price = dataframe['close'].iloc[-1]
-        rsi = dataframe['rsi'].iloc[-1]
-        bb_lower = dataframe['bb_lower'].iloc[-1]
-        bb_middle = dataframe['bb_middle'].iloc[-1]
+        current_price = dataframe["close"].iloc[-1]
+        rsi = dataframe["rsi"].iloc[-1]
+        bb_lower = dataframe["bb_lower"].iloc[-1]
+        bb_middle = dataframe["bb_middle"].iloc[-1]
 
         # Check technical conditions
         is_oversold = rsi < self.rsi_oversold
@@ -108,9 +109,9 @@ class MeanReversionStrategy(BaseStrategy):
 
         if not (is_oversold and below_bb):
             return TradeSignal(
-                direction='neutral',
+                direction="neutral",
                 confidence=0.0,
-                reasoning=f"Not oversold (RSI={rsi:.1f}) or not below BB_lower"
+                reasoning=f"Not oversold (RSI={rsi:.1f}) or not below BB_lower",
             )
 
         # Calculate base confidence from technical indicators
@@ -129,12 +130,14 @@ class MeanReversionStrategy(BaseStrategy):
             try:
                 ai_signal = self.orchestrator.generate_signal(pair, dataframe)
 
-                if ai_signal.direction == 'long':
+                if ai_signal.direction == "long":
                     ai_confidence = ai_signal.confidence
                     ai_reasoning = f"AI confirms LONG ({ai_confidence:.1%})"
 
                     # Blend technical and AI confidence
-                    final_confidence = (technical_confidence * 0.4) + (ai_confidence * 0.6)
+                    final_confidence = (technical_confidence * 0.4) + (
+                        ai_confidence * 0.6
+                    )
                 else:
                     # AI disagrees or is neutral
                     final_confidence = technical_confidence * 0.5  # Reduce confidence
@@ -162,16 +165,20 @@ class MeanReversionStrategy(BaseStrategy):
         )
 
         return TradeSignal(
-            direction='long' if meets_threshold else 'neutral',
+            direction="long" if meets_threshold else "neutral",
             confidence=final_confidence,
             entry_price=current_price,
-            stop_loss=self.calculate_stop_loss(pair, current_price, 'long', dataframe),
-            take_profit=self.calculate_take_profit(pair, current_price, 'long', dataframe),
+            stop_loss=self.calculate_stop_loss(pair, current_price, "long", dataframe),
+            take_profit=self.calculate_take_profit(
+                pair, current_price, "long", dataframe
+            ),
             position_size_multiplier=final_confidence,  # Higher confidence = larger position
-            reasoning=reasoning
+            reasoning=reasoning,
         )
 
-    def should_enter_short(self, pair: str, dataframe: pd.DataFrame, **kwargs) -> TradeSignal:
+    def should_enter_short(
+        self, pair: str, dataframe: pd.DataFrame, **kwargs
+    ) -> TradeSignal:
         """
         Check if conditions are met for short entry (sell).
 
@@ -189,10 +196,10 @@ class MeanReversionStrategy(BaseStrategy):
             TradeSignal indicating whether to enter short
         """
         # Get latest values
-        current_price = dataframe['close'].iloc[-1]
-        rsi = dataframe['rsi'].iloc[-1]
-        bb_upper = dataframe['bb_upper'].iloc[-1]
-        bb_middle = dataframe['bb_middle'].iloc[-1]
+        current_price = dataframe["close"].iloc[-1]
+        rsi = dataframe["rsi"].iloc[-1]
+        bb_upper = dataframe["bb_upper"].iloc[-1]
+        bb_middle = dataframe["bb_middle"].iloc[-1]
 
         # Check technical conditions
         is_overbought = rsi > self.rsi_overbought
@@ -200,13 +207,15 @@ class MeanReversionStrategy(BaseStrategy):
 
         if not (is_overbought and above_bb):
             return TradeSignal(
-                direction='neutral',
+                direction="neutral",
                 confidence=0.0,
-                reasoning=f"Not overbought (RSI={rsi:.1f}) or not above BB_upper"
+                reasoning=f"Not overbought (RSI={rsi:.1f}) or not above BB_upper",
             )
 
         # Calculate base confidence from technical indicators
-        rsi_confidence = max(0, (rsi - self.rsi_overbought) / (100 - self.rsi_overbought))
+        rsi_confidence = max(
+            0, (rsi - self.rsi_overbought) / (100 - self.rsi_overbought)
+        )
         bb_deviation = abs(current_price - bb_upper) / bb_middle
         bb_confidence = min(1.0, bb_deviation * 10)
 
@@ -220,10 +229,12 @@ class MeanReversionStrategy(BaseStrategy):
             try:
                 ai_signal = self.orchestrator.generate_signal(pair, dataframe)
 
-                if ai_signal.direction == 'short':
+                if ai_signal.direction == "short":
                     ai_confidence = ai_signal.confidence
                     ai_reasoning = f"AI confirms SHORT ({ai_confidence:.1%})"
-                    final_confidence = (technical_confidence * 0.4) + (ai_confidence * 0.6)
+                    final_confidence = (technical_confidence * 0.4) + (
+                        ai_confidence * 0.6
+                    )
                 else:
                     final_confidence = technical_confidence * 0.5
                     ai_reasoning = f"AI disagrees: {ai_signal.direction} ({ai_signal.confidence:.1%})"
@@ -247,21 +258,19 @@ class MeanReversionStrategy(BaseStrategy):
         )
 
         return TradeSignal(
-            direction='short' if meets_threshold else 'neutral',
+            direction="short" if meets_threshold else "neutral",
             confidence=final_confidence,
             entry_price=current_price,
-            stop_loss=self.calculate_stop_loss(pair, current_price, 'short', dataframe),
-            take_profit=self.calculate_take_profit(pair, current_price, 'short', dataframe),
+            stop_loss=self.calculate_stop_loss(pair, current_price, "short", dataframe),
+            take_profit=self.calculate_take_profit(
+                pair, current_price, "short", dataframe
+            ),
             position_size_multiplier=final_confidence,
-            reasoning=reasoning
+            reasoning=reasoning,
         )
 
     def should_exit(
-        self,
-        pair: str,
-        dataframe: pd.DataFrame,
-        current_position: Dict,
-        **kwargs
+        self, pair: str, dataframe: pd.DataFrame, current_position: Dict, **kwargs
     ) -> TradeSignal:
         """
         Determine if strategy should exit current position.
@@ -280,12 +289,12 @@ class MeanReversionStrategy(BaseStrategy):
         Returns:
             TradeSignal indicating whether to exit
         """
-        current_price = dataframe['close'].iloc[-1]
-        rsi = dataframe['rsi'].iloc[-1]
-        bb_middle = dataframe['bb_middle'].iloc[-1]
+        current_price = dataframe["close"].iloc[-1]
+        rsi = dataframe["rsi"].iloc[-1]
+        bb_middle = dataframe["bb_middle"].iloc[-1]
 
-        entry_price = current_position.get('entry_price')
-        side = current_position.get('side', 'long')
+        entry_price = current_position.get("entry_price")
+        side = current_position.get("side", "long")
 
         # Check if price returned to mean
         price_near_mean = abs(current_price - bb_middle) / bb_middle < 0.01  # Within 1%
@@ -296,7 +305,11 @@ class MeanReversionStrategy(BaseStrategy):
         should_exit = price_near_mean or rsi_neutral
 
         if should_exit:
-            profit_pct = ((current_price - entry_price) / entry_price * 100) if side == 'long' else ((entry_price - current_price) / entry_price * 100)
+            profit_pct = (
+                ((current_price - entry_price) / entry_price * 100)
+                if side == "long"
+                else ((entry_price - current_price) / entry_price * 100)
+            )
 
             reasoning = (
                 f"Mean Reversion EXIT signal:\n"
@@ -305,16 +318,12 @@ class MeanReversionStrategy(BaseStrategy):
                 f"  Current P&L: {profit_pct:+.2f}%"
             )
 
-            return TradeSignal(
-                direction='exit',
-                confidence=0.8,
-                reasoning=reasoning
-            )
+            return TradeSignal(direction="exit", confidence=0.8, reasoning=reasoning)
 
         return TradeSignal(
-            direction='neutral',
+            direction="neutral",
             confidence=0.0,
-            reasoning=f"Hold position (RSI={rsi:.1f}, price=${current_price:.2f} vs mean=${bb_middle:.2f})"
+            reasoning=f"Hold position (RSI={rsi:.1f}, price=${current_price:.2f} vs mean=${bb_middle:.2f})",
         )
 
     def get_required_indicators(self) -> list:
@@ -325,10 +334,10 @@ class MeanReversionStrategy(BaseStrategy):
             List of indicator names needed for this strategy
         """
         return [
-            'rsi',           # Relative Strength Index
-            'bb_upper',      # Bollinger Bands upper
-            'bb_middle',     # Bollinger Bands middle (SMA)
-            'bb_lower',      # Bollinger Bands lower
+            "rsi",  # Relative Strength Index
+            "bb_upper",  # Bollinger Bands upper
+            "bb_middle",  # Bollinger Bands middle (SMA)
+            "bb_lower",  # Bollinger Bands lower
         ]
 
     def __repr__(self) -> str:

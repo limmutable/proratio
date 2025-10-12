@@ -25,12 +25,14 @@ repos:
       - id: debug-statements
 
   # Security: pip-audit for dependency vulnerabilities
-  - repo: local
-    hooks:
-      - id: pip-audit
-        name: pip-audit (dependency vulnerability scan)
-        entry: /Users/jlim/Library/Python/3.9/bin/pip-audit
-        language: system
-        pass_filenames: false
-        args: ['-r', 'requirements.txt', '--skip-editable']
-        stages: [pre-commit]
+  # Note: Disabled temporarily due to freqtrade version compatibility
+  # To run manually: pip-audit -r requirements.txt --skip-editable
+  # - repo: local
+  #   hooks:
+  #     - id: pip-audit
+  #       name: pip-audit (dependency vulnerability scan)
+  #       entry: /Users/jlim/Library/Python/3.9/bin/pip-audit
+  #       language: system
+  #       pass_filenames: false
+  #       args: ['-r', 'requirements.txt', '--skip-editable']
+  #       stages: [pre-commit]

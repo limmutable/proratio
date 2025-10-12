@@ -2,7 +2,6 @@
 Tests for configuration management
 """
 
-import pytest
 from proratio_utilities.config.settings import Settings, get_settings
 
 

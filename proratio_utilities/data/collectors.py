@@ -27,10 +27,10 @@ class BinanceCollector:
     def _init_exchange(self) -> ccxt.binance:
         """Initialize CCXT Binance exchange object"""
         config = {
-            'enableRateLimit': True,  # Respect rate limits
-            'options': {
-                'defaultType': 'spot',  # 'spot', 'future', 'swap'
-            }
+            "enableRateLimit": True,  # Respect rate limits
+            "options": {
+                "defaultType": "spot",  # 'spot', 'future', 'swap'
+            },
         }
 
         # Only add API keys if they're configured (not needed for public data)
@@ -38,18 +38,22 @@ class BinanceCollector:
         api_key = self.settings.binance_api_key
         api_secret = self.settings.binance_api_secret
 
-        if (api_key and api_secret and
-            api_key.strip() and api_secret.strip() and
-            'your_' not in api_key.lower() and  # Exclude placeholders
-            'here' not in api_key.lower()):
-            config['apiKey'] = api_key
-            config['secret'] = api_secret
+        if (
+            api_key
+            and api_secret
+            and api_key.strip()
+            and api_secret.strip()
+            and "your_" not in api_key.lower()  # Exclude placeholders
+            and "here" not in api_key.lower()
+        ):
+            config["apiKey"] = api_key
+            config["secret"] = api_secret
 
         if self.testnet:
-            config['urls'] = {
-                'api': {
-                    'public': 'https://testnet.binance.vision/api/v3',
-                    'private': 'https://testnet.binance.vision/api/v3',
+            config["urls"] = {
+                "api": {
+                    "public": "https://testnet.binance.vision/api/v3",
+                    "private": "https://testnet.binance.vision/api/v3",
                 }
             }
 
@@ -58,9 +62,9 @@ class BinanceCollector:
     def fetch_ohlcv(
         self,
         pair: str,
-        timeframe: str = '1h',
+        timeframe: str = "1h",
         since: Optional[datetime] = None,
-        limit: int = 1000
+        limit: int = 1000,
     ) -> List[Tuple]:
         """
         Fetch OHLCV data from Binance.
@@ -81,10 +85,7 @@ class BinanceCollector:
 
         # Fetch OHLCV data
         ohlcv = self.exchange.fetch_ohlcv(
-            symbol=pair,
-            timeframe=timeframe,
-            since=since_ms,
-            limit=limit
+            symbol=pair, timeframe=timeframe, since=since_ms, limit=limit
         )
 
         # Convert to (timestamp, open, high, low, close, volume) tuples
@@ -92,14 +93,16 @@ class BinanceCollector:
         result = []
         for candle in ohlcv:
             timestamp = datetime.fromtimestamp(candle[0] / 1000)
-            result.append((
-                timestamp,
-                candle[1],  # open
-                candle[2],  # high
-                candle[3],  # low
-                candle[4],  # close
-                candle[5]   # volume
-            ))
+            result.append(
+                (
+                    timestamp,
+                    candle[1],  # open
+                    candle[2],  # high
+                    candle[3],  # low
+                    candle[4],  # close
+                    candle[5],  # volume
+                )
+            )
 
         return result
 
@@ -108,7 +111,7 @@ class BinanceCollector:
         pair: str,
         timeframe: str,
         start_date: datetime,
-        end_date: Optional[datetime] = None
+        end_date: Optional[datetime] = None,
     ) -> List[Tuple]:
         """
         Fetch historical OHLCV data for a date range.
@@ -138,10 +141,7 @@ class BinanceCollector:
         while current_date < end_date:
             # Fetch batch
             batch = self.fetch_ohlcv(
-                pair=pair,
-                timeframe=timeframe,
-                since=current_date,
-                limit=limit
+                pair=pair, timeframe=timeframe, since=current_date, limit=limit
             )
 
             if not batch:
@@ -175,10 +175,10 @@ class BinanceCollector:
         amount = int(timeframe[:-1])
 
         multipliers = {
-            'm': 60,           # minutes
-            'h': 3600,         # hours
-            'd': 86400,        # days
-            'w': 604800,       # weeks
+            "m": 60,  # minutes
+            "h": 3600,  # hours
+            "d": 86400,  # days
+            "w": 604800,  # weeks
         }
 
         return amount * multipliers.get(unit, 3600)
@@ -200,7 +200,7 @@ class BinanceCollector:
             True if connection successful, False otherwise
         """
         try:
-            self.exchange.fetch_ticker('BTC/USDT')
+            self.exchange.fetch_ticker("BTC/USDT")
             return True
         except Exception as e:
             print(f"Connection test failed: {e}")
@@ -215,16 +215,16 @@ class MultiExchangeCollector:
 
     def __init__(self):
         self.collectors = {
-            'binance': BinanceCollector(),
+            "binance": BinanceCollector(),
         }
 
     def fetch_ohlcv(
         self,
         exchange: str,
         pair: str,
-        timeframe: str = '1h',
+        timeframe: str = "1h",
         since: Optional[datetime] = None,
-        limit: int = 1000
+        limit: int = 1000,
     ) -> List[Tuple]:
         """
         Fetch OHLCV from specified exchange.

@@ -7,7 +7,7 @@ and risk management to generate trade recommendations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 from dataclasses import dataclass
 from datetime import datetime
 import pandas as pd
@@ -32,7 +32,7 @@ class TradeSignal:
 
     def should_trade(self, threshold: float = 0.5) -> bool:
         """Check if signal is strong enough to trade"""
-        return self.direction != 'neutral' and self.confidence >= threshold
+        return self.direction != "neutral" and self.confidence >= threshold
 
 
 class BaseStrategy(ABC):
@@ -61,7 +61,9 @@ class BaseStrategy(ABC):
         self.config = {}
 
     @abstractmethod
-    def should_enter_long(self, pair: str, dataframe: pd.DataFrame, **kwargs) -> TradeSignal:
+    def should_enter_long(
+        self, pair: str, dataframe: pd.DataFrame, **kwargs
+    ) -> TradeSignal:
         """
         Determine if strategy should enter a long position.
 
@@ -76,7 +78,9 @@ class BaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def should_enter_short(self, pair: str, dataframe: pd.DataFrame, **kwargs) -> TradeSignal:
+    def should_enter_short(
+        self, pair: str, dataframe: pd.DataFrame, **kwargs
+    ) -> TradeSignal:
         """
         Determine if strategy should enter a short position.
 
@@ -92,11 +96,7 @@ class BaseStrategy(ABC):
 
     @abstractmethod
     def should_exit(
-        self,
-        pair: str,
-        dataframe: pd.DataFrame,
-        current_position: Dict,
-        **kwargs
+        self, pair: str, dataframe: pd.DataFrame, current_position: Dict, **kwargs
     ) -> TradeSignal:
         """
         Determine if strategy should exit current position.
@@ -113,11 +113,7 @@ class BaseStrategy(ABC):
         pass
 
     def calculate_position_size(
-        self,
-        pair: str,
-        signal: TradeSignal,
-        account_balance: float,
-        **kwargs
+        self, pair: str, signal: TradeSignal, account_balance: float, **kwargs
     ) -> float:
         """
         Calculate position size for a trade.
@@ -134,7 +130,7 @@ class BaseStrategy(ABC):
         Returns:
             Position size in quote currency (e.g., USDT)
         """
-        base_stake = kwargs.get('base_stake', 100.0)
+        base_stake = kwargs.get("base_stake", 100.0)
         return base_stake * signal.position_size_multiplier
 
     def calculate_stop_loss(
@@ -143,7 +139,7 @@ class BaseStrategy(ABC):
         entry_price: float,
         side: str,
         dataframe: pd.DataFrame,
-        **kwargs
+        **kwargs,
     ) -> Optional[float]:
         """
         Calculate stop-loss price.
@@ -161,11 +157,11 @@ class BaseStrategy(ABC):
         Returns:
             Stop-loss price or None
         """
-        stop_loss_pct = kwargs.get('stop_loss_pct', 0.02)  # 2% default
+        stop_loss_pct = kwargs.get("stop_loss_pct", 0.02)  # 2% default
 
-        if side == 'long':
+        if side == "long":
             return entry_price * (1 - stop_loss_pct)
-        elif side == 'short':
+        elif side == "short":
             return entry_price * (1 + stop_loss_pct)
         return None
 
@@ -175,7 +171,7 @@ class BaseStrategy(ABC):
         entry_price: float,
         side: str,
         dataframe: pd.DataFrame,
-        **kwargs
+        **kwargs,
     ) -> Optional[float]:
         """
         Calculate take-profit price.
@@ -193,11 +189,11 @@ class BaseStrategy(ABC):
         Returns:
             Take-profit price or None
         """
-        take_profit_pct = kwargs.get('take_profit_pct', 0.04)  # 4% default
+        take_profit_pct = kwargs.get("take_profit_pct", 0.04)  # 4% default
 
-        if side == 'long':
+        if side == "long":
             return entry_price * (1 + take_profit_pct)
-        elif side == 'short':
+        elif side == "short":
             return entry_price * (1 - take_profit_pct)
         return None
 

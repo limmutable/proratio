@@ -13,7 +13,7 @@ from proratio_cli.utils.display import (
     print_section_header,
     print_command_example,
     create_tree_menu,
-    console
+    console,
 )
 
 app = typer.Typer()
@@ -31,22 +31,24 @@ def quickstart():
     print_section_header("2. Download Data")
     print_command_example(
         "./start.sh cli data download --pairs BTC/USDT --days 180",
-        "Download 180 days of BTC data"
+        "Download 180 days of BTC data",
     )
 
     print_section_header("3. List Strategies")
-    print_command_example("./start.sh cli strategy list", "Show all available strategies")
+    print_command_example(
+        "./start.sh cli strategy list", "Show all available strategies"
+    )
 
     print_section_header("4. Backtest Strategy")
     print_command_example(
         "./start.sh cli strategy backtest AIEnhancedStrategy --days 90",
-        "Backtest strategy on 90 days"
+        "Backtest strategy on 90 days",
     )
 
     print_section_header("5. Start Paper Trading")
     print_command_example(
         "./start.sh cli trade start --strategy AIEnhancedStrategy",
-        "Start dry-run trading"
+        "Start dry-run trading",
     )
 
 
@@ -109,19 +111,15 @@ def config():
     console.print("  [cyan]BINANCE_API_SECRET[/cyan] - Binance API secret\n")
 
     print_section_header("Trading Configuration")
-    print_command_example(
-        "./start.sh cli config show",
-        "View current configuration"
-    )
+    print_command_example("./start.sh cli config show", "View current configuration")
     print_command_example(
         "./start.sh cli config set risk.max_loss_per_trade_pct 0.02",
-        "Set max loss to 2%"
+        "Set max loss to 2%",
     )
 
     print_section_header("Validation")
     print_command_example(
-        "./start.sh cli config validate",
-        "Validate configuration file"
+        "./start.sh cli config validate", "Validate configuration file"
     )
 
 
@@ -133,13 +131,13 @@ def ml():
     print_section_header("1. Train LSTM Model")
     print_command_example(
         "python scripts/train_lstm_model.py --pair BTC/USDT --epochs 100",
-        "Train LSTM for price prediction"
+        "Train LSTM for price prediction",
     )
 
     print_section_header("2. Train Ensemble Model")
     print_command_example(
         "python scripts/example_ensemble_usage.py",
-        "Train ensemble (LSTM + LightGBM + XGBoost)"
+        "Train ensemble (LSTM + LightGBM + XGBoost)",
     )
 
     print_section_header("3. Use in Strategy")

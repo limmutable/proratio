@@ -34,11 +34,7 @@ class DatabaseStorage:
     # ========================================================================
 
     def insert_ohlcv(
-        self,
-        exchange: str,
-        pair: str,
-        timeframe: str,
-        data: List[Tuple]
+        self, exchange: str, pair: str, timeframe: str, data: List[Tuple]
     ) -> int:
         """
         Insert OHLCV data into database.
@@ -62,10 +58,7 @@ class DatabaseStorage:
         """
 
         # Prepare data with exchange, pair, and timeframe
-        rows = [
-            (exchange, pair, timeframe, *row)
-            for row in data
-        ]
+        rows = [(exchange, pair, timeframe, *row) for row in data]
 
         execute_batch(cursor, query, rows, page_size=1000)
         conn.commit()
@@ -81,7 +74,7 @@ class DatabaseStorage:
         timeframe: str,
         start_time: Optional[datetime] = None,
         end_time: Optional[datetime] = None,
-        limit: Optional[int] = 1000
+        limit: Optional[int] = 1000,
     ) -> pd.DataFrame:
         """
         Fetch OHLCV data from database.
@@ -125,15 +118,12 @@ class DatabaseStorage:
 
         # Convert timestamp to datetime if not already
         if not df.empty:
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df["timestamp"] = pd.to_datetime(df["timestamp"])
 
         return df
 
     def get_latest_timestamp(
-        self,
-        exchange: str,
-        pair: str,
-        timeframe: str
+        self, exchange: str, pair: str, timeframe: str
     ) -> Optional[datetime]:
         """Get the latest timestamp for a given pair/timeframe"""
         conn = self.get_connection()
@@ -151,12 +141,7 @@ class DatabaseStorage:
 
         return result[0] if result[0] else None
 
-    def count_ohlcv_records(
-        self,
-        exchange: str,
-        pair: str,
-        timeframe: str
-    ) -> int:
+    def count_ohlcv_records(self, exchange: str, pair: str, timeframe: str) -> int:
         """Count total OHLCV records for a pair/timeframe"""
         conn = self.get_connection()
         cursor = conn.cursor()
@@ -190,6 +175,7 @@ class DatabaseStorage:
         """
 
         import json
+
         cursor.execute(query, (key, json.dumps(value)))
         conn.commit()
         cursor.close()

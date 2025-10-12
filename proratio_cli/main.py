@@ -13,8 +13,6 @@ Date: 2025-10-11
 """
 
 import typer
-from typing import Optional
-from rich.console import Console
 from pathlib import Path
 import sys
 
@@ -28,7 +26,7 @@ from proratio_cli.utils.display import (
     print_error,
     print_info,
     create_status_table,
-    console
+    console,
 )
 from proratio_cli.utils.checks import run_all_checks, get_llm_provider_status
 
@@ -55,7 +53,7 @@ app.add_typer(help_cmd.app, name="help", help="❓ Help and guides")
 @app.callback(invoke_without_command=True)
 def main(
     ctx: typer.Context,
-    version: bool = typer.Option(False, "--version", "-v", help="Show version")
+    version: bool = typer.Option(False, "--version", "-v", help="Show version"),
 ):
     """
     Proratio - AI-Driven Cryptocurrency Trading System
@@ -70,14 +68,14 @@ def main(
     # If no subcommand, launch interactive shell
     if ctx.invoked_subcommand is None:
         from proratio_cli.shell import run_shell
+
         run_shell()
 
 
 def show_startup_status():
     """Display startup status with system checks."""
     print_header(
-        "🤖 Proratio Trading System",
-        "AI-Driven Cryptocurrency Trading | Version 0.8.0"
+        "🤖 Proratio Trading System", "AI-Driven Cryptocurrency Trading | Version 0.8.0"
     )
 
     console.print("\n[bold cyan]System Status[/bold cyan]\n")
@@ -88,11 +86,13 @@ def show_startup_status():
     # Prepare data for status table
     status_data = []
     for component, (success, details) in checks.items():
-        status_data.append({
-            'component': component,
-            'status': '✅' if success else '❌',
-            'details': details
-        })
+        status_data.append(
+            {
+                "component": component,
+                "status": "✅" if success else "❌",
+                "details": details,
+            }
+        )
 
     # Display system status
     table = create_status_table("Core Systems", status_data)
@@ -104,11 +104,13 @@ def show_startup_status():
 
     provider_data = []
     for provider, (success, details) in provider_status.items():
-        provider_data.append({
-            'component': provider,
-            'status': '✅' if success else '❌',
-            'details': details
-        })
+        provider_data.append(
+            {
+                "component": provider,
+                "status": "✅" if success else "❌",
+                "details": details,
+            }
+        )
 
     provider_table = create_status_table("AI Providers", provider_data)
     console.print(provider_table)
@@ -118,7 +120,7 @@ def show_startup_status():
     passed_checks = sum(1 for success, _ in checks.values() if success)
     provider_count = sum(1 for success, _ in provider_status.values() if success)
 
-    console.print(f"\n[bold]Summary:[/bold]")
+    console.print("\n[bold]Summary:[/bold]")
     console.print(f"  System Checks: {passed_checks}/{total_checks} passing")
     console.print(f"  LLM Providers: {provider_count}/3 configured")
 

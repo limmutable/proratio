@@ -19,15 +19,13 @@ Portfolio allocation approaches:
 - AI-driven: Use AI to determine optimal allocation
 """
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 
-from proratio_tradehub.strategies.base_strategy import BaseStrategy, TradeSignal
-from proratio_tradehub.strategies.mean_reversion import MeanReversionStrategy
-from proratio_tradehub.strategies.grid_trading import GridTradingStrategy
+from proratio_tradehub.strategies.base_strategy import BaseStrategy
 from proratio_signals import SignalOrchestrator
 
 
@@ -46,7 +44,9 @@ class StrategyAllocation:
 class MarketRegime:
     """Detected market regime"""
 
-    regime_type: str  # 'trending_up', 'trending_down', 'ranging', 'volatile', 'uncertain'
+    regime_type: (
+        str  # 'trending_up', 'trending_down', 'ranging', 'volatile', 'uncertain'
+    )
     confidence: float  # 0.0 to 1.0
     indicators: Dict[str, float]  # Supporting indicators
     timestamp: datetime
@@ -70,7 +70,7 @@ class PortfolioManager:
         rebalance_frequency_hours: int = 24,
         min_strategy_allocation: float = 0.10,  # Minimum 10% per strategy
         max_strategy_allocation: float = 0.60,  # Maximum 60% per strategy
-        use_ai_regime_detection: bool = True
+        use_ai_regime_detection: bool = True,
     ):
         """
         Initialize Portfolio Manager.
@@ -95,7 +95,9 @@ class PortfolioManager:
         self.allocations: Dict[str, StrategyAllocation] = {}
 
         # Performance tracking
-        self.performance_history: Dict[str, List[float]] = {}  # strategy_name -> list of returns
+        self.performance_history: Dict[
+            str, List[float]
+        ] = {}  # strategy_name -> list of returns
         self.last_rebalance: Optional[datetime] = None
 
         # AI orchestrator for regime detection
@@ -110,7 +112,9 @@ class PortfolioManager:
         # Current market regime
         self.current_regime: Optional[MarketRegime] = None
 
-    def register_strategy(self, strategy: BaseStrategy, initial_weight: float = None) -> None:
+    def register_strategy(
+        self, strategy: BaseStrategy, initial_weight: float = None
+    ) -> None:
         """
         Register a strategy with the portfolio manager.
 
@@ -130,7 +134,7 @@ class PortfolioManager:
             weight=initial_weight,
             enabled=True,
             performance_score=0.0,
-            market_suitability=0.5  # Neutral
+            market_suitability=0.5,  # Neutral
         )
 
         # Initialize performance tracking
@@ -138,7 +142,9 @@ class PortfolioManager:
 
         print(f"✓ Registered strategy: {strategy.name} (weight: {initial_weight:.1%})")
 
-    def detect_market_regime(self, dataframe: pd.DataFrame, pair: str = "BTC/USDT") -> MarketRegime:
+    def detect_market_regime(
+        self, dataframe: pd.DataFrame, pair: str = "BTC/USDT"
+    ) -> MarketRegime:
         """
         Detect current market regime using technical indicators and AI.
 
@@ -160,68 +166,68 @@ class PortfolioManager:
         indicators = {}
 
         # Trend strength (ADX)
-        if 'adx' in dataframe.columns:
-            indicators['adx'] = dataframe['adx'].iloc[-1]
+        if "adx" in dataframe.columns:
+            indicators["adx"] = dataframe["adx"].iloc[-1]
         else:
-            indicators['adx'] = 0
+            indicators["adx"] = 0
 
         # Trend direction (EMA slope)
-        if 'ema_fast' in dataframe.columns and 'ema_slow' in dataframe.columns:
-            ema_fast = dataframe['ema_fast'].iloc[-1]
-            ema_slow = dataframe['ema_slow'].iloc[-1]
+        if "ema_fast" in dataframe.columns and "ema_slow" in dataframe.columns:
+            ema_fast = dataframe["ema_fast"].iloc[-1]
+            ema_slow = dataframe["ema_slow"].iloc[-1]
             ema_diff_pct = (ema_fast - ema_slow) / ema_slow
-            indicators['ema_diff_pct'] = ema_diff_pct
+            indicators["ema_diff_pct"] = ema_diff_pct
         else:
-            indicators['ema_diff_pct'] = 0
+            indicators["ema_diff_pct"] = 0
 
         # Volatility (ATR%)
-        if 'atr' in dataframe.columns:
-            atr_pct = dataframe['atr'].iloc[-1] / dataframe['close'].iloc[-1]
-            indicators['atr_pct'] = atr_pct
+        if "atr" in dataframe.columns:
+            atr_pct = dataframe["atr"].iloc[-1] / dataframe["close"].iloc[-1]
+            indicators["atr_pct"] = atr_pct
         else:
-            indicators['atr_pct'] = 0
+            indicators["atr_pct"] = 0
 
         # Range vs. trend (BB width)
-        if 'bb_width' in dataframe.columns:
-            indicators['bb_width'] = dataframe['bb_width'].iloc[-1]
+        if "bb_width" in dataframe.columns:
+            indicators["bb_width"] = dataframe["bb_width"].iloc[-1]
         else:
-            indicators['bb_width'] = 0
+            indicators["bb_width"] = 0
 
         # RSI (overbought/oversold)
-        if 'rsi' in dataframe.columns:
-            indicators['rsi'] = dataframe['rsi'].iloc[-1]
+        if "rsi" in dataframe.columns:
+            indicators["rsi"] = dataframe["rsi"].iloc[-1]
         else:
-            indicators['rsi'] = 50
+            indicators["rsi"] = 50
 
         # Determine regime based on indicators
-        adx = indicators.get('adx', 0)
-        ema_diff = indicators.get('ema_diff_pct', 0)
-        atr_pct = indicators.get('atr_pct', 0)
-        bb_width = indicators.get('bb_width', 0)
+        adx = indicators.get("adx", 0)
+        ema_diff = indicators.get("ema_diff_pct", 0)
+        atr_pct = indicators.get("atr_pct", 0)
+        bb_width = indicators.get("bb_width", 0)
 
         # Decision logic
         if adx > 25 and abs(ema_diff) > 0.03:
             # Strong trend
             if ema_diff > 0:
-                regime_type = 'trending_up'
+                regime_type = "trending_up"
                 confidence = min(0.9, adx / 40)
             else:
-                regime_type = 'trending_down'
+                regime_type = "trending_down"
                 confidence = min(0.9, adx / 40)
 
         elif atr_pct > 0.025 and bb_width > 0.04:
             # High volatility, wide range
-            regime_type = 'volatile'
+            regime_type = "volatile"
             confidence = min(0.85, atr_pct / 0.05)
 
         elif adx < 20 and abs(ema_diff) < 0.02:
             # Low trend strength, ranging
-            regime_type = 'ranging'
+            regime_type = "ranging"
             confidence = 0.7
 
         else:
             # Uncertain
-            regime_type = 'uncertain'
+            regime_type = "uncertain"
             confidence = 0.4
 
         # AI enhancement (optional)
@@ -230,11 +236,20 @@ class PortfolioManager:
                 ai_signal = self.orchestrator.generate_signal(pair, dataframe)
 
                 # Adjust confidence based on AI
-                if ai_signal.direction.lower() == 'long' and regime_type == 'trending_up':
+                if (
+                    ai_signal.direction.lower() == "long"
+                    and regime_type == "trending_up"
+                ):
                     confidence = min(1.0, confidence * 1.2)
-                elif ai_signal.direction.lower() == 'short' and regime_type == 'trending_down':
+                elif (
+                    ai_signal.direction.lower() == "short"
+                    and regime_type == "trending_down"
+                ):
                     confidence = min(1.0, confidence * 1.2)
-                elif ai_signal.direction.lower() == 'neutral' and regime_type == 'ranging':
+                elif (
+                    ai_signal.direction.lower() == "neutral"
+                    and regime_type == "ranging"
+                ):
                     confidence = min(1.0, confidence * 1.15)
 
             except Exception as e:
@@ -244,16 +259,14 @@ class PortfolioManager:
             regime_type=regime_type,
             confidence=confidence,
             indicators=indicators,
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
 
         self.current_regime = regime
         return regime
 
     def calculate_strategy_suitability(
-        self,
-        strategy_name: str,
-        market_regime: MarketRegime
+        self, strategy_name: str, market_regime: MarketRegime
     ) -> float:
         """
         Calculate how suitable a strategy is for the current market regime.
@@ -269,27 +282,27 @@ class PortfolioManager:
 
         # Suitability matrix
         suitability_map = {
-            'AIEnhancedStrategy': {
-                'trending_up': 0.9,
-                'trending_down': 0.3,  # Spot trading, no shorts
-                'ranging': 0.4,
-                'volatile': 0.5,
-                'uncertain': 0.6
+            "AIEnhancedStrategy": {
+                "trending_up": 0.9,
+                "trending_down": 0.3,  # Spot trading, no shorts
+                "ranging": 0.4,
+                "volatile": 0.5,
+                "uncertain": 0.6,
             },
-            'MeanReversion': {
-                'trending_up': 0.3,
-                'trending_down': 0.3,
-                'ranging': 0.9,
-                'volatile': 0.6,
-                'uncertain': 0.5
+            "MeanReversion": {
+                "trending_up": 0.3,
+                "trending_down": 0.3,
+                "ranging": 0.9,
+                "volatile": 0.6,
+                "uncertain": 0.5,
             },
-            'GridTrading': {
-                'trending_up': 0.4,
-                'trending_down': 0.4,
-                'ranging': 0.7,
-                'volatile': 0.9,
-                'uncertain': 0.5
-            }
+            "GridTrading": {
+                "trending_up": 0.4,
+                "trending_down": 0.4,
+                "ranging": 0.7,
+                "volatile": 0.9,
+                "uncertain": 0.5,
+            },
         }
 
         base_suitability = suitability_map.get(strategy_name, {}).get(regime_type, 0.5)
@@ -299,7 +312,9 @@ class PortfolioManager:
 
         return adjusted_suitability
 
-    def allocate_capital(self, market_regime: MarketRegime) -> Dict[str, StrategyAllocation]:
+    def allocate_capital(
+        self, market_regime: MarketRegime
+    ) -> Dict[str, StrategyAllocation]:
         """
         Allocate capital across strategies based on market regime and allocation method.
 
@@ -358,7 +373,11 @@ class PortfolioManager:
             if alloc.enabled and total_score > 0:
                 raw_weight = alloc.performance_score / total_score
                 # Apply min/max constraints
-                alloc.weight = np.clip(raw_weight, self.min_strategy_allocation, self.max_strategy_allocation)
+                alloc.weight = np.clip(
+                    raw_weight,
+                    self.min_strategy_allocation,
+                    self.max_strategy_allocation,
+                )
             else:
                 alloc.weight = 0.0
 
@@ -370,7 +389,9 @@ class PortfolioManager:
 
         return self.allocations
 
-    def _allocate_market_adaptive(self, market_regime: MarketRegime) -> Dict[str, StrategyAllocation]:
+    def _allocate_market_adaptive(
+        self, market_regime: MarketRegime
+    ) -> Dict[str, StrategyAllocation]:
         """Allocate based on market regime suitability"""
         total_suitability = 0.0
 
@@ -379,7 +400,9 @@ class PortfolioManager:
                 continue
 
             # Calculate suitability
-            suitability = self.calculate_strategy_suitability(strategy_name, market_regime)
+            suitability = self.calculate_strategy_suitability(
+                strategy_name, market_regime
+            )
             alloc.market_suitability = suitability
             total_suitability += suitability
 
@@ -387,7 +410,11 @@ class PortfolioManager:
         for alloc in self.allocations.values():
             if alloc.enabled and total_suitability > 0:
                 raw_weight = alloc.market_suitability / total_suitability
-                alloc.weight = np.clip(raw_weight, self.min_strategy_allocation, self.max_strategy_allocation)
+                alloc.weight = np.clip(
+                    raw_weight,
+                    self.min_strategy_allocation,
+                    self.max_strategy_allocation,
+                )
             else:
                 alloc.weight = 0.0
 
@@ -399,7 +426,9 @@ class PortfolioManager:
 
         return self.allocations
 
-    def _allocate_ai_driven(self, market_regime: MarketRegime) -> Dict[str, StrategyAllocation]:
+    def _allocate_ai_driven(
+        self, market_regime: MarketRegime
+    ) -> Dict[str, StrategyAllocation]:
         """Allocate using AI recommendations (placeholder for future)"""
         # For now, combine market-adaptive and performance
         # In future, this could use AI to predict optimal allocation
@@ -437,7 +466,9 @@ class PortfolioManager:
         time_since_rebalance = datetime.now() - self.last_rebalance
         return time_since_rebalance > timedelta(hours=self.rebalance_frequency_hours)
 
-    def rebalance_portfolio(self, dataframe: pd.DataFrame, pair: str = "BTC/USDT") -> Dict[str, StrategyAllocation]:
+    def rebalance_portfolio(
+        self, dataframe: pd.DataFrame, pair: str = "BTC/USDT"
+    ) -> Dict[str, StrategyAllocation]:
         """
         Rebalance portfolio based on current market conditions.
 
@@ -451,10 +482,14 @@ class PortfolioManager:
         # Detect market regime
         market_regime = self.detect_market_regime(dataframe, pair)
 
-        print(f"\n🔄 Portfolio Rebalance")
-        print(f"  Market Regime: {market_regime.regime_type} (confidence: {market_regime.confidence:.1%})")
-        print(f"  Indicators: ADX={market_regime.indicators.get('adx', 0):.1f}, "
-              f"ATR={market_regime.indicators.get('atr_pct', 0):.2%}")
+        print("\n🔄 Portfolio Rebalance")
+        print(
+            f"  Market Regime: {market_regime.regime_type} (confidence: {market_regime.confidence:.1%})"
+        )
+        print(
+            f"  Indicators: ADX={market_regime.indicators.get('adx', 0):.1f}, "
+            f"ATR={market_regime.indicators.get('atr_pct', 0):.2%}"
+        )
 
         # Allocate capital
         allocations = self.allocate_capital(market_regime)
@@ -464,8 +499,10 @@ class PortfolioManager:
         for strategy_name, alloc in allocations.items():
             if alloc.enabled:
                 capital = self.total_capital * alloc.weight
-                print(f"    {strategy_name}: {alloc.weight:.1%} (${capital:.2f}) "
-                      f"- Suitability: {alloc.market_suitability:.1%}")
+                print(
+                    f"    {strategy_name}: {alloc.weight:.1%} (${capital:.2f}) "
+                    f"- Suitability: {alloc.market_suitability:.1%}"
+                )
 
         self.last_rebalance = datetime.now()
         return allocations
@@ -485,7 +522,9 @@ class PortfolioManager:
             return self.total_capital * alloc.weight
         return 0.0
 
-    def update_strategy_performance(self, strategy_name: str, return_pct: float) -> None:
+    def update_strategy_performance(
+        self, strategy_name: str, return_pct: float
+    ) -> None:
         """
         Update performance history for a strategy.
 
@@ -499,7 +538,9 @@ class PortfolioManager:
         self.performance_history[strategy_name].append(return_pct)
 
         # Keep only recent history (last 50 trades)
-        self.performance_history[strategy_name] = self.performance_history[strategy_name][-50:]
+        self.performance_history[strategy_name] = self.performance_history[
+            strategy_name
+        ][-50:]
 
     def get_portfolio_summary(self) -> Dict:
         """
@@ -508,25 +549,31 @@ class PortfolioManager:
         Returns:
             Dictionary with portfolio metrics
         """
-        total_allocated = sum(alloc.weight for alloc in self.allocations.values() if alloc.enabled)
+        total_allocated = sum(
+            alloc.weight for alloc in self.allocations.values() if alloc.enabled
+        )
 
         summary = {
-            'total_capital': self.total_capital,
-            'allocation_method': self.allocation_method,
-            'last_rebalance': self.last_rebalance,
-            'current_regime': self.current_regime.regime_type if self.current_regime else 'unknown',
-            'regime_confidence': self.current_regime.confidence if self.current_regime else 0.0,
-            'strategies': {
+            "total_capital": self.total_capital,
+            "allocation_method": self.allocation_method,
+            "last_rebalance": self.last_rebalance,
+            "current_regime": self.current_regime.regime_type
+            if self.current_regime
+            else "unknown",
+            "regime_confidence": self.current_regime.confidence
+            if self.current_regime
+            else 0.0,
+            "strategies": {
                 name: {
-                    'weight': alloc.weight,
-                    'capital': self.total_capital * alloc.weight,
-                    'enabled': alloc.enabled,
-                    'performance_score': alloc.performance_score,
-                    'market_suitability': alloc.market_suitability
+                    "weight": alloc.weight,
+                    "capital": self.total_capital * alloc.weight,
+                    "enabled": alloc.enabled,
+                    "performance_score": alloc.performance_score,
+                    "market_suitability": alloc.market_suitability,
                 }
                 for name, alloc in self.allocations.items()
             },
-            'total_allocated_pct': total_allocated
+            "total_allocated_pct": total_allocated,
         }
 
         return summary

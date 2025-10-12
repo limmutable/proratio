@@ -8,7 +8,7 @@ import pytest
 from proratio_tradehub.risk.position_sizer import (
     PositionSizer,
     SizingMethod,
-    get_position_size_for_ai_strategy
+    get_position_size_for_ai_strategy,
 )
 
 
@@ -21,7 +21,7 @@ class TestPositionSizer:
             method=SizingMethod.RISK_BASED,
             base_risk_pct=2.0,
             max_position_pct=10.0,
-            min_position_pct=1.0
+            min_position_pct=1.0,
         )
 
         assert sizer.method == SizingMethod.RISK_BASED
@@ -30,15 +30,10 @@ class TestPositionSizer:
 
     def test_fixed_fraction_sizing(self):
         """Test fixed fractional sizing"""
-        sizer = PositionSizer(
-            method=SizingMethod.FIXED_FRACTION,
-            base_risk_pct=5.0
-        )
+        sizer = PositionSizer(method=SizingMethod.FIXED_FRACTION, base_risk_pct=5.0)
 
         position_size = sizer.calculate_position_size(
-            balance=10000.0,
-            entry_price=50000.0,
-            stop_loss_price=48000.0
+            balance=10000.0, entry_price=50000.0, stop_loss_price=48000.0
         )
 
         # 5% of 10000 = 500
@@ -46,15 +41,12 @@ class TestPositionSizer:
 
     def test_risk_based_sizing(self):
         """Test risk-based sizing"""
-        sizer = PositionSizer(
-            method=SizingMethod.RISK_BASED,
-            base_risk_pct=2.0
-        )
+        sizer = PositionSizer(method=SizingMethod.RISK_BASED, base_risk_pct=2.0)
 
         position_size = sizer.calculate_position_size(
             balance=10000.0,
             entry_price=50000.0,
-            stop_loss_price=48000.0  # 4% stop-loss
+            stop_loss_price=48000.0,  # 4% stop-loss
         )
 
         # Max loss = 10000 * 0.02 = 200
@@ -69,13 +61,13 @@ class TestPositionSizer:
         sizer = PositionSizer(
             method=SizingMethod.RISK_BASED,
             base_risk_pct=2.0,
-            max_position_pct=15.0  # Higher max to test calculation
+            max_position_pct=15.0,  # Higher max to test calculation
         )
 
         position_size = sizer.calculate_position_size(
             balance=10000.0,
             entry_price=50000.0,
-            stop_loss_price=49500.0  # 1% stop-loss
+            stop_loss_price=49500.0,  # 1% stop-loss
         )
 
         # Max loss = 200
@@ -93,15 +85,12 @@ class TestPositionSizer:
             sizer.calculate_position_size(
                 balance=10000.0,
                 entry_price=50000.0,
-                stop_loss_price=50000.0  # Same as entry = invalid
+                stop_loss_price=50000.0,  # Same as entry = invalid
             )
 
     def test_kelly_sizing(self):
         """Test Kelly Criterion sizing"""
-        sizer = PositionSizer(
-            method=SizingMethod.KELLY,
-            max_position_pct=20.0
-        )
+        sizer = PositionSizer(method=SizingMethod.KELLY, max_position_pct=20.0)
 
         position_size = sizer.calculate_position_size(
             balance=10000.0,
@@ -109,7 +98,7 @@ class TestPositionSizer:
             stop_loss_price=48000.0,
             win_rate=0.6,  # 60% win rate
             avg_win=300.0,
-            avg_loss=200.0
+            avg_loss=200.0,
         )
 
         # Payoff ratio = 300/200 = 1.5
@@ -127,7 +116,7 @@ class TestPositionSizer:
         position_size = sizer.calculate_position_size(
             balance=10000.0,
             entry_price=50000.0,
-            stop_loss_price=48000.0
+            stop_loss_price=48000.0,
             # Missing win_rate, avg_win, avg_loss
         )
 
@@ -136,16 +125,13 @@ class TestPositionSizer:
 
     def test_ai_weighted_sizing_high_confidence(self):
         """Test AI-weighted sizing with high confidence"""
-        sizer = PositionSizer(
-            method=SizingMethod.AI_WEIGHTED,
-            base_risk_pct=2.0
-        )
+        sizer = PositionSizer(method=SizingMethod.AI_WEIGHTED, base_risk_pct=2.0)
 
         position_size = sizer.calculate_position_size(
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,
-            ai_confidence=0.90  # 90% confidence
+            ai_confidence=0.90,  # 90% confidence
         )
 
         # Base size would be capped at 1000 (10% max)
@@ -155,16 +141,13 @@ class TestPositionSizer:
 
     def test_ai_weighted_sizing_low_confidence(self):
         """Test AI-weighted sizing with low confidence"""
-        sizer = PositionSizer(
-            method=SizingMethod.AI_WEIGHTED,
-            base_risk_pct=2.0
-        )
+        sizer = PositionSizer(method=SizingMethod.AI_WEIGHTED, base_risk_pct=2.0)
 
         position_size = sizer.calculate_position_size(
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,
-            ai_confidence=0.62  # Just above 60% threshold
+            ai_confidence=0.62,  # Just above 60% threshold
         )
 
         # Base size capped at 1000
@@ -180,7 +163,7 @@ class TestPositionSizer:
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,
-            ai_confidence=0.55  # Below 60% threshold
+            ai_confidence=0.55,  # Below 60% threshold
         )
 
         # Should return 0 (don't trade)
@@ -194,7 +177,7 @@ class TestPositionSizer:
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,
-            ai_confidence=None
+            ai_confidence=None,
         )
 
         # Should return base size
@@ -202,16 +185,13 @@ class TestPositionSizer:
 
     def test_atr_based_sizing(self):
         """Test ATR-based volatility sizing"""
-        sizer = PositionSizer(
-            method=SizingMethod.ATR_BASED,
-            base_risk_pct=2.0
-        )
+        sizer = PositionSizer(method=SizingMethod.ATR_BASED, base_risk_pct=2.0)
 
         position_size = sizer.calculate_position_size(
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,  # Not used with ATR
-            atr=1000.0  # ATR = 1000
+            atr=1000.0,  # ATR = 1000
         )
 
         # Stop-loss = entry - (ATR * 2) = 50000 - 2000 = 48000
@@ -226,7 +206,7 @@ class TestPositionSizer:
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,
-            atr=None  # Missing ATR
+            atr=None,  # Missing ATR
         )
 
         # Should fallback to risk-based
@@ -238,14 +218,12 @@ class TestPositionSizer:
             method=SizingMethod.FIXED_FRACTION,
             base_risk_pct=0.5,  # Very small
             min_position_pct=1.0,
-            max_position_pct=10.0
+            max_position_pct=10.0,
         )
 
         # Should enforce minimum
         position_size = sizer.calculate_position_size(
-            balance=10000.0,
-            entry_price=50000.0,
-            stop_loss_price=48000.0
+            balance=10000.0, entry_price=50000.0, stop_loss_price=48000.0
         )
 
         # 0.5% = 50, but min is 1% = 100
@@ -256,10 +234,7 @@ class TestPositionSizer:
         """Test conversion from USD to units"""
         sizer = PositionSizer()
 
-        units = sizer.calculate_units(
-            position_size_usd=5000.0,
-            entry_price=50000.0
-        )
+        units = sizer.calculate_units(position_size_usd=5000.0, entry_price=50000.0)
 
         assert units == 0.1  # 5000 / 50000
 
@@ -268,10 +243,7 @@ class TestPositionSizer:
         sizer = PositionSizer()
 
         stop_loss = sizer.calculate_stop_loss_from_atr(
-            entry_price=50000.0,
-            atr=1000.0,
-            direction="long",
-            atr_multiplier=2.0
+            entry_price=50000.0, atr=1000.0, direction="long", atr_multiplier=2.0
         )
 
         # Long: entry - (ATR * 2) = 50000 - 2000 = 48000
@@ -282,10 +254,7 @@ class TestPositionSizer:
         sizer = PositionSizer()
 
         stop_loss = sizer.calculate_stop_loss_from_atr(
-            entry_price=50000.0,
-            atr=1000.0,
-            direction="short",
-            atr_multiplier=2.0
+            entry_price=50000.0, atr=1000.0, direction="short", atr_multiplier=2.0
         )
 
         # Short: entry + (ATR * 2) = 50000 + 2000 = 52000
@@ -302,7 +271,7 @@ class TestHelperFunctions:
             entry_price=50000.0,
             stop_loss_price=48000.0,
             ai_confidence=0.75,
-            base_risk_pct=2.0
+            base_risk_pct=2.0,
         )
 
         # Should use AI-weighted sizing
@@ -316,7 +285,7 @@ class TestHelperFunctions:
             balance=10000.0,
             entry_price=50000.0,
             stop_loss_price=48000.0,
-            ai_confidence=0.55  # Below threshold
+            ai_confidence=0.55,  # Below threshold
         )
 
         # Should return 0
