@@ -25,7 +25,7 @@ repos:
       - id: debug-statements
 
   # Security: pip-audit for dependency vulnerabilities
-  # Note: Disabled temporarily due to freqtrade version compatibility
+  # Disabled: freqtrade==2025.9.1 requires Python 3.11+, currently running 3.9
   # To run manually: pip-audit -r requirements.txt --skip-editable
   # - repo: local
   #   hooks:
