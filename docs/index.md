@@ -1,208 +1,174 @@
-# Proratio Documentation Index
+# Proratio Documentation
 
-**Last Updated**: 2025-10-11
+**Version**: 0.8.0
+**Last Updated**: 2025-10-12
 
-This is the main documentation index for the Proratio project. For the project overview, see [../README.md](../README.md).
+Complete documentation for the AI-driven cryptocurrency trading system.
 
-> **Quick Links**: [Project Roadmap](roadmap.md) | [Project Progress](project_progress.md) | [Quickstart](quickstart.md)
-
----
-
-## 📚 Quick Start
-
-Start here if you're new to Proratio:
-
-### [quickstart.md](quickstart.md)
-**Getting started with Proratio in 15 minutes**
-- Initial setup and installation
-- Environment configuration
-- First dry-run test
-- Basic commands
+> **🚀 Quick Start**: [getting_started.md](getting_started.md) | **📋 Roadmap**: [project/roadmap.md](project/roadmap.md) | **🤖 Advanced AI**: [project/advanced_ai_strategies.md](project/advanced_ai_strategies.md)
 
 ---
 
-## 🎯 Core Guides
+## 📚 Getting Started
 
-### Trading & Strategy
-
-#### [paper_trading_guide.md](paper_trading_guide.md)
-**Complete paper trading workflow**
-- Dry-run configuration
-- Risk parameters
-- Monitoring and logging
-- Performance analysis
-
-#### [strategy_development_guide.md](strategy_development_guide.md)
-**Develop and test trading strategies**
-- Strategy architecture
-- Indicator implementation
-- Entry/exit logic
-- AI signal integration
-
-
-### Project Management
-
-#### [roadmap.md](roadmap.md)
-**Complete development roadmap**
-- 4-week MVP timeline
-- Phase 2-5 roadmap
-- Feature specifications
-- Success metrics
-
-#### [project_progress.md](project_progress.md)
-**Current project status and progress**
-- Completed milestones
-- Current tasks
-- Metrics and statistics
-- Task backlog
-
-### Configuration & Setup
-
-#### [trading_config_guide.md](trading_config_guide.md)
-**Centralized configuration system**
-- TradingConfig dataclasses
-- Risk management settings
-- Position sizing parameters
-- AI provider configuration
-- Execution settings
-
-### Data & Backtesting
-
-#### [data_management_workflow.md](data_management_workflow.md)
-**Market data collection and management**
-- Historical data download
-- Data validation
-- Storage optimization
-- Update workflows
-
-#### [backtesting_guide.md](backtesting_guide.md)
-**Strategy backtesting and optimization**
-- Backtesting workflow
-- Hyperparameter optimization
-- Performance metrics
-- Result interpretation
-
-### Monitoring & Control
-
-#### [dashboard_guide.md](dashboard_guide.md)
-**Streamlit dashboard for monitoring**
-- Real-time trading status
-- AI signal visualization
-- Risk management monitoring
-- Emergency controls
-- System health status
+### [getting_started.md](getting_started.md) ⭐ **START HERE**
+**Complete setup guide (15 minutes)**
+- Prerequisites and installation
+- API configuration
+- CLI usage and commands
+- Verification steps
+- Common issues and solutions
 
 ---
 
-## 🛠️ Reference Documentation
+## 📖 User Guides
+
+Step-by-step guides for users and traders.
+
+### Trading & Operations
+- **[guides/paper_trading_guide.md](guides/paper_trading_guide.md)** - Paper trading workflow
+- **[guides/dashboard_guide.md](guides/dashboard_guide.md)** - Streamlit dashboard usage
+- **[guides/data_management_workflow.md](guides/data_management_workflow.md)** - Market data management
+
+### Configuration & Development
+- **[guides/trading_config_guide.md](guides/trading_config_guide.md)** - Configuration system
+- **[guides/strategy_development_guide.md](guides/strategy_development_guide.md)** - Strategy development
+
+---
+
+## 🔬 Technical Reference
+
+In-depth technical documentation for developers.
+
+### Machine Learning & Backtesting
+- **[reference/backtesting_guide.md](reference/backtesting_guide.md)** - Backtesting and optimization
+- **[reference/freqai_guide.md](reference/freqai_guide.md)** - FreqAI integration (LightGBM, XGBoost)
+- **[reference/lstm_implementation.md](reference/lstm_implementation.md)** - LSTM/GRU neural networks
+- **[reference/ensemble_implementation.md](reference/ensemble_implementation.md)** - Ensemble learning
+
+---
+
+## 🗺️ Project Management
+
+Roadmaps, progress tracking, and future planning.
+
+### Roadmap & Planning
+- **[project/roadmap.md](project/roadmap.md)** ⭐ **Phase 1-12 Development Plan**
+  - ✅ Phase 1-3: MVP + ML (Complete)
+  - 🎯 Phase 4-10: Advanced AI Strategies (Planned)
+  - 🔮 Phase 11-12: Futures & Sentiment (Future)
+
+- **[project/advanced_ai_strategies.md](project/advanced_ai_strategies.md)** ⭐ **Advanced AI**
+  - Multi-Timeframe LLM Analysis
+  - AI-Enhanced Regime Detection
+  - Dynamic Risk Management
+  - Hybrid ML+LLM System (HIGHEST PRIORITY)
+  - Complete implementation examples
+
+### Project Status & Standards
+- **[project/project_progress.md](project/project_progress.md)** - Current milestones and tasks
+- **[project/project_structure.md](project/project_structure.md)** - Directory organization
+- **[project/file_naming_standards.md](project/file_naming_standards.md)** - File naming conventions
+
+---
+
+## 🛠️ Support
 
 ### [troubleshooting.md](troubleshooting.md)
-**Common issues and solutions**
-- Environment setup issues
-- Freqtrade errors
-- API connection problems
-- Database issues
-- Performance debugging
+Common issues and solutions for all components.
 
 ---
 
-## 📦 Obsolete Documentation
-
-Deprecated or outdated documentation (kept for reference in `/docs/obsolete/`):
-
-- [3hour_test_guide_obsolete.md](obsolete/3hour_test_guide_obsolete.md) - Time-specific test guide → See [paper_trading_guide.md](paper_trading_guide.md)
-- [week4_quickstart_obsolete.md](obsolete/week4_quickstart_obsolete.md) - Week-specific guide → See [quickstart.md](quickstart.md)
-- [phase2_summary_obsolete.md](obsolete/phase2_summary_obsolete.md) - Phase 2 snapshot → See [roadmap.md](roadmap.md)
-- [phase2_guide_obsolete.md](obsolete/phase2_guide_obsolete.md) - Phase 2 guide → Merged into [strategy_development_guide.md](strategy_development_guide.md) and [backtesting_guide.md](backtesting_guide.md)
-- [streamlit_dashboard_summary.md](obsolete/streamlit_dashboard_summary.md) - Old dashboard docs → See [dashboard_guide.md](dashboard_guide.md)
-- [GEMINI.md](obsolete/GEMINI.md) - Old project overview → See main [README.md](../README.md) and [CLAUDE.md](../CLAUDE.md)
-- [PLANREVIEW.md](obsolete/PLANREVIEW.md) - Initial plan review → See [roadmap.md](roadmap.md)
-- [CLEANUP_SUMMARY_20251009.md](obsolete/CLEANUP_SUMMARY_20251009.md) - Historical cleanup notes
-
----
-
-## 📖 Document Hierarchy
+## 📂 Documentation Structure
 
 ```
-Quick Start
-    └── quickstart.md (15-min setup)
-
-Project Management
-    ├── roadmap.md (development plan)
-    └── project_progress.md (current status)
-
-Trading Workflow
-    ├── paper_trading_guide.md (full workflow)
-    └── strategy_development_guide.md (strategy dev)
-
-Configuration
-    └── trading_config_guide.md (all settings)
-
-Data & Analysis
-    ├── data_management_workflow.md (data ops)
-    └── backtesting_guide.md (testing)
-
-Monitoring
-    └── dashboard_guide.md (Streamlit UI)
-
-Support
-    └── troubleshooting.md (issues)
+docs/
+├── getting_started.md          # ⭐ START HERE
+├── index.md                    # This file
+├── troubleshooting.md          # Common issues
+│
+├── guides/                     # User guides
+│   ├── paper_trading_guide.md
+│   ├── strategy_development_guide.md
+│   ├── trading_config_guide.md
+│   ├── dashboard_guide.md
+│   └── data_management_workflow.md
+│
+├── reference/                  # Technical reference
+│   ├── backtesting_guide.md
+│   ├── freqai_guide.md
+│   ├── lstm_implementation.md
+│   └── ensemble_implementation.md
+│
+├── project/                    # Project management
+│   ├── roadmap.md              # ⭐ Phase 1-12 plan
+│   ├── advanced_ai_strategies.md  # ⭐ Advanced AI
+│   ├── project_progress.md
+│   ├── project_structure.md
+│   └── file_naming_standards.md   # Coding standards
+│
+└── obsolete/                   # Archived docs
+    ├── 3hour_test_guide_obsolete.md
+    ├── week4_quickstart_obsolete.md
+    ├── phase2_summary_obsolete.md
+    ├── phase3_plan.md
+    └── ...
 ```
 
 ---
 
-## 🎓 Learning Path
+## 🎓 Learning Paths
 
-### Beginner
-1. Start with [quickstart.md](quickstart.md)
-2. Read [paper_trading_guide.md](paper_trading_guide.md)
-3. Review [trading_config_guide.md](trading_config_guide.md)
-4. Explore [dashboard_guide.md](dashboard_guide.md)
+### Beginner (Traders)
+1. [getting_started.md](getting_started.md) - Setup
+2. [guides/paper_trading_guide.md](guides/paper_trading_guide.md) - Paper trading
+3. [guides/dashboard_guide.md](guides/dashboard_guide.md) - Monitoring
+4. [guides/trading_config_guide.md](guides/trading_config_guide.md) - Configuration
 
-### Intermediate
-1. Study [strategy_development_guide.md](strategy_development_guide.md)
-2. Practice with [paper_trading_guide.md](paper_trading_guide.md)
-3. Learn [data_management_workflow.md](data_management_workflow.md)
-4. Master [backtesting_guide.md](backtesting_guide.md)
+### Intermediate (Strategy Developers)
+1. [getting_started.md](getting_started.md) - Setup
+2. [guides/strategy_development_guide.md](guides/strategy_development_guide.md) - Strategy dev
+3. [reference/backtesting_guide.md](reference/backtesting_guide.md) - Backtesting
+4. [project/roadmap.md](project/roadmap.md) - Development plan
 
-### Advanced
-1. Develop custom strategies
-2. Optimize hyperparameters
-3. Integrate ML models
-4. Deploy to live trading
+### Advanced (ML Engineers)
+1. [getting_started.md](getting_started.md) - Setup
+2. [reference/freqai_guide.md](reference/freqai_guide.md) - FreqAI/ML
+3. [reference/lstm_implementation.md](reference/lstm_implementation.md) - Neural networks
+4. [reference/ensemble_implementation.md](reference/ensemble_implementation.md) - Ensembles
+5. [project/advanced_ai_strategies.md](project/advanced_ai_strategies.md) - **Advanced AI** ⭐
 
 ---
 
 ## 🔗 External Resources
 
-- **Freqtrade Docs**: https://www.freqtrade.io/
-- **CCXT Docs**: https://docs.ccxt.com/
+- **Freqtrade**: https://www.freqtrade.io/
+- **CCXT**: https://docs.ccxt.com/
 - **Binance API**: https://binance-docs.github.io/apidocs/spot/en/
-- **Streamlit Docs**: https://docs.streamlit.io/
+- **Streamlit**: https://docs.streamlit.io/
 
 ---
 
 ## 📝 Documentation Standards
 
 All documentation follows these standards:
-- **Markdown format** (.md files)
-- **Clear section headers** with emojis for visual scanning
-- **Code examples** with syntax highlighting
-- **Command-line examples** ready to copy-paste
-- **Updated timestamps** for version tracking
+- Markdown format with clear headers
+- Code examples with syntax highlighting
+- Updated timestamps
+- Organized by user type (beginner/intermediate/advanced)
+- **File naming**: See [project/file_naming_standards.md](project/file_naming_standards.md)
 
 ---
 
 ## 🤝 Contributing
 
-When adding new documentation:
-1. Follow the naming convention: `lowercase_with_underscores.md`
-2. Add entry to this README.md index
+When adding documentation:
+1. Place in appropriate directory (guides/reference/project)
+2. Add entry to this index.md
 3. Include "Last Updated" timestamp
-4. Use clear section headers
-5. Provide working code examples
-6. Update CLAUDE.md if workflow changes
+4. Follow [project/file_naming_standards.md](project/file_naming_standards.md)
+5. Update [../CLAUDE.md](../CLAUDE.md) if workflow changes
 
 ---
 
-**Questions?** Check [troubleshooting.md](troubleshooting.md) or review the main [README.md](../README.md)
+**Questions?** Check [getting_started.md](getting_started.md) or [troubleshooting.md](troubleshooting.md)

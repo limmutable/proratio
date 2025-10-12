@@ -459,9 +459,11 @@ Fix inactive users calculation and add deleted user tracking
 
 ## 📁 File Naming Conventions
 
-**All files in this project follow consistent naming standards:**
+**All files in this project follow consistent naming standards.**
 
-**Last Updated:** 20251003
+**See**: [docs/project/file_naming_standards.md](docs/project/file_naming_standards.md) for complete guidelines.
+
+**Last Updated:** 20251012
 
 ### 1. Root Documentation Files → UPPERCASE
 Standard documentation files use UPPERCASE for visibility and recognition.
