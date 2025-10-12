@@ -16,6 +16,7 @@
 | **Phase 1 (MVP)** | ✅ Complete | 100% |
 | **Phase 2 (Strategies)** | ✅ Complete | 100% |
 | **Phase 3 (ML)** | ✅ 75% Complete | 75% (3.1-3.3 done) |
+| **Phase 3.5 (Tech Debt)** | 🚧 In Progress | 50% (3/6 done) |
 | **Phase 1.4 (Paper Trade)** | 🚧 In Progress | 0% |
 | **Phase 4-10 (Advanced AI)** | 📋 Planning | 0% |
 
@@ -74,6 +75,41 @@
 
 ## 🚧 Active Development
 
+### Phase 3.5: Technical Debt Resolution (New - Oct 2025)
+
+**Target**: October 2025
+**Duration**: 1-2 weeks
+**Based on**: [technical_debt_gemini_review.md](technical_debt_gemini_review.md)
+
+**Progress**: 50% (3/6 completed)
+
+**Completed** ✅:
+1. ✅ Move Gemini review from obsolete/ to project/
+2. ✅ Audit codebase for API key leaks in logs (CLEAN)
+3. ✅ Install pip-audit dependency vulnerability scanner
+
+**In Progress** 🚧:
+4. ⏳ **Configuration Unification** (HIGH - 1-2 days)
+   - Merge `TradingConfig` into Pydantic `Settings`
+   - Single source of truth for configuration
+   - Update all imports across codebase
+5. ⏳ **LLM Provider Robustness** (HIGH - 1 day)
+   - Create custom exception hierarchy (APIKeyError, QuotaError, etc.)
+   - Standardize error handling in all providers
+   - Simplify SignalOrchestrator error handling
+6. ⏳ **Add pip-audit Pre-commit Hook** (MEDIUM - 0.5 days)
+   - Update `.pre-commit-config.yaml`
+   - Run initial vulnerability scan
+   - Document security process
+
+**Why This Matters**:
+- Foundation for Phase 4-10 (prevents complexity buildup)
+- Improves security (API key audits, dependency scanning)
+- Reduces technical debt (cleaner config, better errors)
+- Makes future development faster
+
+---
+
 ### Phase 1.4: Paper Trading Validation
 
 **Target**: November 2025
@@ -97,6 +133,8 @@
 
 ### Phase 4-10: Advanced AI Strategies (Q1-Q2 2026)
 
+**Prerequisites**: Complete Phase 3.5 (Technical Debt) first! 🔧
+
 **See**: [advanced_ai_strategies.md](advanced_ai_strategies.md) for complete details
 
 **Quick Overview**:
@@ -112,10 +150,11 @@
 | **8** | News Trading | ⭐⭐ | Q2 2026 | Capture 60-70% major moves |
 
 **Implementation Order**:
-1. Phase 10 (Hybrid ML+LLM) - **HIGHEST ROI**
-2. Phase 9 (Weekly Plans) - Quick win
-3. Phase 6 (Dynamic Risk) - Better stops
-4. Phase 4 (Multi-Timeframe) - Better signals
+1. **Phase 3.5** (Technical Debt) - **PREREQUISITE** 🔧
+2. Phase 10 (Hybrid ML+LLM) - **HIGHEST ROI**
+3. Phase 9 (Weekly Plans) - Quick win
+4. Phase 6 (Dynamic Risk) - Better stops
+5. Phase 4 (Multi-Timeframe) - Better signals
 
 ---
 
@@ -170,11 +209,16 @@
 - [x] **Oct 11**: Interactive CLI (Phase 4.0)
 - [x] **Oct 12**: Documentation reorganization
 - [x] **Oct 12**: Advanced AI strategies roadmap (Phase 4-10)
+- [x] **Oct 12**: Gemini code review promotion (Phase 3.5 start)
+- [x] **Oct 12**: Security audit - API key leaks (CLEAN)
+- [x] **Oct 12**: pip-audit installation
 
 ### In Progress 🚧
+- [ ] **Oct 2025**: Technical debt resolution (Phase 3.5) - 50% complete
 - [ ] **Nov 2025**: Paper trading validation (Phase 1.4)
 
 ### Planned 📋
+- [ ] **Late Oct 2025**: Complete Phase 3.5 (Technical Debt) 🔧
 - [ ] **Q1 2026**: Phase 10 - Hybrid ML+LLM System ⭐
 - [ ] **Q1 2026**: Phase 9 - Weekly Trading Plans
 - [ ] **Q1 2026**: Phase 6 - Dynamic Risk Management
@@ -202,6 +246,10 @@
 - ✅ Advanced AI strategies document (Phase 4-10)
 - ✅ Merged quickstart + CLI guide → getting_started.md
 - ✅ Roadmap streamlined (32KB → 9KB)
+- ✅ Gemini code review promoted from obsolete/
+- ✅ Security audit for API key leaks (CLEAN)
+- ✅ pip-audit installed for dependency scanning
+- 🚧 Phase 3.5 (Technical Debt) started (50% complete)
 
 ---
 
@@ -209,6 +257,7 @@
 
 - **Roadmap**: [roadmap.md](roadmap.md) - Complete development plan
 - **Advanced AI**: [advanced_ai_strategies.md](advanced_ai_strategies.md) - Phase 4-10 details
+- **Technical Debt**: [technical_debt_gemini_review.md](technical_debt_gemini_review.md) - Code review & actions 🔧
 - **Project Structure**: [project_structure.md](project_structure.md) - Directory organization
 - **Getting Started**: [../getting_started.md](../getting_started.md) - Setup guide
 - **Documentation Index**: [../index.md](../index.md) - All docs
@@ -218,9 +267,13 @@
 ## 🎯 Next Actions
 
 ### Immediate (This Week)
-1. Complete Phase 1.4 setup
-2. Deploy paper trading
-3. Begin monitoring
+1. **Complete Phase 3.5** (Technical Debt) - 50% remaining 🔧
+   - Configuration unification (1-2 days)
+   - LLM provider error handling (1 day)
+   - pip-audit pre-commit hook (0.5 days)
+2. Complete Phase 1.4 setup
+3. Deploy paper trading
+4. Begin monitoring
 
 ### Short-term (Q4 2025)
 1. Validate paper trading (5-7 days)

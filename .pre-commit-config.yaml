@@ -1,0 +1,36 @@
+# Pre-commit hooks configuration for Proratio
+# See https://pre-commit.com for more information
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.9.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  # Security: pip-audit for dependency vulnerabilities
+  - repo: local
+    hooks:
+      - id: pip-audit
+        name: pip-audit (dependency vulnerability scan)
+        entry: /Users/jlim/Library/Python/3.9/bin/pip-audit
+        language: system
+        pass_filenames: false
+        args: ['-r', 'requirements.txt', '--skip-editable']
+        stages: [pre-commit]

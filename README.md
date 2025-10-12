@@ -4,9 +4,11 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 0.8.0 (Phase 4.0 Complete: Interactive CLI with System Health Checks)
+**Version**: 0.8.0 (Phase 3.5 In Progress: Technical Debt Resolution)
 
-> For detailed project status, weekly progress, and development plans, see [docs/roadmap.md](./docs/roadmap.md)
+> **📋 Status**: Phase 3.5 (Technical Debt) - 50% Complete | Phase 1-3 Complete (MVP + ML)
+>
+> For detailed project status and development plans, see [docs/project/roadmap.md](./docs/project/roadmap.md)
 
 ---
 
@@ -25,6 +27,7 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 - **Modular Architecture**: Four independent modules for flexibility and extensibility
 - **Multi-Strategy System**: 4 strategies (Trend, Mean Reversion, Grid, FreqAI ML) with intelligent portfolio allocation
 - **Production-Ready**: 186+ passing tests with comprehensive coverage
+- **Security**: Automated dependency scanning (pip-audit), API key auditing, pre-commit hooks
 
 ---
 
@@ -337,27 +340,34 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 ## 📚 Documentation
 
+> **📖 Documentation Index**: See [docs/index.md](./docs/index.md) for complete navigation
+
 ### Getting Started
-- **[docs/cli_guide.md](./docs/cli_guide.md)** - 🆕 CLI command reference and usage guide
-- **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
-- **[docs/roadmap.md](./docs/roadmap.md)** - Complete implementation plan and development workflow
-- **[docs/project_progress.md](./docs/project_progress.md)** - Current status and completed milestones
+- **[docs/getting_started.md](./docs/getting_started.md)** - ⭐ START HERE - Quick setup guide (15 minutes)
+- **[docs/project/roadmap.md](./docs/project/roadmap.md)** - Complete development roadmap and Phase 4-10 plans
+- **[docs/project/project_progress.md](./docs/project/project_progress.md)** - Current status and milestones
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
 
-### Machine Learning
-- **[docs/freqai_guide.md](./docs/freqai_guide.md)** - Machine learning with FreqAI (comprehensive ML guide)
-- **[docs/lstm_implementation.md](./docs/lstm_implementation.md)** - LSTM neural networks for time-series prediction
-- **[docs/ensemble_implementation.md](./docs/ensemble_implementation.md)** - Ensemble learning implementation guide
-- **[docs/phase3_plan.md](./docs/phase3_plan.md)** - Phase 3 ML integration plan
+### Project Management (docs/project/)
+- **[roadmap.md](./docs/project/roadmap.md)** - Development phases and timeline
+- **[project_progress.md](./docs/project/project_progress.md)** - Current status and metrics
+- **[advanced_ai_strategies.md](./docs/project/advanced_ai_strategies.md)** - Phase 4-10 AI strategies (2000+ lines)
+- **[technical_debt_gemini_review.md](./docs/project/technical_debt_gemini_review.md)** - 🔧 Code review and tech debt
+- **[action_4_config_unification_guide.md](./docs/project/action_4_config_unification_guide.md)** - Config refactoring guide
+- **[action_5_llm_error_handling_guide.md](./docs/project/action_5_llm_error_handling_guide.md)** - Error handling refactoring
+- **[security_scanning.md](./docs/project/security_scanning.md)** - Security scanning procedures
 
-### Trading & Operations
-- **[docs/quickstart.md](./docs/quickstart.md)** - Quick start guide for new users
-- **[docs/backtesting_guide.md](./docs/backtesting_guide.md)** - Complete backtesting guide and results
-- **[docs/strategy_development_guide.md](./docs/strategy_development_guide.md)** - Strategy development patterns
-- **[docs/paper_trading_guide.md](./docs/paper_trading_guide.md)** - Paper trading setup and monitoring
-- **[docs/troubleshooting.md](./docs/troubleshooting.md)** - Troubleshooting common issues
-- **[docs/trading_config_guide.md](./docs/trading_config_guide.md)** - Comprehensive configuration guide
-- **[docs/](./docs/)** - Module-specific documentation and guides
+### User Guides (docs/guides/)
+- **[strategy_development_guide.md](./docs/guides/strategy_development_guide.md)** - Strategy development patterns
+- **[paper_trading_guide.md](./docs/guides/paper_trading_guide.md)** - Paper trading setup
+- **[trading_config_guide.md](./docs/guides/trading_config_guide.md)** - Configuration guide
+- **[dashboard_guide.md](./docs/guides/dashboard_guide.md)** - Dashboard usage
+
+### Technical Reference (docs/reference/)
+- **[freqai_guide.md](./docs/reference/freqai_guide.md)** - Machine learning with FreqAI
+- **[lstm_implementation.md](./docs/reference/lstm_implementation.md)** - LSTM neural networks
+- **[ensemble_implementation.md](./docs/reference/ensemble_implementation.md)** - Ensemble learning
+- **[backtesting_guide.md](./docs/reference/backtesting_guide.md)** - Backtesting guide
 
 ---
 

@@ -9,7 +9,7 @@
 
 ## 📍 Current Status (October 2025)
 
-**Active Phase**: Phase 1.4 (Paper Trading Validation)
+**Active Phase**: Phase 3.5 (Technical Debt Resolution) + Phase 1.4 (Paper Trading Validation)
 **Overall Progress**: Phase 1-3 Complete (75%) | Phase 4-10 Planned (25%)
 
 ### Completed Phases ✅
@@ -21,11 +21,13 @@
 | **3.1** | FreqAI Integration | ✅ 100% | ML foundation (LightGBM, XGBoost, CatBoost) |
 | **3.2** | LSTM Models | ✅ 100% | Neural networks for time-series prediction |
 | **3.3** | Ensemble Learning | ✅ 100% | Stacking/blending (19.66% improvement) |
+| **3.5** | Technical Debt (partial) | 🚧 50% | Security audit, pip-audit, pre-commit hooks |
 
 ### In Progress 🚧
 
 | Phase | Name | Status | Target Date |
 |-------|------|--------|-------------|
+| **3.5** | Technical Debt | 🚧 50% | Oct 2025 |
 | **1.4** | Paper Trading | 🚧 0% | Nov 2025 |
 | **4-10** | Advanced AI | 📋 Planning | Q1-Q2 2026 |
 
@@ -74,6 +76,46 @@
 - **3.4 Reinforcement Learning**: Optional exploration
 
 ---
+### 🔧 Phase 3.5: Technical Debt Resolution (In Progress - Oct 2025)
+**Duration**: 1-2 weeks
+**Goal**: Address Gemini code review recommendations before Phase 4
+**Based on**: [technical_debt_gemini_review.md](technical_debt_gemini_review.md)
+
+**Priority Tasks**:
+
+1. ✅ **Move Gemini Review** - Promote from obsolete/ to project/ (DONE)
+2. ✅ **API Key Audit** - Check for leaked secrets in logs (DONE - Clean)
+3. ✅ **Install pip-audit** - Add dependency vulnerability scanner (DONE)
+4. ⏳ **Configuration Unification** (HIGH - 1-2 days)
+   - Merge `TradingConfig` into Pydantic `Settings`
+   - Single source of truth for all configuration
+   - Implementation guide: [action_4_config_unification_guide.md](action_4_config_unification_guide.md)
+5. ⏳ **LLM Provider Robustness** (HIGH - 1 day)
+   - Create custom exception classes (APIKeyError, QuotaError, etc.)
+   - Standardize error handling across providers
+   - Implementation guide: [action_5_llm_error_handling_guide.md](action_5_llm_error_handling_guide.md)
+6. ✅ **Add pip-audit Pre-commit Hook** (DONE)
+   - Updated `.pre-commit-config.yaml`
+   - Automated vulnerability scanning on commits
+   - Documentation: [security_scanning.md](security_scanning.md)
+
+**Progress**: 50% (3/6 completed)
+
+**Success Criteria**:
+- All 6 action items completed
+- No API keys in logs (verified ✅)
+- All dependencies scanned for vulnerabilities (automated ✅)
+- Configuration management simplified
+- Error handling standardized
+
+**Why This Matters**:
+- Foundation for Phase 4-10 advanced features
+- Reduces technical debt before adding complexity
+- Improves security and maintainability
+- Makes future development faster
+
+---
+
 
 ### 🚧 Phase 1.4: Paper Trading Validation (In Progress)
 **Duration**: 1-2 weeks
