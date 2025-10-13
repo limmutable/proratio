@@ -7,8 +7,17 @@ Weight in consensus: 35%
 
 from typing import Dict, Any, Optional
 import json
+import anthropic
 from anthropic import Anthropic
 from .base import BaseLLMProvider, MarketAnalysis, OHLCVData
+from .exceptions import (
+    APIKeyError,
+    QuotaError,
+    RateLimitError,
+    TimeoutError,
+    ModelNotFoundError,
+    InvalidResponseError,
+)
 import pandas as pd
 
 
@@ -49,6 +58,14 @@ class ClaudeProvider(BaseLLMProvider):
 
         Returns:
             Raw text response
+
+        Raises:
+            APIKeyError: Invalid or unauthorized API key
+            RateLimitError: Rate limit exceeded (temporary)
+            QuotaError: Quota/credits exhausted
+            TimeoutError: Request timeout
+            ModelNotFoundError: Model not found or unavailable
+            InvalidResponseError: Unexpected response format
         """
         try:
             response = self.client.messages.create(
@@ -62,8 +79,34 @@ class ClaudeProvider(BaseLLMProvider):
             # Extract text from response
             return response.content[0].text
 
+        except anthropic.AuthenticationError as e:
+            raise APIKeyError(f"Anthropic authentication failed: {str(e)}") from e
+
+        except anthropic.RateLimitError as e:
+            raise RateLimitError(
+                f"Anthropic rate limit exceeded: {str(e)}", retry_after=60
+            ) from e
+
+        except anthropic.APIStatusError as e:
+            if e.status_code == 429:
+                raise QuotaError(f"Anthropic quota exceeded: {str(e)}") from e
+            elif e.status_code == 404:
+                raise ModelNotFoundError(
+                    f"Claude model '{self.model}' not found: {str(e)}"
+                ) from e
+            else:
+                self._wrap_api_error(e, "Anthropic API error")
+
+        except anthropic.APITimeoutError as e:
+            raise TimeoutError(f"Anthropic request timeout: {str(e)}") from e
+
+        except anthropic.APIError as e:
+            # Generic Anthropic error - try to classify
+            self._wrap_api_error(e, "Anthropic error")
+
         except Exception as e:
-            raise RuntimeError(f"Claude API call failed: {e}")
+            # Unexpected error
+            self._wrap_api_error(e, "Unexpected Claude error")
 
     def analyze_market(
         self,
@@ -153,6 +196,5 @@ class ClaudeProvider(BaseLLMProvider):
             )
 
         except (json.JSONDecodeError, ValueError) as e:
-            # Fallback to base class parsing if JSON parsing fails
-            print(f"Claude JSON parsing failed: {e}")
-            return self._parse_response(raw_response, ohlcv_data)
+            # Invalid JSON response
+            raise InvalidResponseError(f"Claude returned invalid JSON: {str(e)}") from e

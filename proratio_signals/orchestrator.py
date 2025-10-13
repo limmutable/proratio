@@ -18,6 +18,16 @@ from .llm_providers.base import BaseLLMProvider, MarketAnalysis, OHLCVData
 from .llm_providers.chatgpt import ChatGPTProvider
 from .llm_providers.claude import ClaudeProvider
 from .llm_providers.gemini import GeminiProvider
+from .llm_providers.exceptions import (
+    ProviderError,
+    APIKeyError,
+    QuotaError,
+    RateLimitError,
+    TimeoutError,
+    ModelNotFoundError,
+    InvalidResponseError,
+    InvalidPromptError,
+)
 from .prompts import (
     TECHNICAL_ANALYSIS_PROMPT,
     RISK_ASSESSMENT_PROMPT,
@@ -220,22 +230,44 @@ class SignalOrchestrator:
                 )
                 provider_models["chatgpt"] = self.providers["chatgpt"].model
                 print("✓")
-            except Exception as e:
-                error_msg = str(e)
-                # Extract key error info
-                if "quota" in error_msg.lower():
-                    reason = (
-                        "Quota exceeded - add credits at platform.openai.com/billing"
-                    )
-                elif "429" in error_msg:
-                    reason = "Rate limit or quota exceeded"
-                elif "404" in error_msg:
-                    reason = "Model not found or not accessible"
-                elif "401" in error_msg:
-                    reason = "Invalid API key"
-                else:
-                    reason = error_msg[:100]
+            except APIKeyError as e:
+                reason = f"API Key Error: {str(e)}"
+                failure_reasons["chatgpt"] = reason
+                failed_providers.append("chatgpt")
+                print(f"✗\n  Error: {reason}")
 
+            except QuotaError as e:
+                reason = f"Quota Exceeded: {str(e)}"
+                failure_reasons["chatgpt"] = reason
+                failed_providers.append("chatgpt")
+                print(f"✗\n  Error: {reason}")
+
+            except RateLimitError as e:
+                reason = f"Rate Limited (retry after {e.retry_after}s): {str(e)}"
+                failure_reasons["chatgpt"] = reason
+                failed_providers.append("chatgpt")
+                print(f"✗\n  Error: {reason}")
+
+            except TimeoutError as e:
+                reason = f"Timeout: {str(e)}"
+                failure_reasons["chatgpt"] = reason
+                failed_providers.append("chatgpt")
+                print(f"✗\n  Error: {reason}")
+
+            except ModelNotFoundError as e:
+                reason = f"Model Error: {str(e)}"
+                failure_reasons["chatgpt"] = reason
+                failed_providers.append("chatgpt")
+                print(f"✗\n  Error: {reason}")
+
+            except ProviderError as e:
+                reason = f"Provider Error: {str(e)}"
+                failure_reasons["chatgpt"] = reason
+                failed_providers.append("chatgpt")
+                print(f"✗\n  Error: {reason}")
+
+            except Exception as e:
+                reason = f"Unexpected Error: {str(e)[:100]}"
                 failure_reasons["chatgpt"] = reason
                 failed_providers.append("chatgpt")
                 print(f"✗\n  Error: {reason}")
@@ -253,17 +285,44 @@ class SignalOrchestrator:
                 )
                 provider_models["claude"] = self.providers["claude"].model
                 print("✓")
-            except Exception as e:
-                error_msg = str(e)
-                if "overloaded" in error_msg.lower():
-                    reason = "Service overloaded - try again in a moment"
-                elif "401" in error_msg:
-                    reason = "Invalid API key"
-                elif "429" in error_msg:
-                    reason = "Rate limit exceeded"
-                else:
-                    reason = error_msg[:100]
+            except APIKeyError as e:
+                reason = f"API Key Error: {str(e)}"
+                failure_reasons["claude"] = reason
+                failed_providers.append("claude")
+                print(f"✗\n  Error: {reason}")
 
+            except QuotaError as e:
+                reason = f"Quota Exceeded: {str(e)}"
+                failure_reasons["claude"] = reason
+                failed_providers.append("claude")
+                print(f"✗\n  Error: {reason}")
+
+            except RateLimitError as e:
+                reason = f"Rate Limited (retry after {e.retry_after}s): {str(e)}"
+                failure_reasons["claude"] = reason
+                failed_providers.append("claude")
+                print(f"✗\n  Error: {reason}")
+
+            except TimeoutError as e:
+                reason = f"Timeout: {str(e)}"
+                failure_reasons["claude"] = reason
+                failed_providers.append("claude")
+                print(f"✗\n  Error: {reason}")
+
+            except ModelNotFoundError as e:
+                reason = f"Model Error: {str(e)}"
+                failure_reasons["claude"] = reason
+                failed_providers.append("claude")
+                print(f"✗\n  Error: {reason}")
+
+            except ProviderError as e:
+                reason = f"Provider Error: {str(e)}"
+                failure_reasons["claude"] = reason
+                failed_providers.append("claude")
+                print(f"✗\n  Error: {reason}")
+
+            except Exception as e:
+                reason = f"Unexpected Error: {str(e)[:100]}"
                 failure_reasons["claude"] = reason
                 failed_providers.append("claude")
                 print(f"✗\n  Error: {reason}")
@@ -281,19 +340,50 @@ class SignalOrchestrator:
                 )
                 provider_models["gemini"] = self.providers["gemini"].model
                 print("✓")
-            except Exception as e:
-                error_msg = str(e)
-                if "finish_reason" in error_msg.lower() and "2" in error_msg:
-                    reason = (
-                        "Safety filter blocked - content flagged as financial advice"
-                    )
-                elif "404" in error_msg:
-                    reason = "Model not found - check model name"
-                elif "401" in error_msg:
-                    reason = "Invalid API key"
-                else:
-                    reason = error_msg[:100]
+            except APIKeyError as e:
+                reason = f"API Key Error: {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
 
+            except QuotaError as e:
+                reason = f"Quota Exceeded: {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
+
+            except RateLimitError as e:
+                reason = f"Rate Limited (retry after {e.retry_after}s): {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
+
+            except TimeoutError as e:
+                reason = f"Timeout: {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
+
+            except ModelNotFoundError as e:
+                reason = f"Model Error: {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
+
+            except InvalidPromptError as e:
+                reason = f"Content Policy: {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
+
+            except ProviderError as e:
+                reason = f"Provider Error: {str(e)}"
+                failure_reasons["gemini"] = reason
+                failed_providers.append("gemini")
+                print(f"✗\n  Error: {reason}")
+
+            except Exception as e:
+                reason = f"Unexpected Error: {str(e)[:100]}"
                 failure_reasons["gemini"] = reason
                 failed_providers.append("gemini")
                 print(f"✗\n  Error: {reason}")

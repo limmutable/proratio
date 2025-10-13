@@ -546,7 +546,7 @@ ps aux | grep streamlit
 **Documentation**
 - [README.md](../README.md) - Project overview
 - [roadmap.md](../roadmap.md) - Development plan
-- [trading_config_guide.md](./trading_config_guide.md) - Configuration guide
+- [configuration_guide.md](./configuration_guide.md) - Configuration guide
 
 **Troubleshooting**
 - Check Freqtrade logs: `user_data/logs/freqtrade.log`

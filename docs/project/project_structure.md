@@ -26,7 +26,7 @@ proratio/
 │   ├── guides/                   # User guides
 │   │   ├── paper_trading_guide.md
 │   │   ├── strategy_development_guide.md
-│   │   ├── trading_config_guide.md
+│   │   ├── configuration_guide.md
 │   │   ├── dashboard_guide.md
 │   │   └── data_management_workflow.md
 │   │

@@ -35,26 +35,11 @@ class Settings(BaseSettings):
     telegram_bot_token: Optional[str] = Field(default=None, env="TELEGRAM_BOT_TOKEN")
     telegram_chat_id: Optional[str] = Field(default=None, env="TELEGRAM_CHAT_ID")
 
-    # Trading Configuration
+    # Environment Settings
     trading_mode: str = Field(default="dry_run", env="TRADING_MODE")  # dry_run or live
-    max_open_trades: int = Field(default=2, env="MAX_OPEN_TRADES")
-    stake_amount: float = Field(default=100.0, env="STAKE_AMOUNT")  # USDT
-    max_drawdown_percent: float = Field(default=10.0, env="MAX_DRAWDOWN_PERCENT")
-
-    # Proratio Core
     data_refresh_interval: int = Field(
         default=300, env="DATA_REFRESH_INTERVAL"
     )  # seconds
-
-    # Proratio Signals
-    ai_consensus_threshold: float = Field(default=0.6, env="AI_CONSENSUS_THRESHOLD")
-    enable_chatgpt: bool = Field(default=True, env="ENABLE_CHATGPT")
-    enable_claude: bool = Field(default=True, env="ENABLE_CLAUDE")
-    enable_gemini: bool = Field(default=True, env="ENABLE_GEMINI")
-
-    # Proratio TradeHub
-    strategy_mode: str = Field(default="trend_following", env="STRATEGY_MODE")
-    enable_manual_override: bool = Field(default=True, env="ENABLE_MANUAL_OVERRIDE")
 
     # Development
     debug: bool = Field(default=False, env="DEBUG")

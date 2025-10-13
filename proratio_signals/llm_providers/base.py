@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from datetime import datetime
 import pandas as pd
 
+from .exceptions import ProviderError, classify_error
+
 
 @dataclass
 class MarketAnalysis:
@@ -201,6 +203,29 @@ class BaseLLMProvider(ABC):
             timeframe=ohlcv_data.timeframe,
             raw_response=raw_response,
         )
+
+    def _wrap_api_error(
+        self, original_error: Exception, context: str = ""
+    ) -> ProviderError:
+        """
+        Wrap a third-party API error into our custom exception hierarchy.
+
+        Args:
+            original_error: Original exception from API client
+            context: Additional context about what operation failed
+
+        Returns:
+            Appropriate ProviderError subclass
+
+        Raises:
+            ProviderError: Always raises (never returns)
+        """
+        error_msg = str(original_error)
+        full_msg = f"{context}: {error_msg}" if context else error_msg
+
+        # Classify error and raise appropriate exception
+        exception_class = classify_error(error_msg)
+        raise exception_class(full_msg) from original_error
 
     def test_connection(self) -> bool:
         """

@@ -7,8 +7,17 @@ Weight in consensus: 40%
 
 from typing import Dict, Any, Optional
 import json
+import openai
 from openai import OpenAI
 from .base import BaseLLMProvider, MarketAnalysis, OHLCVData
+from .exceptions import (
+    APIKeyError,
+    QuotaError,
+    RateLimitError,
+    TimeoutError,
+    ModelNotFoundError,
+    InvalidResponseError,
+)
 
 
 class ChatGPTProvider(BaseLLMProvider):
@@ -46,6 +55,14 @@ class ChatGPTProvider(BaseLLMProvider):
 
         Returns:
             Raw text response
+
+        Raises:
+            APIKeyError: Invalid or unauthorized API key
+            RateLimitError: Rate limit exceeded (temporary)
+            QuotaError: Quota/credits exhausted
+            TimeoutError: Request timeout
+            ModelNotFoundError: Model not found or unavailable
+            InvalidResponseError: Unexpected response format
         """
         try:
             response = self.client.chat.completions.create(
@@ -64,8 +81,34 @@ class ChatGPTProvider(BaseLLMProvider):
 
             return response.choices[0].message.content
 
+        except openai.AuthenticationError as e:
+            raise APIKeyError(f"OpenAI authentication failed: {str(e)}") from e
+
+        except openai.RateLimitError as e:
+            # Extract retry-after if available
+            retry_after = getattr(e, "retry_after", 60)
+            raise RateLimitError(
+                f"OpenAI rate limit exceeded: {str(e)}", retry_after=retry_after
+            ) from e
+
+        except openai.APIStatusError as e:
+            if e.status_code == 429:
+                raise QuotaError(f"OpenAI quota exceeded: {str(e)}") from e
+            elif e.status_code == 404:
+                raise ModelNotFoundError(f"OpenAI model '{self.model}' not found: {str(e)}") from e
+            else:
+                self._wrap_api_error(e, "OpenAI API error")
+
+        except openai.APITimeoutError as e:
+            raise TimeoutError(f"OpenAI request timeout: {str(e)}") from e
+
+        except openai.APIError as e:
+            # Generic OpenAI error - try to classify
+            self._wrap_api_error(e, "OpenAI error")
+
         except Exception as e:
-            raise RuntimeError(f"ChatGPT API call failed: {e}")
+            # Unexpected error
+            self._wrap_api_error(e, "Unexpected ChatGPT error")
 
     def analyze_market(
         self,
@@ -144,9 +187,10 @@ class ChatGPTProvider(BaseLLMProvider):
             )
 
         except json.JSONDecodeError as e:
-            # Fallback to base class parsing if JSON parsing fails
-            print(f"ChatGPT JSON parsing failed: {e}")
-            return self._parse_response(raw_response, ohlcv_data)
+            # Invalid JSON response
+            raise InvalidResponseError(
+                f"ChatGPT returned invalid JSON: {str(e)}"
+            ) from e
 
 
 # Import pandas for timestamp

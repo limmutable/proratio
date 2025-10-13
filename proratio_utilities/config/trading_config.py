@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 from pathlib import Path
 import json
+import os
 
 
 @dataclass
@@ -383,6 +384,11 @@ def get_trading_config(config_file: Optional[Path] = None) -> TradingConfig:
     """
     Get global trading configuration.
 
+    Priority order:
+    1. Provided config_file (if exists)
+    2. Default config_file path: proratio_utilities/config/trading_config.json
+    3. Code defaults with environment overrides
+
     Args:
         config_file: Optional path to config JSON file
 
@@ -392,10 +398,24 @@ def get_trading_config(config_file: Optional[Path] = None) -> TradingConfig:
     global _config
 
     if _config is None:
+        # Try loading from file
         if config_file and config_file.exists():
             _config = TradingConfig.load_from_file(config_file)
         else:
-            _config = TradingConfig()  # Use defaults
+            # Try default location
+            default_config = (
+                Path(__file__).parent / "trading_config.json"
+            )
+            if default_config.exists():
+                _config = TradingConfig.load_from_file(default_config)
+            else:
+                # Use code defaults
+                _config = TradingConfig()
+
+        # Override trading_mode from environment if set (backward compatibility)
+        env_trading_mode = os.getenv("TRADING_MODE")
+        if env_trading_mode:
+            _config.execution.trading_mode = env_trading_mode
 
     return _config
 

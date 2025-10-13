@@ -703,7 +703,7 @@ PYTHONPATH=/path/to/proratio:$PYTHONPATH uv run python scripts/diagnose_mean_rev
 ## Additional Resources
 
 - [backtesting_guide.md](./backtesting_guide.md) - Complete backtesting guide
-- [trading_config_guide.md](./trading_config_guide.md) - Configuration reference
+- [configuration_guide.md](./configuration_guide.md) - Configuration reference
 - [Freqtrade Strategy Docs](https://www.freqtrade.io/en/stable/strategy-customization/)
 
 ---

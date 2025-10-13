@@ -31,7 +31,7 @@ Step-by-step guides for users and traders.
 - **[guides/data_management_workflow.md](guides/data_management_workflow.md)** - Market data management
 
 ### Configuration & Development
-- **[guides/trading_config_guide.md](guides/trading_config_guide.md)** - Configuration system
+- **[guides/configuration_guide.md](guides/configuration_guide.md)** - Complete configuration system
 - **[guides/strategy_development_guide.md](guides/strategy_development_guide.md)** - Strategy development
 
 ---
@@ -88,9 +88,9 @@ docs/
 ├── troubleshooting.md          # Common issues
 │
 ├── guides/                     # User guides
+│   ├── configuration_guide.md
 │   ├── paper_trading_guide.md
 │   ├── strategy_development_guide.md
-│   ├── trading_config_guide.md
 │   ├── dashboard_guide.md
 │   └── data_management_workflow.md
 │
@@ -123,7 +123,7 @@ docs/
 1. [getting_started.md](getting_started.md) - Setup
 2. [guides/paper_trading_guide.md](guides/paper_trading_guide.md) - Paper trading
 3. [guides/dashboard_guide.md](guides/dashboard_guide.md) - Monitoring
-4. [guides/trading_config_guide.md](guides/trading_config_guide.md) - Configuration
+4. [guides/configuration_guide.md](guides/configuration_guide.md) - Configuration
 
 ### Intermediate (Strategy Developers)
 1. [getting_started.md](getting_started.md) - Setup

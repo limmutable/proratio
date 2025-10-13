@@ -168,7 +168,7 @@ python scripts/show_trading_config.py
 python scripts/show_trading_config.py --validate
 ```
 
-> For configuration guide, see [docs/trading_config_guide.md](./docs/trading_config_guide.md)
+> For configuration guide, see [docs/guides/configuration_guide.md](./docs/guides/configuration_guide.md)
 
 ### Run Paper Trading
 
@@ -360,7 +360,7 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 ### User Guides (docs/guides/)
 - **[strategy_development_guide.md](./docs/guides/strategy_development_guide.md)** - Strategy development patterns
 - **[paper_trading_guide.md](./docs/guides/paper_trading_guide.md)** - Paper trading setup
-- **[trading_config_guide.md](./docs/guides/trading_config_guide.md)** - Configuration guide
+- **[configuration_guide.md](./docs/guides/configuration_guide.md)** - Complete configuration guide
 - **[dashboard_guide.md](./docs/guides/dashboard_guide.md)** - Dashboard usage
 
 ### Technical Reference (docs/reference/)

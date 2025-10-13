@@ -9,6 +9,14 @@ from typing import Dict, Any, Optional
 import json
 import google.generativeai as genai
 from .base import BaseLLMProvider, MarketAnalysis, OHLCVData
+from .exceptions import (
+    APIKeyError,
+    QuotaError,
+    RateLimitError,
+    TimeoutError,
+    ModelNotFoundError,
+    InvalidResponseError,
+)
 import pandas as pd
 
 
@@ -48,6 +56,14 @@ class GeminiProvider(BaseLLMProvider):
 
         Returns:
             Raw text response
+
+        Raises:
+            APIKeyError: Invalid or unauthorized API key
+            RateLimitError: Rate limit exceeded (temporary)
+            QuotaError: Quota/credits exhausted
+            TimeoutError: Request timeout
+            ModelNotFoundError: Model not found or unavailable
+            InvalidResponseError: Unexpected response format
         """
         try:
             # Add JSON format instruction to prompt
@@ -74,7 +90,31 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
             return response.text
 
         except Exception as e:
-            raise RuntimeError(f"Gemini API call failed: {e}")
+            # Google doesn't have specific exception types, so we classify by message
+            error_msg = str(e).lower()
+
+            if "api key" in error_msg or "unauthorized" in error_msg or "authentication" in error_msg:
+                raise APIKeyError(f"Google authentication failed: {str(e)}") from e
+
+            elif "quota" in error_msg or "limit" in error_msg:
+                if "rate" in error_msg:
+                    raise RateLimitError(
+                        f"Google rate limit exceeded: {str(e)}", retry_after=60
+                    ) from e
+                else:
+                    raise QuotaError(f"Google quota exceeded: {str(e)}") from e
+
+            elif "timeout" in error_msg:
+                raise TimeoutError(f"Google request timeout: {str(e)}") from e
+
+            elif "model" in error_msg and ("not found" in error_msg or "unavailable" in error_msg):
+                raise ModelNotFoundError(
+                    f"Gemini model '{self.model}' not found: {str(e)}"
+                ) from e
+
+            else:
+                # Use classify_error for other cases
+                self._wrap_api_error(e, "Google Gemini error")
 
     def analyze_market(
         self,
@@ -172,6 +212,5 @@ IMPORTANT: Respond ONLY with valid JSON in this exact format:
             )
 
         except (json.JSONDecodeError, ValueError) as e:
-            # Fallback to base class parsing if JSON parsing fails
-            print(f"Gemini JSON parsing failed: {e}")
-            return self._parse_response(raw_response, ohlcv_data)
+            # Invalid JSON response
+            raise InvalidResponseError(f"Gemini returned invalid JSON: {str(e)}") from e
