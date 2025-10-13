@@ -140,26 +140,28 @@
 
 **See**: [advanced_ai_strategies.md](advanced_ai_strategies.md) for complete implementation details
 
-### Quick Overview
+> **Note**: Phases 4-10 are reordered by priority (highest ROI first). Follow sequentially for optimal results.
+
+### Quick Overview (Priority Order)
 
 | Phase | Name | Priority | Duration | Expected Impact |
 |-------|------|----------|----------|-----------------|
-| **4** | Multi-Timeframe Analysis | ⭐⭐⭐⭐ | 1-2 weeks | 30-40% false signal reduction |
-| **5** | AI Regime Detection | ⭐⭐⭐ | 1 week | 25-35% better regime ID |
+| **4** | Hybrid ML+LLM | ⭐⭐⭐⭐⭐ | 2-3 weeks | 40-60% false signal reduction |
+| **5** | Weekly Trading Plans | ⭐⭐⭐⭐ | 1 week | 60-70% less emotional trading |
 | **6** | Dynamic Risk Management | ⭐⭐⭐⭐ | 1 week | 30-40% fewer stop-outs |
-| **7** | Correlation Analysis | ⭐⭐⭐ | 1 week | 25-30% better pair selection |
-| **8** | News Event Trading | ⭐⭐ | 2 weeks | Capture 60-70% of major moves |
-| **9** | Weekly Trading Plans | ⭐⭐⭐⭐ | 1 week | 60-70% less emotional trading |
-| **10** | Hybrid ML+LLM | ⭐⭐⭐⭐⭐ | 2-3 weeks | 40-60% false signal reduction |
+| **7** | Multi-Timeframe Analysis | ⭐⭐⭐⭐ | 1-2 weeks | 30-40% false signal reduction |
+| **8** | AI Regime Detection | ⭐⭐⭐ | 1 week | 25-35% better regime ID |
+| **9** | Correlation Analysis | ⭐⭐⭐ | 1 week | 25-30% better pair selection |
+| **10** | News Event Trading | ⭐⭐ | 2 weeks | Capture 60-70% of major moves |
 
-### 🎯 Recommended Implementation Order
+### 🎯 Implementation Timeline
 
 **Q1 2026 (Next 3 months) - High ROI Focus**:
-1. ⭐ **Phase 10: Hybrid ML+LLM** (2-3 weeks) - **HIGHEST PRIORITY**
+1. ⭐ **Phase 4: Hybrid ML+LLM** (2-3 weeks) - **HIGHEST PRIORITY**
    - Combine ML ensemble + LLM consensus
    - Expected: Win rate 65-70%, Sharpe 2.0-2.5
 
-2. **Phase 9: Weekly Plans** (1 week) - Quick win
+2. **Phase 5: Weekly Plans** (1 week) - Quick win
    - AI-generated trading plans with scenarios
    - Reduces emotional trading by 60-70%
 
@@ -167,16 +169,16 @@
    - AI-identified support/resistance for stops
    - Better R:R ratios (2.5:1 vs 1.5:1)
 
-4. **Phase 4: Multi-Timeframe** (1-2 weeks)
+4. **Phase 7: Multi-Timeframe** (1-2 weeks)
    - Analyze 1h, 4h, 1d, 1w simultaneously
    - Detect divergences across timeframes
 
 **Q2 2026 (Months 4-6) - Expand Capabilities**:
-5. **Phase 5: Regime Detection** (1 week)
-6. **Phase 7: Correlation Analysis** (1 week)
-7. **Phase 8: News Trading** (2 weeks)
+5. **Phase 8: Regime Detection** (1 week)
+6. **Phase 9: Correlation Analysis** (1 week)
+7. **Phase 10: News Trading** (2 weeks)
 
-### Phase 10: Hybrid ML+LLM System (CRITICAL)
+### Phase 4: Hybrid ML+LLM System (HIGHEST PRIORITY)
 
 **Why This Is Most Important**:
 - Combines quantitative (ML) + qualitative (LLM) analysis
@@ -193,7 +195,7 @@ Max Drawdown         | -18-22%   | -10-12%   | -45%
 False Signals        | 100       | 40-50     | -50-60%
 ```
 
-**Implementation**: See [advanced_ai_strategies.md#phase-10](advanced_ai_strategies.md#phase-10-hybrid-mllm-system-highest-priority)
+**Implementation**: See [advanced_ai_strategies.md#phase-4](advanced_ai_strategies.md#phase-4-hybrid-mllm-system-highest-priority)
 
 ---
 
@@ -228,9 +230,9 @@ False Signals        | 100       | 40-50     | -50-60%
 - [ ] AI consensus functioning
 
 ### Live Trading Phase (Future)
-- [ ] Sharpe ratio > 1.5 (Target: 2.0+ with Phase 10)
-- [ ] Max drawdown < 15% (Target: 10-12% with Phase 10)
-- [ ] Win rate > 55% (Target: 65-70% with Phase 10)
+- [ ] Sharpe ratio > 1.5 (Target: 2.0+ with Phase 4)
+- [ ] Max drawdown < 15% (Target: 10-12% with Phase 4)
+- [ ] Win rate > 55% (Target: 65-70% with Phase 4)
 - [ ] Profit factor > 1.3
 - [ ] No manual interventions needed
 
@@ -279,7 +281,7 @@ False Signals        | 100       | 40-50     | -50-60%
 - Weighted voting reduces false signals
 - Robust to individual provider failures
 
-### Why Hybrid ML+LLM? (Phase 10)
+### Why Hybrid ML+LLM? (Phase 4)
 - ML captures statistical patterns (quantitative)
 - LLMs capture narrative/context (qualitative)
 - Agreement = very strong signal

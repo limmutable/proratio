@@ -28,7 +28,7 @@ This document outlines advanced AI-driven trading strategies for the Proratio sy
 
 ---
 
-## 🚀 Phase 4: Multi-Timeframe LLM Analysis
+## 🚀 Phase 7: Multi-Timeframe LLM Analysis
 
 ### Concept
 Use LLMs to analyze multiple timeframes simultaneously (1h, 4h, 1d, 1w) and detect conflicting/confirming signals across different time horizons.
@@ -203,7 +203,7 @@ class MultiTimeframeAnalyzer:
 
 ---
 
-## 🎯 Phase 5: AI-Enhanced Regime Detection
+## 🎯 Phase 8: AI-Enhanced Regime Detection
 
 ### Concept
 Enhance your existing portfolio manager's regime detection by using LLMs to classify markets into 8 nuanced regimes instead of just 3 (trending/ranging/volatile).
@@ -723,7 +723,7 @@ def enter_trade(self, pair, direction, current_price, ohlcv_data):
 
 ---
 
-## 🔗 Phase 7: Multi-Asset Correlation Analysis
+## 🔗 Phase 9: Multi-Asset Correlation Analysis
 
 ### Concept
 Use LLMs to analyze relationships between BTC, ETH, and altcoins to identify leading indicators and divergences.
@@ -900,7 +900,7 @@ class CorrelationTradingStrategy:
 
 ---
 
-## 📰 Phase 8: LLM News Event Trading
+## 📰 Phase 10: LLM News Event Trading
 
 ### Concept
 Feed real-time crypto news to LLMs for event-driven trade decisions.
@@ -1188,7 +1188,7 @@ class NewsBasedTradingStrategy:
 
 ---
 
-## 📋 Phase 9: AI-Generated Weekly Trading Plans
+## 📋 Phase 5: AI-Generated Weekly Trading Plans
 
 ### Concept
 Use LLMs to generate complete, structured trading plans for the week rather than reactive trade-by-trade decisions.
@@ -1628,7 +1628,7 @@ Always validate scenario conditions manually before entering trades.
 
 ---
 
-## ⭐ Phase 10: Hybrid ML+LLM System (HIGHEST PRIORITY)
+## ⭐ Phase 4: Hybrid ML+LLM System (HIGHEST PRIORITY)
 
 ### Concept
 Combine your LSTM/ML ensemble predictions (quantitative) with LLM analysis (qualitative) for superior signal generation.
@@ -2190,55 +2190,55 @@ class HybridTradingStrategy(IStrategy):
 
 ## 📊 Implementation Roadmap Summary
 
-### Phase 4: Multi-Timeframe Analysis (1-2 weeks)
-- ⏱️ **Effort**: Medium
-- 💰 **Value**: High (30-40% false signal reduction)
-- 🎯 **Priority**: 2/5
+### Phase 4: Hybrid ML+LLM System (2-3 weeks) ⭐
+- ⏱️ **Effort**: High
+- 💰 **Value**: **VERY HIGH** (40-60% false signal reduction)
+- 🎯 **Priority**: **1/7 (HIGHEST)**
 
-### Phase 5: AI Regime Detection (1 week)
-- ⏱️ **Effort**: Low-Medium
-- 💰 **Value**: High (better strategy selection)
-- 🎯 **Priority**: 3/5
+### Phase 5: Weekly Trading Plans (1 week)
+- ⏱️ **Effort**: Low
+- 💰 **Value**: Very High (reduces emotional trading)
+- 🎯 **Priority**: 2/7
 
 ### Phase 6: Dynamic Risk Management (1 week)
 - ⏱️ **Effort**: Medium
 - 💰 **Value**: Very High (30-40% fewer stop-outs)
-- 🎯 **Priority**: 4/5
+- 🎯 **Priority**: 3/7
 
-### Phase 7: Correlation Analysis (1 week)
+### Phase 7: Multi-Timeframe Analysis (1-2 weeks)
+- ⏱️ **Effort**: Medium
+- 💰 **Value**: High (30-40% false signal reduction)
+- 🎯 **Priority**: 4/7
+
+### Phase 8: AI Regime Detection (1 week)
+- ⏱️ **Effort**: Low-Medium
+- 💰 **Value**: High (better strategy selection)
+- 🎯 **Priority**: 5/7
+
+### Phase 9: Correlation Analysis (1 week)
 - ⏱️ **Effort**: Low-Medium
 - 💰 **Value**: Medium (better pair selection)
-- 🎯 **Priority**: 5/5
+- 🎯 **Priority**: 6/7
 
-### Phase 8: News Event Trading (2 weeks)
+### Phase 10: News Event Trading (2 weeks)
 - ⏱️ **Effort**: High (API integrations)
 - 💰 **Value**: Medium (captures major moves)
-- 🎯 **Priority**: 6/5
-
-### Phase 9: Weekly Trading Plans (1 week)
-- ⏱️ **Effort**: Low
-- 💰 **Value**: Very High (reduces emotional trading)
-- 🎯 **Priority**: 4/5
-
-### Phase 10: Hybrid ML+LLM System (2-3 weeks) ⭐
-- ⏱️ **Effort**: High
-- 💰 **Value**: **VERY HIGH** (40-60% false signal reduction)
-- 🎯 **Priority**: **1/5 (HIGHEST)**
+- 🎯 **Priority**: 7/7
 
 ---
 
 ## 🎯 Recommended Implementation Order
 
 **Quarter 1 (Next 3 months)**:
-1. ⭐ **Phase 10: Hybrid ML+LLM** (2-3 weeks) - Highest ROI
-2. **Phase 9: Weekly Plans** (1 week) - Quick win, improves discipline
+1. ⭐ **Phase 4: Hybrid ML+LLM** (2-3 weeks) - Highest ROI
+2. **Phase 5: Weekly Plans** (1 week) - Quick win, improves discipline
 3. **Phase 6: Dynamic Risk** (1 week) - Better stop placement
-4. **Phase 4: Multi-Timeframe** (1-2 weeks) - Reduces false signals
+4. **Phase 7: Multi-Timeframe** (1-2 weeks) - Reduces false signals
 
 **Quarter 2**:
-5. **Phase 5: Regime Detection** (1 week)
-6. **Phase 7: Correlation Analysis** (1 week)
-7. **Phase 8: News Trading** (2 weeks)
+5. **Phase 8: Regime Detection** (1 week)
+6. **Phase 9: Correlation Analysis** (1 week)
+7. **Phase 10: News Trading** (2 weeks)
 
 ---
 
@@ -2275,7 +2275,7 @@ This would put your system in the **top 10% of retail algo traders** in terms of
 ## 🚀 Next Steps
 
 1. **Review this document** with the team
-2. **Start with Phase 10 (Hybrid)** - highest priority, biggest impact
+2. **Start with Phase 4 (Hybrid ML+LLM)** - highest priority, biggest impact
 3. **Run backtests** to validate each phase
 4. **Paper trade** each phase for 2-4 weeks before live
 5. **Measure and iterate** - track metrics for each phase

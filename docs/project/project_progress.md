@@ -153,24 +153,24 @@
 
 **See**: [advanced_ai_strategies.md](advanced_ai_strategies.md) for complete details
 
-**Quick Overview**:
+**Quick Overview** (Reordered by Priority):
 
 | Phase | Name | Priority | Target | Expected Impact |
 |-------|------|----------|--------|-----------------|
-| **10** | Hybrid ML+LLM | ⭐⭐⭐⭐⭐ | Q1 2026 | +20-25% win rate |
-| **9** | Weekly Plans | ⭐⭐⭐⭐ | Q1 2026 | -60-70% emotional trades |
+| **4** | Hybrid ML+LLM | ⭐⭐⭐⭐⭐ | Q1 2026 | +20-25% win rate |
+| **5** | Weekly Plans | ⭐⭐⭐⭐ | Q1 2026 | -60-70% emotional trades |
 | **6** | Dynamic Risk | ⭐⭐⭐⭐ | Q1 2026 | -30-40% stop-outs |
-| **4** | Multi-Timeframe | ⭐⭐⭐⭐ | Q1 2026 | -30-40% false signals |
-| **5** | Regime Detection | ⭐⭐⭐ | Q2 2026 | +25-35% regime accuracy |
-| **7** | Correlation | ⭐⭐⭐ | Q2 2026 | +25-30% pair selection |
-| **8** | News Trading | ⭐⭐ | Q2 2026 | Capture 60-70% major moves |
+| **7** | Multi-Timeframe | ⭐⭐⭐⭐ | Q1 2026 | -30-40% false signals |
+| **8** | Regime Detection | ⭐⭐⭐ | Q2 2026 | +25-35% regime accuracy |
+| **9** | Correlation | ⭐⭐⭐ | Q2 2026 | +25-30% pair selection |
+| **10** | News Trading | ⭐⭐ | Q2 2026 | Capture 60-70% major moves |
 
 **Implementation Order**:
-1. **Phase 3.5** (Technical Debt) - **PREREQUISITE** 🔧
-2. Phase 10 (Hybrid ML+LLM) - **HIGHEST ROI**
-3. Phase 9 (Weekly Plans) - Quick win
+1. **Phase 3.5** (Technical Debt) - **PREREQUISITE** ✅ COMPLETE
+2. Phase 4 (Hybrid ML+LLM) - **HIGHEST ROI**
+3. Phase 5 (Weekly Plans) - Quick win
 4. Phase 6 (Dynamic Risk) - Better stops
-5. Phase 4 (Multi-Timeframe) - Better signals
+5. Phase 7 (Multi-Timeframe) - Better signals
 
 ---
 
@@ -234,12 +234,12 @@
 - [ ] **Nov 2025**: Paper trading validation (Phase 1.4)
 
 ### Planned 📋
-- [ ] **Late Oct 2025**: Complete Phase 3.5 (Technical Debt) 🔧
-- [ ] **Q1 2026**: Phase 10 - Hybrid ML+LLM System ⭐
-- [ ] **Q1 2026**: Phase 9 - Weekly Trading Plans
+- [x] **Oct 2025**: Complete Phase 3.5 (Technical Debt) ✅
+- [ ] **Q1 2026**: Phase 4 - Hybrid ML+LLM System ⭐
+- [ ] **Q1 2026**: Phase 5 - Weekly Trading Plans
 - [ ] **Q1 2026**: Phase 6 - Dynamic Risk Management
-- [ ] **Q1 2026**: Phase 4 - Multi-Timeframe Analysis
-- [ ] **Q2 2026**: Phase 5, 7, 8 - Regime, Correlation, News
+- [ ] **Q1 2026**: Phase 7 - Multi-Timeframe Analysis
+- [ ] **Q2 2026**: Phase 8, 9, 10 - Regime, Correlation, News
 - [ ] **2026+**: Phase 11-12 - Futures & Sentiment
 
 ---
@@ -294,11 +294,11 @@
 ### Short-term (Q4 2025)
 1. Validate paper trading (5-7 days)
 2. Review Phase 1 performance
-3. Plan Phase 10 implementation
+3. Plan Phase 4 implementation
 
 ### Medium-term (Q1 2026)
-1. Implement Phase 10 (Hybrid ML+LLM) ⭐
-2. Implement Phase 9 (Weekly Plans)
+1. Implement Phase 4 (Hybrid ML+LLM) ⭐
+2. Implement Phase 5 (Weekly Plans)
 3. Implement Phase 6 (Dynamic Risk)
 
 ---
