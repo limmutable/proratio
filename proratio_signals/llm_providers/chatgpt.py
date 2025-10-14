@@ -23,7 +23,7 @@ from .exceptions import (
 class ChatGPTProvider(BaseLLMProvider):
     """ChatGPT-4 provider for technical analysis"""
 
-    def __init__(self, api_key: str, model: str = "gpt-5-nano-2025-08-07"):
+    def __init__(self, api_key: str, model: str = "gpt-4o-mini"):
         """
         Initialize ChatGPT provider.
 
@@ -75,7 +75,7 @@ class ChatGPTProvider(BaseLLMProvider):
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.3,  # Lower temperature for more consistent analysis
-                max_tokens=1000,
+                max_tokens=1000,  # Max tokens to generate
                 response_format={"type": "json_object"},  # Request JSON response
             )
 
