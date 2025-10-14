@@ -78,12 +78,12 @@ if [ "$MODE" = "cli" ]; then
     source .venv/bin/activate
 
     # Check if CLI dependencies are installed
-    if ! python -c "import typer, rich" 2>/dev/null; then
+    if ! python -c "import typer, rich, dotenv" 2>/dev/null; then
         echo -e "${YELLOW}⚠${NC} Installing CLI dependencies..."
         if command -v uv &> /dev/null; then
-            uv pip install typer rich shellingham
+            uv pip install typer rich shellingham python-dotenv
         else
-            pip install typer rich shellingham
+            pip install typer rich shellingham python-dotenv
         fi
     fi
 
