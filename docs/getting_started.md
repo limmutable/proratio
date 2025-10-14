@@ -151,25 +151,37 @@ CREATE INDEX
 ### Step 5: Download Market Data
 
 ```bash
-# Download 24 months of BTC/ETH data (takes 5-10 minutes)
-uv run python scripts/download_historical_data.py
+# Activate virtual environment
+source venv/bin/activate
+
+# Download 24 months of BTC/ETH data (takes ~10 seconds, no API key needed!)
+freqtrade download-data \
+  --exchange binance \
+  --pairs BTC/USDT ETH/USDT \
+  --timeframes 1h 4h 1d \
+  --days 730 \
+  --userdir user_data \
+  --data-format-ohlcv feather
 ```
 
 **What this does:**
-- Downloads BTC/USDT and ETH/USDT data
-- Stores in PostgreSQL database
+- Downloads BTC/USDT and ETH/USDT historical data (2 years)
+- Uses Binance **public API** (no API keys required!)
 - Downloads multiple timeframes (1h, 4h, 1d)
+- Stores as `.feather` files in `user_data/data/binance/`
 
 **Expected output:**
 ```
-Downloading BTC/USDT data...
-Downloaded 17520 candles (24 months)
-Downloading ETH/USDT data...
-Downloaded 17520 candles (24 months)
-✓ Data download complete!
+Downloaded data for BTC/USDT with length 17526.
+Downloaded data for BTC/USDT with length 4381.
+Downloaded data for BTC/USDT with length 730.
+Downloaded data for ETH/USDT with length 17526.
+Downloaded data for ETH/USDT with length 4381.
+Downloaded data for ETH/USDT with length 730.
+✓ 6 files downloaded (1.4 MB total)
 ```
 
-> **Note**: This only runs once. Data is stored in the database.
+> **Note**: No API keys needed for historical data download!
 
 ---
 
@@ -202,16 +214,16 @@ docker-compose up -d postgres redis
 
 **Expected output:**
 ```
-System Status - 11/13 components operational
+System Status - 12/13 components operational
 
 ✅ Environment: All required variables present
 ✅ Database: PostgreSQL running
 ✅ Redis: Redis running
+✅ Data: 6 feather files (if you ran Step 5)
 ✅ Freqtrade: Installed (version 2025.9.1)
 ✅ PyTorch: v2.8.0 (CPU)
 ✅ AI Providers: 3/3 configured
-⚠️  Data: No data files found (normal - add later)
-⚠️  ML Models: Not found (normal - train later)
+⚠️  ML Models: Not found (normal - train in Phase 4)
 ```
 
 > **Note**: Freqtrade and PyTorch (~2GB) are installed by setup.sh automatically.

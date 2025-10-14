@@ -101,9 +101,9 @@ def check_data_availability() -> Tuple[bool, str]:
     if not data_path.exists():
         return False, "Data directory not found"
 
-    # Check for data files
-    feather_files = list(data_path.glob("*.feather"))
-    json_files = list(data_path.glob("*.json"))
+    # Check for data files (in exchange subdirectories or root)
+    feather_files = list(data_path.glob("*.feather")) + list(data_path.glob("*/*.feather"))
+    json_files = list(data_path.glob("*.json")) + list(data_path.glob("*/*.json"))
 
     if feather_files or json_files:
         return True, f"{len(feather_files)} feather, {len(json_files)} json files"
