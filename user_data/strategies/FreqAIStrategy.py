@@ -28,18 +28,20 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime
 import logging
+from functools import reduce
 
 # Add project root to Python path for imports
 project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-import talib.abstract as ta
-from freqtrade.strategy import IStrategy, merge_informative_pair
-from pandas import DataFrame
+# These imports must come after sys.path modification - ignore linting
+import talib.abstract as ta  # noqa: E402
+from freqtrade.strategy import IStrategy, merge_informative_pair  # noqa: E402
+from pandas import DataFrame  # noqa: E402
 
 # Import our custom feature engineering
-from proratio_quantlab.ml.feature_engineering import (
+from proratio_quantlab.ml.feature_engineering import (  # noqa: E402
     FeatureEngineer,
     create_target_labels,
 )
@@ -149,8 +151,9 @@ class FreqAIStrategy(IStrategy):
                 informative["ema21_1h"] = ta.EMA(informative, timeperiod=21)
 
                 # Merge with main dataframe
+                # merge_informative_pair(dataframe, informative, timeframe_to_resample, timeframe_to_merge)
                 dataframe = merge_informative_pair(
-                    dataframe, informative, self.timeframe, "1h", ffill=True
+                    dataframe, informative, "1h", self.timeframe, ffill=True
                 )
 
         return dataframe
@@ -427,5 +430,4 @@ class FreqAIStrategy(IStrategy):
         return proposed_stake
 
 
-# Helper function for reduce (combining conditions)
-from functools import reduce
+# Helper function for reduce (combining conditions) - moved to top imports

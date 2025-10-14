@@ -7,7 +7,7 @@ This strategy combines technical indicators with multi-AI analysis for improved 
 Strategy Logic:
 - Base: EMA crossover + RSI (from SimpleTestStrategy)
 - Enhancement: AI consensus filter + confidence-based position sizing
-- Entry: Technical signal + AI consensus > 60% + AI direction = LONG
+- Entry: Technical signal + AI consensus > 50% + AI direction = LONG
 - Exit: Technical signal OR AI consensus changes
 - Position sizing: Base stake * AI confidence multiplier
 
@@ -26,12 +26,13 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-import talib.abstract as ta
-from freqtrade.strategy import IStrategy
-from pandas import DataFrame
+# These imports must come after sys.path modification - ignore linting
+import talib.abstract as ta  # noqa: E402
+from freqtrade.strategy import IStrategy  # noqa: E402
+from pandas import DataFrame  # noqa: E402
 
-from proratio_signals import SignalOrchestrator, ConsensusSignal
-from proratio_signals.llm_providers.base import OHLCVData
+from proratio_signals import SignalOrchestrator, ConsensusSignal  # noqa: E402
+from proratio_signals.llm_providers.base import OHLCVData  # noqa: E402
 
 
 class AIEnhancedStrategy(IStrategy):
@@ -80,12 +81,12 @@ class AIEnhancedStrategy(IStrategy):
     order_time_in_force = {"entry": "GTC", "exit": "GTC"}
 
     # AI Configuration
-    ai_min_confidence = 0.60  # Minimum AI confidence to enter (60%)
+    ai_min_confidence = 0.50  # Minimum AI confidence to enter (50%) - lowered for 2/3 providers
     ai_lookback_candles = 50  # Number of candles to send to AI for context
     ai_cache_minutes = 60  # Cache AI signals for 60 minutes to avoid API spam
 
     # Position sizing multipliers based on AI confidence
-    # Confidence 60% = 0.8x stake, 80% = 1.0x stake, 100% = 1.2x stake
+    # Confidence 50% = 0.8x stake, 75% = 1.0x stake, 100% = 1.2x stake
     ai_confidence_multiplier_min = 0.8
     ai_confidence_multiplier_max = 1.2
 
@@ -233,7 +234,7 @@ class AIEnhancedStrategy(IStrategy):
 
         Entry conditions:
         1. Technical: EMA crossover + RSI not overbought + volume
-        2. AI: Consensus signal = LONG + confidence > 60%
+        2. AI: Consensus signal = LONG + confidence > 50%
 
         Args:
             dataframe: DataFrame with indicators
@@ -374,10 +375,10 @@ class AIEnhancedStrategy(IStrategy):
 
             if signal and signal.confidence >= self.ai_min_confidence:
                 # Calculate multiplier based on confidence
-                # 60% confidence → 0.8x stake
-                # 80% confidence → 1.0x stake
+                # 50% confidence → 0.8x stake
+                # 75% confidence → 1.0x stake
                 # 100% confidence → 1.2x stake
-                # Formula: normalize confidence (0.6-1.0) to multiplier range (0.8-1.2)
+                # Formula: normalize confidence (0.5-1.0) to multiplier range (0.8-1.2)
                 confidence_normalized = (signal.confidence - self.ai_min_confidence) / (
                     1.0 - self.ai_min_confidence
                 )

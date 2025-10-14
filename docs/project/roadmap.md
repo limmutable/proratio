@@ -1,7 +1,7 @@
 # Proratio Development Roadmap
 
 **AI-Driven Crypto Trading System for Binance**
-**Version**: 0.9.0 | **Last Updated**: 2025-10-14
+**Version**: 0.9.1 | **Last Updated**: 2025-10-14
 
 > **📖 See also**: [advanced_ai_strategies.md](advanced_ai_strategies.md) for detailed Phase 4-10 implementation guides
 
@@ -168,6 +168,32 @@
 - ✅ No critical errors
 
 **Documentation**: See [validation_framework_guide.md](../guides/validation_framework_guide.md)
+
+**Validation Results** (Oct 14, 2025):
+- ✅ **GridTradingStrategy**: PASSED (19 trades, 73.7% win rate, +0.01% profit)
+- ⚠️ **MeanReversionAdapter**: IMPROVED (41 trades, 56.1% win rate, -0.40% profit)
+  - Stop loss widened from 2% → 3.5%
+  - Win rate improved from 38.2% → 56.1% (+17.9%)
+- ❌ **MeanReversionStrategy**: FAILED (0 trades - AI filter too strict)
+- ❌ **AIEnhancedStrategy**: FAILED (0 trades - AI threshold lowered but still needs ChatGPT fix)
+- ❌ **FreqAIStrategy**: FAILED (timeframe merge fixed, but KeyError: 'ema21')
+- ✅ **sample_strategy**: DELETED (broken template file)
+
+**Fixes Applied**:
+1. Fixed FreqAIStrategy timeframe merge bug (line 152)
+2. Lowered AI confidence thresholds from 60% → 50%
+3. Widened MeanReversionAdapter stop loss 2% → 3.5% (major improvement)
+4. Fixed E402 linting errors in AIEnhancedStrategy and FreqAIStrategy
+5. Deleted broken sample_strategy.py
+
+**Outstanding Issues**:
+- ChatGPT API quota exceeded (affects 2 strategies)
+- FreqAIStrategy column naming after informative merge
+- MeanReversionAdapter still losing money (but much improved)
+
+**Full Reports**:
+- [Initial Validation](../../tests/validation_results/ALL_STRATEGIES_SUMMARY.md)
+- [Fixes Applied](../../tests/validation_results/FIXES_APPLIED_SUMMARY.md)
 
 ---
 

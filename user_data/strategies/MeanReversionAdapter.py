@@ -47,8 +47,8 @@ class MeanReversionAdapter(IStrategy):
         "120": 0.01,  # 1% after 2 hours
     }
 
-    # Stoploss
-    stoploss = -0.02  # 2% stop-loss
+    # Stoploss (widened from 2% to 3.5% for 4h timeframe - reduces premature exits)
+    stoploss = -0.035  # 3.5% stop-loss
 
     # Trailing stop
     trailing_stop = False
