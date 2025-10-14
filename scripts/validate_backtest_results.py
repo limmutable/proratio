@@ -94,6 +94,21 @@ def validate_metrics(metrics: Dict) -> Tuple[bool, List[Dict]]:
     """
     checks = []
 
+    # Check 0: Zero trades (immediate fail)
+    if metrics["total_trades"] == 0:
+        check = {
+            "name": "Trade Generation",
+            "criterion": "> 0 trades (strategy must generate at least 1 trade)",
+            "actual": "0 trades - Strategy did not trigger any buy signals",
+            "passed": False,
+            "severity": "critical",
+            "message": "CRITICAL: Strategy generated 0 trades. Cannot validate performance metrics. "
+                      "This usually means: (1) Timerange too short, (2) Entry conditions too strict, "
+                      "or (3) Strategy logic error. Try longer timerange or review strategy code."
+        }
+        checks.append(check)
+        return False, checks  # Immediate fail
+
     # Check 1: Minimum trades
     check = {
         "name": "Minimum Trades",
@@ -185,6 +200,10 @@ def print_validation_report(strategy: str, metrics: Dict, checks: List[Dict], pa
         status = "✓ PASS" if check["passed"] else "✗ FAIL"
         severity = f"[{check['severity'].upper()}]"
         print(f"  {status:8} {severity:12} {check['name']:20} {check['criterion']:20} (Actual: {check['actual']})")
+
+        # Print additional message if present (for critical failures)
+        if not check["passed"] and "message" in check:
+            print(f"\n  ⚠️  {check['message']}\n")
 
     print()
     print("=" * 60)

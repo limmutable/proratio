@@ -24,9 +24,10 @@ project_root = Path(__file__).resolve().parents[2]
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-import talib.abstract as ta
-from freqtrade.strategy import IStrategy
-from pandas import DataFrame
+# These imports must come after path modification - ignore linting
+import talib.abstract as ta  # noqa: E402
+from freqtrade.strategy import IStrategy  # noqa: E402
+from pandas import DataFrame  # noqa: E402
 
 
 class GridTradingStrategy(IStrategy):
@@ -199,13 +200,8 @@ class GridTradingStrategy(IStrategy):
 
         # Initialize grids if not exists
         if pair not in self.grid_levels:
-            buy_levels, sell_levels = self.calculate_grid_levels(current_price, pair)
-        else:
-            buy_levels = [
-                level
-                for level in self.grid_levels[pair]
-                if level < self.grid_center[pair]
-            ]
+            # Calculate and store grid levels (buy_levels and sell_levels stored in self.grid_levels)
+            self.calculate_grid_levels(current_price, pair)
 
         # Market conditions suitable for grid trading
         market_conditions = (
