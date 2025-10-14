@@ -5,12 +5,14 @@
 #
 # Usage: ./start.sh [mode] [options]
 # Modes:
-#   cli              Launch CLI interface (recommended)
-#   trade            Start trading system (default)
+#   (no args)        Launch CLI interface (default)
+#   cli              Launch CLI interface (explicit)
+#   web              Start web dashboard (coming soon)
+#   trade            Start full trading system (bot + dashboard)
 #
 # Options:
 #   --skip-checks    Skip system checks (faster startup)
-#   --no-dashboard   Don't start the dashboard
+#   --no-dashboard   Don't start the dashboard (trade mode only)
 #   --help           Show this help message
 #
 
@@ -27,18 +29,41 @@ NC='\033[0m' # No Color
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKIP_CHECKS=false
 NO_DASHBOARD=false
-MODE="trade"  # Default mode
+MODE="cli"  # Default mode: CLI
 
-# Check if first argument is 'cli' mode - if so, skip to CLI immediately
-if [ "$1" = "cli" ]; then
+# Parse arguments
+if [ $# -eq 0 ]; then
+    # No arguments - default to CLI mode
     MODE="cli"
 else
-    # Parse arguments for trade mode
+    # Parse first argument as mode
+    case "$1" in
+        cli)
+            MODE="cli"
+            shift  # Remove 'cli' from arguments
+            ;;
+        web)
+            echo -e "${YELLOW}⚠${NC} Web dashboard mode coming soon!"
+            echo "Use 'trade' mode to start the full trading system"
+            exit 1
+            ;;
+        trade)
+            MODE="trade"
+            shift  # Remove 'trade' from arguments
+            ;;
+        --help)
+            head -n 16 "$0" | tail -n 13
+            exit 0
+            ;;
+        *)
+            # If not a mode, treat as CLI command
+            MODE="cli"
+            ;;
+    esac
+
+    # Parse remaining arguments
     for arg in "$@"; do
         case $arg in
-            trade)
-                MODE="trade"
-                ;;
             --skip-checks)
                 SKIP_CHECKS=true
                 ;;
@@ -46,13 +71,8 @@ else
                 NO_DASHBOARD=true
                 ;;
             --help)
-                head -n 15 "$0" | tail -n 12
+                head -n 16 "$0" | tail -n 13
                 exit 0
-                ;;
-            *)
-                echo -e "${RED}Unknown option: $arg${NC}"
-                echo "Use --help for usage information"
-                exit 1
                 ;;
         esac
     done

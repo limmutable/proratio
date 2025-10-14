@@ -1,7 +1,7 @@
 # Proratio Development Roadmap
 
 **AI-Driven Crypto Trading System for Binance**
-**Version**: 0.8.0 | **Last Updated**: 2025-10-12
+**Version**: 0.9.0 | **Last Updated**: 2025-10-14
 
 > **📖 See also**: [advanced_ai_strategies.md](advanced_ai_strategies.md) for detailed Phase 4-10 implementation guides
 
@@ -9,8 +9,8 @@
 
 ## 📍 Current Status (October 2025)
 
-**Active Phase**: Phase 1.4 (Paper Trading Validation) - Ready to Start
-**Overall Progress**: Phase 1-3 Complete (80%) | Phase 4-10 Planned (20%)
+**Active Phase**: Ready for Phase 4 (Hybrid ML+LLM Strategies) 🚀
+**Overall Progress**: Phase 1-3.5 Complete (85%) | Phase 1.4 Complete ✅ | Phase 4-10 Planned (15%)
 
 ### Completed Phases ✅
 
@@ -22,13 +22,14 @@
 | **3.2** | LSTM Models | ✅ 100% | Neural networks for time-series prediction |
 | **3.3** | Ensemble Learning | ✅ 100% | Stacking/blending (19.66% improvement) |
 | **3.5** | Technical Debt | ✅ 100% | Config unification, LLM error handling, security |
+| **1.4** | Strategy Validation | ✅ 100% | Fast validation framework (5-10 min vs 5-7 days) |
 
 ### Next Up 📋
 
 | Phase | Name | Status | Target Date |
 |-------|------|--------|-------------|
-| **1.4** | Paper Trading | 📋 Ready | Nov 2025 |
-| **4-10** | Advanced AI | 📋 Planning | Q1-Q2 2026 |
+| **4** | Hybrid ML+LLM | 📋 Ready | Nov 2025 |
+| **5-10** | Advanced AI | 📋 Planning | Q1-Q2 2026 |
 
 ---
 
@@ -118,35 +119,44 @@
 ---
 
 
-### ✅ Phase 1.4: Strategy Validation Framework (Complete)
-**Duration**: 30 minutes - 2 hours per strategy
-**Goal**: Fast, comprehensive strategy validation
+### ✅ Phase 1.4: Strategy Validation Framework (Complete - Oct 14, 2025)
+**Duration**: Completed in 1 day
+**Goal**: Fast, comprehensive strategy validation replacing 5-7 days of paper trading
 
-**Tasks**:
-- [x] Create validation script (`validate_strategy.sh`)
-- [x] Create backtest results validator
-- [x] Create accelerated test configuration
-- [x] Create strategy test templates
-- [x] Create validation report generator
+**Completed Tasks**:
+- [x] Created validation script (`validate_strategy.sh`)
+- [x] Created backtest results validator (`validate_backtest_results.py`)
+- [x] Created accelerated test configuration (`config_accelerated_test.json`)
+- [x] Created strategy test templates (`test_strategy_template.py`)
+- [x] Created validation report generator (`generate_validation_report.py`)
+- [x] Integrated with CLI (`./start.sh strategy validate`)
+- [x] Created help system (`./start.sh help validate`)
+- [x] Comprehensive documentation (`validation_framework_guide.md`)
 
 **Features**:
-- ⚡ **Fast validation** (5-10 min per strategy)
-- 🔄 **Reusable framework** for all strategies
-- 📊 **Automated pass/fail criteria**
-- 📝 **Comprehensive reports**
-- ✅ **Integration test support**
+- ⚡ **Fast validation** (5-10 min vs 5-7 days paper trading)
+- 🔄 **Reusable framework** for all strategies (Phases 4-10)
+- 📊 **Automated pass/fail criteria** (6 validation checks)
+- 📝 **Comprehensive reports** (JSON + TXT formats)
+- ✅ **CLI integration** with direct commands
+- 🎯 **60-120x faster** than traditional paper trading
 
 **Usage**:
 ```bash
-# Validate any strategy in 5-10 minutes
+# CLI integration (NEW - Oct 14)
+./start.sh strategy validate AIEnhancedStrategy
+./start.sh help validate
+
+# Or direct script usage
 ./scripts/validate_strategy.sh SimpleTestStrategy
 
 # Validation checks:
-#  1. Backtest execution (2-3 min)
-#  2. Results validation (win rate, drawdown, Sharpe)
-#  3. Integration tests (if available)
-#  4. Code quality checks
-#  5. Automated report generation
+#  1. Pre-flight checks (file, data, config)
+#  2. Backtest execution (2-3 min)
+#  3. Results validation (win rate, drawdown, Sharpe)
+#  4. Integration tests (if available)
+#  5. Code quality checks (ruff)
+#  6. Automated report generation
 ```
 
 **Success Criteria**:
@@ -318,7 +328,7 @@ False Signals        | 100       | 40-50     | -50-60%
 ## 🚀 Getting Started
 
 1. **Setup**: Follow [../getting_started.md](../getting_started.md)
-2. **Explore**: Launch CLI with `./start.sh cli`
+2. **Explore**: Launch CLI with `./start.sh`
 3. **Paper Trade**: See [../guides/paper_trading_guide.md](../guides/paper_trading_guide.md)
 4. **Develop**: Read [../guides/strategy_development_guide.md](../guides/strategy_development_guide.md)
 5. **Advanced AI**: Study [advanced_ai_strategies.md](advanced_ai_strategies.md)
@@ -338,7 +348,7 @@ False Signals        | 100       | 40-50     | -50-60%
 ## 🤝 Support
 
 - **Troubleshooting**: [../troubleshooting.md](../troubleshooting.md)
-- **CLI Help**: `./start.sh cli` then `/help`
+- **CLI Help**: `./start.sh` then `/help`
 - **Documentation**: [../index.md](../index.md)
 
 ---

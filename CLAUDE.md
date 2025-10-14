@@ -61,22 +61,37 @@ Utilities (data) � Signals (AI analysis) � TradeHub (strategy) � Utilities
 ### Quick Start
 
 ```bash
-# Launch interactive CLI shell (recommended for most tasks)
-./start.sh cli
-
-# This will:
-# 1. Initialize system and run health checks
-# 2. Display system status
-# 3. Launch interactive prompt: proratio>
-# 4. Wait for commands with / prefix
-
-# Start full trading system (bot + dashboard)
+# Launch CLI (default - no arguments needed)
 ./start.sh
+
+# Or use direct commands (no interactive prompt)
+./start.sh status all
+./start.sh strategy list
+./start.sh strategy validate AIEnhancedStrategy
+./start.sh help validate
+
+# Start full trading system (bot + dashboard) - coming soon
+./start.sh trade
+```
+
+### CLI Usage Modes
+
+**Mode 1: Direct Commands** (recommended for scripts/automation)
+```bash
+./start.sh <command> [args]
+```
+
+**Mode 2: Interactive Shell** (for exploratory use)
+```bash
+./start.sh                   # Launches interactive prompt
+proratio> /help              # Commands use / prefix
+proratio> /status all
+proratio> /quit
 ```
 
 ### Interactive CLI Commands
 
-All commands in the shell must start with `/` prefix:
+All commands in the interactive shell must start with `/` prefix:
 
 ```bash
 # In the interactive shell (proratio>):
@@ -96,6 +111,7 @@ All commands in the shell must start with `/` prefix:
 /strategy list               # List all strategies
 /strategy show <name>        # Show strategy code
 /strategy backtest <name>    # Run backtest
+/strategy validate <name>    # Validate strategy (5-10 min)
 
 # Data management
 /data download               # Download historical data

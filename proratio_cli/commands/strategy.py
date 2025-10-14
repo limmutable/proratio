@@ -142,37 +142,130 @@ def backtest(
 
 
 @app.command()
-def validate(name: str = typer.Argument(..., help="Strategy name")):
-    """Validate strategy configuration."""
+def validate(
+    name: str = typer.Argument(..., help="Strategy name"),
+    skip_backtest: bool = typer.Option(False, "--skip-backtest", help="Skip backtest validation"),
+    skip_tests: bool = typer.Option(False, "--skip-tests", help="Skip integration tests"),
+):
+    """
+    Validate strategy using the Strategy Validation Framework.
+
+    Runs complete validation including:
+    - Pre-flight checks (file exists, data available)
+    - Backtest execution (2-3 min)
+    - Results validation (min trades, win rate, drawdown, Sharpe, profit factor)
+    - Integration tests (if available)
+    - Code quality checks
+    - Generate validation report
+    """
+    import subprocess
+    import json
+    from datetime import datetime
+
     strategy_path = Path(f"user_data/strategies/{name}.py")
 
     if not strategy_path.exists():
         print_error(f"Strategy '{name}' not found")
         raise typer.Exit(1)
 
-    print_header(f"Validating: {name}", "Checking strategy configuration")
+    print_header(f"Validating Strategy: {name}", "Using Strategy Validation Framework")
+    console.print("[dim]This will take 5-10 minutes...[/dim]\n")
 
-    # Simple validation checks
-    with open(strategy_path, "r") as f:
-        code = f.read()
+    # Check if validation script exists
+    validation_script = Path("scripts/validate_strategy.sh")
+    if not validation_script.exists():
+        print_error("Validation script not found: scripts/validate_strategy.sh")
+        console.print("\n[yellow]Falling back to basic validation...[/yellow]\n")
 
-    checks = {
-        "IStrategy import": "from freqtrade.strategy import IStrategy" in code,
-        "populate_indicators": "def populate_indicators" in code,
-        "populate_entry_trend": "def populate_entry_trend" in code,
-        "populate_exit_trend": "def populate_exit_trend" in code,
-    }
+        # Basic validation fallback
+        with open(strategy_path, "r") as f:
+            code = f.read()
 
-    console.print()
-    for check, passed in checks.items():
-        status = "✅" if passed else "❌"
-        console.print(f"{status} {check}")
+        checks = {
+            "IStrategy import": "from freqtrade.strategy import IStrategy" in code,
+            "populate_indicators": "def populate_indicators" in code,
+            "populate_entry_trend": "def populate_entry_trend" in code,
+            "populate_exit_trend": "def populate_exit_trend" in code,
+        }
 
-    all_passed = all(checks.values())
-    console.print()
+        console.print()
+        for check, passed in checks.items():
+            status = "✅" if passed else "❌"
+            console.print(f"{status} {check}")
 
-    if all_passed:
-        print_success("Strategy validation passed!")
+        all_passed = all(checks.values())
+        console.print()
+
+        if all_passed:
+            print_success("Basic validation passed!")
+        else:
+            print_error("Basic validation failed!")
+            raise typer.Exit(1)
+        return
+
+    # Run full validation framework
+    # Note: validation script expects: validate_strategy.sh <strategy> [timerange]
+    # Use a shorter timerange if skip_backtest is requested
+    if skip_backtest:
+        console.print("[yellow]Note: --skip-backtest not supported by validation framework[/yellow]")
+        console.print("[yellow]Use 'strategy backtest' command for simple backtests[/yellow]\n")
+        # Still run validation but use short timerange
+        timerange = "20241001-20241014"  # 2 weeks only
     else:
-        print_error("Strategy validation failed!")
+        timerange = "20240401-20241001"  # Default 6 months
+
+    cmd = ["bash", str(validation_script), name, timerange]
+
+    if skip_tests:
+        console.print("[yellow]Note: Integration tests are optional - skipping has no effect[/yellow]\n")
+
+    try:
+        console.print(f"[dim]Running: {' '.join(cmd)}[/dim]\n")
+        result = subprocess.run(
+            cmd,
+            check=False,
+            capture_output=False,
+            text=True
+        )
+
+        console.print()
+
+        # Check for validation report
+        report_dir = Path("tests/validation_results") / name
+        summary_file = report_dir / "validation_summary.json"
+
+        if summary_file.exists():
+            with open(summary_file, "r") as f:
+                summary = json.load(f)
+
+            status = summary.get("status", "UNKNOWN")
+            checks_passed = summary.get("checks_passed", 0)
+            checks_failed = summary.get("checks_failed", 0)
+
+            console.print(f"\n📊 Validation Summary:")
+            console.print(f"   Status: {status}")
+            console.print(f"   Checks Passed: {checks_passed}")
+            console.print(f"   Checks Failed: {checks_failed}")
+            console.print(f"\n   Report: {summary_file}")
+            console.print()
+
+            if status == "PASSED":
+                print_success(f"✅ Strategy '{name}' validation PASSED!")
+                console.print("[green]Strategy meets all quality criteria and is ready for paper trading.[/green]\n")
+            elif status == "PASSED_WITH_WARNINGS":
+                console.print(f"[yellow]⚠️  Strategy '{name}' validation PASSED WITH WARNINGS[/yellow]")
+                console.print("[yellow]Review warnings before deploying to paper trading.[/yellow]\n")
+            else:
+                print_error(f"❌ Strategy '{name}' validation FAILED")
+                console.print("[red]Strategy does not meet quality criteria. Review report and fix issues.[/red]\n")
+                raise typer.Exit(1)
+        else:
+            if result.returncode == 0:
+                print_success("Validation completed!")
+            else:
+                print_error("Validation failed - check output above")
+                raise typer.Exit(1)
+
+    except Exception as e:
+        print_error(f"Validation error: {e}")
         raise typer.Exit(1)

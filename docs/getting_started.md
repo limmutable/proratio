@@ -209,7 +209,7 @@ docker-compose up -d postgres redis
 
 ```bash
 # Check all components
-./start.sh cli status all
+./start.sh status all
 ```
 
 **Expected output:**
@@ -231,18 +231,25 @@ System Status - 12/13 components operational
 ### Test 3: Check Data
 
 ```bash
-# Verify data was downloaded
-uv run python -c "
-from proratio_utilities.data.loaders import DataLoader
-loader = DataLoader()
-df = loader.load_ohlcv('BTC/USDT', '1h')
-print(f'✓ Loaded {len(df)} candles for BTC/USDT')
+# Verify data was downloaded (must activate venv first)
+source venv/bin/activate
+
+python -c "
+import pandas as pd
+from pathlib import Path
+
+# Read BTC/USDT 1h data
+data_file = Path('user_data/data/binance/BTC_USDT-1h.feather')
+df = pd.read_feather(data_file)
+print(f'✓ Loaded {len(df)} candles for BTC/USDT (1h)')
+print(f'Date range: {df[\"date\"].min()} to {df[\"date\"].max()}')
 "
 ```
 
 **Expected output:**
 ```
-✓ Loaded 17520 candles for BTC/USDT
+✓ Loaded 17526 candles for BTC/USDT (1h)
+Date range: 2023-10-15 00:00:00+00:00 to 2025-10-14 05:00:00+00:00
 ```
 
 ---
@@ -252,7 +259,7 @@ print(f'✓ Loaded {len(df)} candles for BTC/USDT')
 ### Option 1: Interactive CLI (Recommended for Beginners)
 
 ```bash
-./start.sh cli
+./start.sh
 ```
 
 **What you'll see:**
@@ -286,10 +293,10 @@ proratio> /data status       # Check data availability
 **Or use direct commands** (without the interactive prompt):
 
 ```bash
-./start.sh cli status all           # Check system status
-./start.sh cli strategy list        # List strategies
-./start.sh cli config show          # Show configuration
-./start.sh cli help                 # Show help
+./start.sh status all           # Check system status
+./start.sh strategy list        # List strategies
+./start.sh config show          # Show configuration
+./start.sh help                 # Show help
 ```
 
 > **Tip**: Commands in the interactive CLI start with `/`, but direct commands don't.
@@ -359,7 +366,7 @@ Now that everything is installed, let's validate a strategy:
 
 **1. Explore the CLI** (10 minutes)
 ```bash
-./start.sh cli
+./start.sh
 ```
 Try these commands:
 - `/help` - See all commands
@@ -487,7 +494,7 @@ print(f'Gemini key set: {bool(settings.gemini_api_key)}')
 
 **Test individual providers:**
 ```bash
-./start.sh cli
+./start.sh
 # Then run:
 proratio> /status providers
 ```
@@ -570,7 +577,7 @@ xdg-open docs/  # Linux
 
 ### 2. Run Built-in Help
 ```bash
-./start.sh cli
+./start.sh
 proratio> /help              # List all commands
 proratio> /help status       # Detailed help for command
 ```
@@ -587,7 +594,7 @@ grep ERROR user_data/logs/freqtrade.log
 ### 4. Run Diagnostics
 ```bash
 # System health check
-./start.sh cli
+./start.sh
 proratio> /status
 
 # Test configuration
@@ -601,7 +608,7 @@ uv run python scripts/show_trading_config.py --validate
 **Congratulations!** Your Proratio system is now installed and ready to use.
 
 **Recommended first actions:**
-1. ✅ Explore the CLI: `./start.sh cli`
+1. ✅ Explore the CLI: `./start.sh`
 2. ✅ Validate a strategy: `./scripts/validate_strategy.sh SimpleTestStrategy`
 3. ✅ View the dashboard: `streamlit run proratio_tradehub/dashboard/app.py`
 4. ✅ Read the paper trading guide: `docs/guides/paper_trading_guide.md`

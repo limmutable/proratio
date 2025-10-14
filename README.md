@@ -70,49 +70,52 @@ Proratio TradeHub      → Strategy orchestration
 # 2. Configure API keys
 cp .env.example .env  # Edit with your keys
 
-# 3. Launch system
-./start.sh cli
+# 3. Launch CLI (default)
+./start.sh
 ```
 
-### Option 1: Interactive CLI (Recommended)
+### Usage Examples
 
 ```bash
-# Launch interactive CLI shell
-./start.sh cli
+# Launch CLI (default - no arguments needed)
+./start.sh
+
+# Or explicitly use CLI mode
+./start.sh
 ```
 
-This will:
-- ✅ Perform system initialization and health checks
-- ✅ Display system status (database, APIs, data availability)
-- ✅ Launch interactive prompt: `proratio>`
-- ✅ Wait for your commands with `/` prefix
-
-**Interactive Commands:**
+**Direct Commands** (no interactive prompt):
+```bash
+./start.sh status all           # System status
+./start.sh strategy list        # List strategies
+./start.sh strategy validate AIEnhancedStrategy  # Validate strategy
+./start.sh help validate        # Validation guide
 ```
-proratio> /help              # Show all commands
-proratio> /status quick      # Quick system check
-proratio> /strategy list     # List all strategies
-proratio> /data download     # Download market data
-proratio> /trade start       # Start paper trading
-proratio> /quit              # Exit CLI
+
+**Interactive Mode** (launches prompt):
+```bash
+./start.sh                      # Enter interactive CLI
+# Then use commands with / prefix:
+proratio> /help                 # Show all commands
+proratio> /status quick         # Quick system check
+proratio> /strategy list        # List all strategies
+proratio> /quit                 # Exit CLI
 ```
 
 **Features:**
 - 🎨 Beautiful Rich terminal output with colors and tables
 - 🔍 Real-time system health checks on startup
-- 💬 Interactive command prompt with `/` prefix
-- ❓ Built-in help system (`/help <command>`)
+- 💬 Both direct commands AND interactive prompt mode
+- ❓ Built-in help system (`/help <command>` or `./start.sh help <topic>`)
+- ✅ Strategy validation framework (5-10 min vs 5-7 days paper trading)
 - 🚪 Graceful shutdown (`/quit` or `/exit`)
 
 See [CLI Guide](./docs/cli_guide.md) for complete reference
 
-### Option 2: One-Command Startup (Full Trading System)
+### Option 2: Full Trading System (Coming Soon)
 
 ```bash
 # Start full trading system with bot and dashboard
-./start.sh
-
-# Or explicitly use trade mode
 ./start.sh trade
 ```
 
