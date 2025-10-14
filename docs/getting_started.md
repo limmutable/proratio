@@ -193,19 +193,28 @@ If services are not running:
 docker-compose up -d postgres redis
 ```
 
-### Test 2: Run Quick Tests
+### Test 2: Check System Status
 
 ```bash
-# Test basic functionality
-uv run pytest tests/test_utilities/test_config.py -v
+# Check all components
+./start.sh cli status all
 ```
 
 **Expected output:**
 ```
-test_load_settings PASSED
-test_validate_settings PASSED
-✓ 5 tests passed
+System Status - 11/13 components operational
+
+✅ Environment: All required variables present
+✅ Database: PostgreSQL running
+✅ Redis: Redis running
+✅ Freqtrade: Installed (version 2025.9.1)
+✅ PyTorch: v2.8.0 (CPU)
+✅ AI Providers: 3/3 configured
+⚠️  Data: No data files found (normal - add later)
+⚠️  ML Models: Not found (normal - train later)
 ```
+
+> **Note**: Freqtrade and PyTorch (~2GB) are installed by setup.sh automatically.
 
 ### Test 3: Check Data
 
@@ -261,6 +270,17 @@ proratio> /config show       # View configuration
 proratio> /strategy list     # List available strategies
 proratio> /data status       # Check data availability
 ```
+
+**Or use direct commands** (without the interactive prompt):
+
+```bash
+./start.sh cli status all           # Check system status
+./start.sh cli strategy list        # List strategies
+./start.sh cli config show          # Show configuration
+./start.sh cli help                 # Show help
+```
+
+> **Tip**: Commands in the interactive CLI start with `/`, but direct commands don't.
 
 ### Option 2: Full Trading System (Dashboard + Bot)
 

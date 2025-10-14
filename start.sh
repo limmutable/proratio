@@ -66,16 +66,21 @@ cd "$PROJECT_ROOT"
 
 if [ "$MODE" = "cli" ]; then
     # Ensure virtual environment exists and is activated
-    if [ ! -d ".venv" ]; then
+    # Prefer venv/ (created by setup.sh) over .venv/ (UV default)
+    if [ -d "venv" ]; then
+        source venv/bin/activate
+    elif [ -d ".venv" ]; then
+        source .venv/bin/activate
+    else
         echo -e "${YELLOW}⚠${NC} Creating virtual environment..."
         if command -v uv &> /dev/null; then
             uv venv
+            source .venv/bin/activate
         else
-            python3 -m venv .venv
+            python3 -m venv venv
+            source venv/bin/activate
         fi
     fi
-
-    source .venv/bin/activate
 
     # Check if CLI dependencies are installed
     if ! python -c "import typer, rich, dotenv" 2>/dev/null; then
@@ -161,17 +166,26 @@ fi
 
 echo -e "${BLUE}[2/7] Checking dependencies...${NC}"
 
-if [ ! -d ".venv" ]; then
+# Check if either venv exists, prefer venv/ to match setup.sh
+if [ ! -d "venv" ] && [ ! -d ".venv" ]; then
     echo -e "  ${YELLOW}⚠${NC} Virtual environment not found - creating..."
     if command -v uv &> /dev/null; then
         uv venv
     else
-        python3 -m venv .venv
+        python3 -m venv venv
     fi
 fi
 
 # Activate virtual environment
-source .venv/bin/activate
+# Prefer venv/ (created by setup.sh) over .venv/ (UV default)
+if [ -d "venv" ]; then
+    source venv/bin/activate
+elif [ -d ".venv" ]; then
+    source .venv/bin/activate
+else
+    echo "❌ Error: No virtual environment found. Run ./scripts/setup.sh first."
+    exit 1
+fi
 
 # Check if requirements are installed
 if ! python -c "import freqtrade" 2>/dev/null; then
