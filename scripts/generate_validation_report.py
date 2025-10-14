@@ -112,7 +112,7 @@ def format_summary_report(summary: Dict) -> str:
 
 def save_json_summary(summary: Dict, strategy: str):
     """Save summary as JSON for programmatic access."""
-    results_dir = Path("validation_results")
+    results_dir = Path("tests/validation_results")
     results_dir.mkdir(exist_ok=True)
 
     json_file = results_dir / f"{strategy}_summary_latest.json"

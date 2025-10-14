@@ -46,6 +46,11 @@ env/
 # Temporary Testing Directory (ALL temporary test files)
 temp_tests/
 
+# Validation Results (keep directory structure, ignore result files)
+tests/validation_results/*.txt
+tests/validation_results/*.json
+!tests/validation_results/README.md
+
 # Freqtrade
 user_data/data/
 user_data/logs/

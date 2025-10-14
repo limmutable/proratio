@@ -17,7 +17,7 @@ STRATEGY=$1
 TIMERANGE=${2:-"20240401-20241001"}  # Default: 6 months
 CONFIG="proratio_utilities/config/freqtrade/config_accelerated_test.json"
 USERDIR="user_data"
-RESULTS_DIR="validation_results"
+RESULTS_DIR="tests/validation_results"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 # Validation

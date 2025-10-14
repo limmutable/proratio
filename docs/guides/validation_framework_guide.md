@@ -141,7 +141,7 @@ VALIDATION_CRITERIA = {
 
 Strategy: MyStrategy
 Timerange: 20240401-20241001
-Report: validation_results/MyStrategy_validation_20241014_123456.txt
+Report: tests/validation_results/MyStrategy_validation_20241014_123456.txt
 
 [1/6] Running pre-flight checks...
 ✓ Strategy file found: user_data/strategies/MyStrategy.py
@@ -167,12 +167,12 @@ Report: validation_results/MyStrategy_validation_20241014_123456.txt
 ║     Validation Complete                                  ║
 ╚══════════════════════════════════════════════════════════╝
 
-✓ Validation report saved to: validation_results/MyStrategy_validation_20241014_123456.txt
+✓ Validation report saved to: tests/validation_results/MyStrategy_validation_20241014_123456.txt
 ```
 
 ### 3. Reading the Validation Report
 
-Reports are saved in `validation_results/` and contain:
+Reports are saved in `tests/validation_results/` and contain:
 
 ```
 =========================================
@@ -425,11 +425,11 @@ Reports are saved with timestamps - keep them for comparison:
 
 ```bash
 # View all validation reports
-ls -lh validation_results/
+ls -lh tests/validation_results/
 
 # Compare two validations
-diff validation_results/MyStrategy_validation_20241001_120000.txt \
-     validation_results/MyStrategy_validation_20241014_120000.txt
+diff tests/validation_results/MyStrategy_validation_20241001_120000.txt \
+     tests/validation_results/MyStrategy_validation_20241014_120000.txt
 ```
 
 ### 4. Use Integration Tests
