@@ -181,8 +181,10 @@ class HybridMLLLMPredictor:
             fe = FeatureEngineer()
             df_features = fe.add_all_features(df)
 
-            # Add target labels (creates target_price feature)
-            df_features = create_target_labels(df_features, target_type="regression")
+            # Create a simple target_price if needed (for feature compatibility)
+            # Don't use create_target_labels() as it removes last 4 rows
+            if 'target_price' not in df_features.columns:
+                df_features['target_price'] = df_features['close']  # Placeholder
 
             # Get feature columns matching ensemble training
             exclude_cols = ['date', 'timestamp', 'open', 'high', 'low', 'close', 'volume', 'target_return']
@@ -190,7 +192,8 @@ class HybridMLLLMPredictor:
 
             # Align features with ensemble model's expected features
             if hasattr(self.ensemble, 'feature_names') and self.ensemble.feature_names:
-                feature_cols = [f for f in self.ensemble.feature_names if f in feature_cols]
+                # Only use features that exist in both the model and current data
+                feature_cols = [f for f in self.ensemble.feature_names if f in df_features.columns]
 
             # Clean NaN and get last available row
             df_clean = df_features.dropna()
