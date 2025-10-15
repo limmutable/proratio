@@ -195,8 +195,21 @@ class HybridMLLLMPredictor:
                 # Only use features that exist in both the model and current data
                 feature_cols = [f for f in self.ensemble.feature_names if f in df_features.columns]
 
-            # Clean NaN and get last available row
-            df_clean = df_features.dropna()
+            # For backtesting, we only need the LAST row to be complete (most recent candle)
+            # During live trading, indicators will be fully populated
+            # Strategy: Use forward fill to handle NaN values in indicators
+            # This is safe because technical indicators naturally carry forward their values
+            df_features_filled = df_features[feature_cols].ffill()
+
+            # If there are still NaN (at the beginning), backfill
+            df_features_filled = df_features_filled.bfill()
+
+            # If still NaN (edge case), fill with 0
+            df_features_filled = df_features_filled.fillna(0)
+
+            # Take last 50 rows for LSTM
+            df_clean = df_features_filled.iloc[-50:]
+
             if len(df_clean) < 24:  # LSTM needs min 24 samples
                 logger.warning(f"Insufficient clean data: {len(df_clean)} samples (need 24+)")
                 return MLPrediction(
@@ -207,8 +220,8 @@ class HybridMLLLMPredictor:
                     contributing_models={},
                 )
 
-            # Get last N rows for LSTM sequence (use 50 to be safe)
-            X = df_clean[feature_cols].iloc[-50:].values
+            # df_clean is already the feature columns DataFrame, convert to numpy array
+            X = df_clean.values
 
             # Get ensemble prediction (returns array of predictions)
             predictions = self.ensemble.predict(X)

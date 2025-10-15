@@ -9,8 +9,8 @@
 
 ## 📍 Current Status (October 2025)
 
-**Active Phase**: Phase 4 Complete ✅ | Ready for Phase 5 (Weekly Trading Plans) 🚀
-**Overall Progress**: Phase 1-4 Complete (90%) | Phase 5-10 Planned (10%)
+**Active Phase**: Phase 4 Partial 🟡 | Phase 4.5 Next (ML-Only Backtest) 🚀
+**Overall Progress**: Phase 1-4 Partial (85%) | Phase 4.5-10 Planned (15%)
 
 ### Completed Phases ✅
 
@@ -23,12 +23,13 @@
 | **3.3** | Ensemble Learning | ✅ 100% | Stacking/blending (19.66% improvement) |
 | **3.5** | Technical Debt | ✅ 100% | Config unification, LLM error handling, security |
 | **1.4** | Strategy Validation | ✅ 100% | Fast validation framework (5-10 min vs 5-7 days) |
-| **4.0** | Hybrid ML+LLM | ✅ 100% | Combines ML ensemble + LLM consensus (Oct 15) |
+| **4.0** | Hybrid ML+LLM | 🟡 85% | ML integration complete, backtest validation pending |
 
 ### Next Up 📋
 
 | Phase | Name | Status | Target Date |
 |-------|------|--------|-------------|
+| **4.5** | ML-Only Backtest | 🚧 Next | Oct 2025 |
 | **5** | Weekly Trading Plans | 📋 Ready | Nov 2025 |
 | **6-10** | Advanced AI | 📋 Planning | Q1-Q2 2026 |
 
@@ -198,11 +199,11 @@
 
 ---
 
-## ✅ Phase 4: Hybrid ML+LLM System (COMPLETE - Oct 15, 2025)
+## ⚠️ Phase 4: Hybrid ML+LLM System (PARTIAL - Oct 15, 2025)
 **Duration**: 1 day (Oct 15, 2025)
 **Goal**: Combine quantitative ML predictions with qualitative LLM analysis
-**Status**: ✅ COMPLETE (including ensemble model training)
-**Documentation**: [phase_4_implementation_summary.md](phase_4_implementation_summary.md), [ensemble_model_training_guide.md](ensemble_model_training_guide.md)
+**Status**: 🟡 PARTIAL (ML integration complete, backtest validation pending)
+**Documentation**: [phase4_integration_status_20251015.md](phase4_integration_status_20251015.md), [ensemble_model_training_summary_20251015.md](ensemble_model_training_summary_20251015.md)
 
 **Completed Tasks**:
 1. ✅ Created HybridMLLLMPredictor core class
@@ -212,9 +213,17 @@
 5. ✅ Implemented SimpleFallbackPredictor for testing without full ensemble
 6. ✅ Added custom position sizing based on signal strength
 7. ✅ Validated strategy with validation framework
-8. ✅ **Trained full ensemble model (LSTM + LightGBM + XGBoost)** ⭐ NEW
-9. ✅ **Fixed feature engineering pipeline for temporal features** ⭐ NEW
-10. ✅ **Integrated ensemble model with HybridMLLLMStrategy** ⭐ NEW
+8. ✅ **Trained full ensemble model (LSTM + LightGBM + XGBoost)** ⭐
+9. ✅ **Fixed feature engineering pipeline for temporal features** ⭐
+10. ✅ **Integrated ensemble model with HybridMLLLMStrategy** ⭐
+11. ✅ **ML predictions working (31.5% confidence)** ⭐
+12. ✅ **NaN handling implemented (ffill/bfill strategy)** ⭐
+
+**Pending Tasks** (Phase 4.5):
+1. ❌ Create ML-only backtest strategy (HybridMLLLMStrategy not backtest-compatible)
+2. ❌ Validate ensemble performance via backtesting
+3. ❌ Fix LLM integration error (`OHLCVData.tail()` issue)
+4. ❌ Confirm model confidence levels are as expected
 
 **Components Created**:
 - `proratio_signals/hybrid_predictor.py` (632 lines)
