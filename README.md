@@ -2,7 +2,7 @@
 
 **AI-Driven Cryptocurrency Trading System**
 
-Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
+Proratio [pro-ra-tee-oh] is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with machine learning to trade cryptocurrencies on Binance. This is a personal development project exploring algorithmic trading and AI integration.
 
 **Version**: 1.0.0 (Phase 1-4.5 Complete)
 
@@ -14,21 +14,77 @@ Proratio is an intelligent trading system that combines multi-LLM analysis (Chat
 
 ---
 
+## What is Proratio?
+
+**Proratio** is an algorithmic trading system that uses artificial intelligence to make cryptocurrency trading decisions. Instead of manually watching charts and placing trades, Proratio automates the entire process: it collects market data, analyzes it using AI, and executes trades automatically on Binance.
+
+### How It Works (In Plain English)
+
+Think of Proratio as having a team of AI analysts working 24/7:
+
+1. **Data Collection**: Proratio constantly monitors Bitcoin and other cryptocurrency prices, volumes, and market trends from Binance.
+
+2. **Multi-AI Analysis**: When a potential trading opportunity appears, Proratio asks three different AI models (ChatGPT, Claude, and Gemini) to analyze the market data. Each AI provides its recommendation: Buy, Sell, or Hold, along with an explanation.
+
+3. **Machine Learning Predictions**: Simultaneously, machine learning models (trained on years of historical price data) predict likely price movements based on statistical patterns.
+
+4. **Consensus Decision**: Proratio combines the AI opinions and ML predictions. If all systems agree with high confidence, it executes a trade. If there's disagreement or low confidence, it waits.
+
+5. **Automated Execution**: When a strong signal emerges, Proratio automatically places orders on Binance, manages positions, and implements stop-losses to limit risk.
+
+6. **Risk Management**: Multiple layers of safety controls ensure no single trade risks more than 2% of capital, and trading halts automatically if losses exceed 10%.
+
+### Why Multi-AI + Machine Learning?
+
+- **AI Language Models** (ChatGPT, Claude, Gemini) understand context and market narrative: news, sentiment, unusual patterns.
+- **Machine Learning Models** (LSTM, LightGBM, XGBoost) identify statistical patterns invisible to humans: price cycles, momentum shifts, support/resistance levels.
+- **Combined**: When both quantitative (ML) and qualitative (AI) analysis agree, the signal is stronger and more reliable.
+
+### What Makes It Different?
+
+Most trading bots use only technical indicators (RSI, MACD, moving averages). Proratio adds:
+- **Multiple AI perspectives** (not just one model)
+- **ML ensemble learning** (3 different model types working together)
+- **Consensus mechanism** (only trades when AI + ML agree)
+- **Adaptive risk** (position size scales with confidence)
+
+### Who Is This For?
+
+Proratio is a **personal development project** for exploring:
+- Algorithmic trading strategies
+- AI/LLM integration in finance
+- Machine learning for time-series prediction
+- Risk management frameworks
+- Python system architecture
+
+**This is NOT**:
+- A commercial product or service
+- Financial advice or guaranteed profits
+- Suitable for beginners without programming/finance knowledge
+- A complete, battle-tested trading system (it's under active development)
+
+**For detailed explanations** of strategies, technical concepts, and architecture, see:
+- **[Proratio Concepts Guide](./docs/proratio_concepts.md)** - Complete technical details for finance/analytical audiences
+- **[Project Roadmap](./docs/project/roadmap.md)** - Development phases and status
+- **[Getting Started Guide](./docs/getting_started.md)** - Setup instructions
+
+---
+
 ## 🎯 Key Features
 
 - **Multi-AI Analysis**: Leverages ChatGPT, Claude, and Gemini for market insights
 - **Advanced Machine Learning**:
-  - FreqAI integration with 80+ engineered features
   - LSTM neural networks for time-series prediction
   - Ensemble learning (stacking/blending/voting) combining LSTM + LightGBM + XGBoost
-  - 19.66% improvement over single models with ensemble methods
-- **Automated Execution**: Freqtrade-powered trading on Binance (Spot, Futures, Options)
-- **Comprehensive Backtesting**: Walk-forward analysis and multi-strategy comparison
-- **Risk Management**: 6-layer risk validation with emergency stops and 5 position sizing methods
+  - 65+ engineered features (technical indicators, momentum, volatility, temporal)
+  - ~10-20% improvement over single models with ensemble methods
+- **Automated Execution**: Freqtrade-powered trading on Binance (Spot trading)
+- **Comprehensive Backtesting**: Walk-forward analysis, strategy validation framework (5-10 min)
+- **Risk Management**: 6-layer risk validation with emergency stops and adaptive position sizing
 - **Centralized Configuration**: Single JSON file controls all 60+ trading parameters
 - **Modular Architecture**: Four independent modules for flexibility and extensibility
-- **Multi-Strategy System**: 4 strategies (Trend, Mean Reversion, Grid, FreqAI ML) with intelligent portfolio allocation
-- **Production-Ready**: 186+ passing tests with comprehensive coverage
+- **Multi-Strategy System**: Multiple strategies (Trend, Mean Reversion, Grid, AI-Enhanced) with portfolio allocation
+- **Testing**: 186+ passing tests with comprehensive coverage
 - **Security**: Automated dependency scanning (pip-audit), API key auditing, pre-commit hooks
 
 ---
@@ -53,7 +109,7 @@ Proratio TradeHub      → Strategy orchestration
 | **Utilities** | Config, data collection, execution utilities | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
 | **Signals** | Multi-LLM analysis, hybrid ML+LLM prediction | OpenAI API, Anthropic API, Gemini API, PyTorch, LightGBM, XGBoost | ✅ 90% (ML ✅, LLM ⚠️) |
 | **QuantLab** | Backtesting, ML models (LSTM, Ensemble), feature engineering | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 85% |
-| **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework | ✅ 50% |
+| **TradeHub** | Multi-strategy coordination, risk management | Python, Custom framework | ✅ 50% |
 
 ---
 
@@ -112,95 +168,7 @@ proratio> /quit                 # Exit CLI
 
 See [CLI Guide](./docs/cli_guide.md) for complete reference
 
-### Option 2: Full Trading System (Coming Soon)
-
-```bash
-# Start full trading system with bot and dashboard
-./start.sh trade
-```
-
-This unified script will:
-- ✅ Check environment and dependencies
-- ✅ Start Docker services (PostgreSQL, Redis)
-- ✅ Verify API keys and configuration
-- ✅ Check data integrity
-- ✅ Start Freqtrade trading bot
-- ✅ Launch Streamlit dashboard
-- ✅ Display system status and helpful information
-
-**Options:**
-- `./start.sh --skip-checks` - Skip environment checks (faster)
-- `./start.sh --no-dashboard` - Don't start dashboard
-- `./start.sh --help` - Show help
-
-### Option 3: Manual Setup
-
-If you need more control or are setting up for the first time:
-
-#### Prerequisites
-
-- Python 3.11+
-- Docker & Docker Compose
-- Binance account (testnet for development)
-- API keys for AI services (OpenAI, Anthropic, Google)
-
-#### Installation
-
-```bash
-# Run setup script
-chmod +x scripts/setup.sh
-./scripts/setup.sh
-
-# Configure environment
-cp .env.example .env
-# Edit .env with your API keys
-
-# Start infrastructure
-docker-compose up -d postgres redis
-
-# Initialize database schema
-docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
-
-# Install dependencies (use UV for proper environment)
-uv pip install -r requirements.txt
-
-# Download historical data (to PostgreSQL)
-uv run python scripts/download_historical_data.py
-
-# Export data for Freqtrade (when needed)
-uv run python scripts/export_data_for_freqtrade.py
-```
-
-> **Important:** Always use `uv run python` to ensure you're using the correct Python environment with all dependencies.
-
-> For detailed setup, data management workflow, and troubleshooting, see [docs/](./docs/) or [docs/index.md](./docs/index.md)
-
-### Configure Trading Parameters
-
-```bash
-# View current configuration
-python scripts/show_trading_config.py
-
-# Edit configuration (all trading parameters in one file)
-# Edit: proratio_utilities/config/trading_config.json
-
-# Validate configuration
-python scripts/show_trading_config.py --validate
-```
-
-> For configuration guide, see [docs/guides/configuration_guide.md](./docs/guides/configuration_guide.md)
-
-### Run Paper Trading
-
-```bash
-# Start Freqtrade in dry-run mode
-freqtrade trade \
-  --strategy ProRatioAdapter \
-  --userdir user_data \
-  --config proratio_utilities/config/freqtrade/config_dry.json
-```
-
-> For complete development workflow, see [docs/roadmap.md](./docs/roadmap.md)
+> **⚙️ Advanced Setup**: For manual installation and configuration options, see [Getting Started Guide - Advanced Setup](./docs/getting_started.md#advanced-manual-setup)
 
 ---
 
@@ -276,14 +244,6 @@ python scripts/example_ensemble_usage.py
 # → 19.66% improvement over best base model
 ```
 
-### Monitor Dashboard
-
-```bash
-streamlit run proratio_tradehub/dashboard/app.py
-```
-
-Open http://localhost:8501 in your browser.
-
 ---
 
 ## 📁 Project Structure
@@ -317,7 +277,7 @@ proratio/
 │   ├── strategies/         # Trading strategies
 │   ├── orchestration/      # Multi-strategy manager
 │   ├── risk/               # Risk management (risk_manager.py, position_sizer.py)
-│   └── dashboard/          # Streamlit UI
+│   └── dashboard/          # Monitoring UI
 │
 ├── user_data/              # Freqtrade data (version controlled)
 │   ├── strategies/         # Freqtrade strategy adapters
@@ -362,26 +322,27 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 > **📖 Documentation Index**: See [docs/index.md](./docs/index.md) for complete navigation
 
-### Getting Started
-- **[docs/getting_started.md](./docs/getting_started.md)** - ⭐ START HERE - Quick setup guide (15 minutes)
-- **[docs/project/roadmap.md](./docs/project/roadmap.md)** - Complete development roadmap and Phase 4-10 plans
-- **[docs/project/project_progress.md](./docs/project/project_progress.md)** - Current status and milestones
+### Core Documentation
+- **[Proratio Concepts](./docs/proratio_concepts.md)** - ⭐ Technical details for finance/analytical audiences
+- **[Getting Started](./docs/getting_started.md)** - Quick setup guide (20 minutes)
+- **[Project Roadmap](./docs/project/roadmap.md)** - Complete development roadmap and Phase 4-10 plans
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
 
 ### Project Management (docs/project/)
 - **[roadmap.md](./docs/project/roadmap.md)** - Development phases and timeline
 - **[project_progress.md](./docs/project/project_progress.md)** - Current status and metrics
 - **[advanced_ai_strategies.md](./docs/project/advanced_ai_strategies.md)** - Phase 4-10 AI strategies (2000+ lines)
-- **[technical_debt_gemini_review.md](./docs/project/technical_debt_gemini_review.md)** - 🔧 Code review and tech debt
-- **[action_4_config_unification_guide.md](./docs/project/action_4_config_unification_guide.md)** - Config refactoring guide
-- **[action_5_llm_error_handling_guide.md](./docs/project/action_5_llm_error_handling_guide.md)** - Error handling refactoring
+- **[ml_paper_trading_analysis_20251015.md](./docs/project/ml_paper_trading_analysis_20251015.md)** - Phase 4.5 paper trading analysis
+- **[phase4_integration_status_20251015.md](./docs/project/phase4_integration_status_20251015.md)** - Phase 4 status
+- **[technical_debt_gemini_review.md](./docs/project/technical_debt_gemini_review.md)** - Code review and tech debt
 - **[security_scanning.md](./docs/project/security_scanning.md)** - Security scanning procedures
 
 ### User Guides (docs/guides/)
 - **[strategy_development_guide.md](./docs/guides/strategy_development_guide.md)** - Strategy development patterns
 - **[paper_trading_guide.md](./docs/guides/paper_trading_guide.md)** - Paper trading setup
+- **[ml_paper_trading_guide.md](./docs/guides/ml_paper_trading_guide.md)** - ML paper trading guide (400+ lines)
 - **[configuration_guide.md](./docs/guides/configuration_guide.md)** - Complete configuration guide
-- **[dashboard_guide.md](./docs/guides/dashboard_guide.md)** - Dashboard usage
+- **[validation_framework_guide.md](./docs/guides/validation_framework_guide.md)** - Strategy validation (5-10 min)
 
 ### Technical Reference (docs/reference/)
 - **[freqai_guide.md](./docs/reference/freqai_guide.md)** - Machine learning with FreqAI
@@ -393,25 +354,21 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 
 ## ⚠️ Disclaimer
 
-**This software is for educational purposes only. Use at your own risk.**
+**This software is for educational and personal development purposes only. Use at your own risk.**
 
 - Cryptocurrency trading involves substantial risk of loss
 - Past performance does not guarantee future results
 - Never trade with money you cannot afford to lose
 - Always test thoroughly in paper trading before going live
+- This is a personal development project, not a commercial product
 - The authors are not responsible for any financial losses
+- Not financial advice
 
 ---
 
 ## 📄 License
 
 MIT License - See [LICENSE](./LICENSE) file for details
-
----
-
-## 🤝 Contributing
-
-This is a personal project, but feedback and suggestions are welcome. Please open an issue for discussion.
 
 ---
 

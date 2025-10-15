@@ -610,6 +610,88 @@ uv run python scripts/show_trading_config.py --validate
 
 ---
 
+## 🔧 Advanced: Manual Setup
+
+If you need more control over the installation process or the automated setup fails, you can install manually:
+
+### Prerequisites
+
+- Python 3.11+
+- Docker & Docker Compose
+- Binance account (testnet for development)
+- API keys for AI services (OpenAI, Anthropic, Google)
+
+### Manual Installation Steps
+
+```bash
+# 1. Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On macOS/Linux
+# or
+venv\Scripts\activate  # On Windows
+
+# 2. Install UV package manager
+pip install uv
+
+# 3. Install dependencies using UV
+uv pip install -r requirements.txt
+
+# 4. Start infrastructure
+docker-compose up -d postgres redis
+
+# 5. Initialize database schema
+docker exec -i proratio_postgres psql -U proratio -d proratio < proratio_utilities/data/schema.sql
+
+# 6. Configure environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# 7. Download historical data (to PostgreSQL)
+uv run python scripts/download_historical_data.py
+
+# 8. Export data for Freqtrade (when needed)
+uv run python scripts/export_data_for_freqtrade.py
+
+# 9. Verify installation
+uv run python scripts/show_trading_config.py --validate
+```
+
+### Important Notes
+
+- **Always use `uv run python`** to ensure you're using the correct Python environment with all dependencies
+- **UV manages Python versions** per-project (no global Python managers needed)
+- **Each project has isolated environments** via UV's built-in virtual environments
+- **System Python (`/usr/bin/python3`)** remains untouched for OS tools
+
+### Manual Configuration
+
+```bash
+# View current configuration
+python scripts/show_trading_config.py
+
+# Edit configuration (all trading parameters in one file)
+# Edit: proratio_utilities/config/trading_config.json
+
+# Validate configuration
+python scripts/show_trading_config.py --validate
+```
+
+For configuration details, see [Configuration Guide](guides/configuration_guide.md).
+
+### Manual Paper Trading
+
+```bash
+# Start Freqtrade in dry-run mode
+freqtrade trade \
+  --strategy ProRatioAdapter \
+  --userdir user_data \
+  --config proratio_utilities/config/freqtrade/config_dry.json
+```
+
+For complete paper trading workflow, see [Paper Trading Guide](guides/paper_trading_guide.md).
+
+---
+
 ## 🎉 You're Ready!
 
 **Congratulations!** Your Proratio system is now installed and ready to use.
