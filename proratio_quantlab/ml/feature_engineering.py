@@ -56,6 +56,7 @@ class FeatureEngineer:
         df = self.add_volume_features(df)
         df = self.add_volatility_features(df)
         df = self.add_momentum_features(df)
+        df = self.add_time_features(df)  # Add temporal features
 
         # Add market regime features
         df = self.add_regime_features(df)

@@ -424,8 +424,15 @@ jupyter lab proratio_quantlab/research/notebooks/
 # Train LSTM model
 uv run python scripts/train_lstm_model.py --pair BTC/USDT
 
-# Train ensemble model
-uv run python scripts/example_ensemble_usage.py
+# Train full ensemble model (LSTM + LightGBM + XGBoost) - Phase 4
+uv run python scripts/train_ensemble_model.py \
+  --pair BTC/USDT \
+  --timeframe 4h \
+  --ensemble-method stacking \
+  --save models/ensemble_model.pkl
+
+# Expected: ~1 minute training time, 2.9MB model file
+# Model automatically used by HybridMLLLMStrategy
 ```
 
 ---

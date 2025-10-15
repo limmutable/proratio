@@ -129,7 +129,10 @@ class HybridMLLLMStrategy(IStrategy):
                 # Load pre-trained ensemble model
                 model_path = project_root / "models" / "ensemble_model.pkl"
                 if model_path.exists():
-                    self._ensemble_model = EnsemblePredictor.load(str(model_path))
+                    # EnsemblePredictor.load() is an instance method, not static
+                    ensemble = EnsemblePredictor()
+                    ensemble.load(str(model_path))
+                    self._ensemble_model = ensemble
                     logger.info(f"Loaded ensemble model from {model_path}")
                 else:
                     logger.warning(

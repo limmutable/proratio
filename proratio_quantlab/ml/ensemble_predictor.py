@@ -96,6 +96,7 @@ class EnsemblePredictor:
         self.scaler = StandardScaler()
         self.model_names = []
         self.performance_history = []
+        self.feature_names = None  # Store feature names for validation
 
         # Validate ensemble method
         valid_methods = ["stacking", "blending", "voting"]
@@ -164,13 +165,19 @@ class EnsemblePredictor:
         # Step 1: Get base model predictions on validation set
         base_predictions = self._get_base_predictions(X_val)
 
+        # Align y_val with base predictions (LSTM may reduce size)
+        if len(base_predictions) < len(y_val):
+            y_val_aligned = y_val[-len(base_predictions):]
+        else:
+            y_val_aligned = y_val
+
         # Step 2: Train meta-model on base predictions
-        self.meta_model.fit(base_predictions, y_val)
+        self.meta_model.fit(base_predictions, y_val_aligned)
 
         # Step 3: Evaluate meta-model
         meta_pred = self.meta_model.predict(base_predictions)
-        mse = mean_squared_error(y_val, meta_pred)
-        mae = mean_absolute_error(y_val, meta_pred)
+        mse = mean_squared_error(y_val_aligned, meta_pred)
+        mae = mean_absolute_error(y_val_aligned, meta_pred)
 
         logger.info(f"Meta-model trained - MSE: {mse:.6f}, MAE: {mae:.6f}")
 
@@ -284,6 +291,16 @@ class EnsemblePredictor:
                 logger.error(f"Error getting predictions from {name}: {e}")
                 raise
 
+        # LSTM may return fewer predictions due to sequence_length
+        # Align all predictions to the shortest length
+        min_length = min(len(p) for p in predictions)
+        if min_length < len(X):
+            logger.warning(
+                f"Aligning predictions to minimum length {min_length} "
+                f"(LSTM sequence_length reduces output size)"
+            )
+            predictions = [p[-min_length:] for p in predictions]
+
         return np.column_stack(predictions)
 
     def predict(self, X: np.ndarray) -> np.ndarray:
@@ -383,10 +400,17 @@ class EnsemblePredictor:
 
         # Ensemble prediction
         ensemble_pred = self.predict(X_test)
+
+        # Align y_test with predictions (LSTM may reduce size)
+        if len(ensemble_pred) < len(y_test):
+            y_aligned = y_test[-len(ensemble_pred):]
+        else:
+            y_aligned = y_test
+
         results["ensemble"] = {
-            "mse": mean_squared_error(y_test, ensemble_pred),
-            "mae": mean_absolute_error(y_test, ensemble_pred),
-            "rmse": np.sqrt(mean_squared_error(y_test, ensemble_pred)),
+            "mse": mean_squared_error(y_aligned, ensemble_pred),
+            "mae": mean_absolute_error(y_aligned, ensemble_pred),
+            "rmse": np.sqrt(mean_squared_error(y_aligned, ensemble_pred)),
         }
 
         # Individual model predictions
@@ -396,10 +420,16 @@ class EnsemblePredictor:
             if len(pred.shape) > 1:
                 pred = pred.flatten()
 
+            # Align y_test with prediction
+            if len(pred) < len(y_test):
+                y_model_aligned = y_test[-len(pred):]
+            else:
+                y_model_aligned = y_test
+
             results[name] = {
-                "mse": mean_squared_error(y_test, pred),
-                "mae": mean_absolute_error(y_test, pred),
-                "rmse": np.sqrt(mean_squared_error(y_test, pred)),
+                "mse": mean_squared_error(y_model_aligned, pred),
+                "mae": mean_absolute_error(y_model_aligned, pred),
+                "rmse": np.sqrt(mean_squared_error(y_model_aligned, pred)),
             }
 
         return results
@@ -437,8 +467,10 @@ class EnsemblePredictor:
             "meta_model_type": self.meta_model_type,
             "weights": self.weights,
             "model_names": self.model_names,
+            "base_models": self.base_models,  # Save base models!
             "meta_model": self.meta_model,
             "performance_history": self.performance_history,
+            "feature_names": self.feature_names,  # Save feature names for validation
         }
 
         joblib.dump(ensemble_config, path)
@@ -453,8 +485,10 @@ class EnsemblePredictor:
         self.meta_model_type = ensemble_config["meta_model_type"]
         self.weights = ensemble_config["weights"]
         self.model_names = ensemble_config["model_names"]
+        self.base_models = ensemble_config.get("base_models", {})  # Load base models!
         self.meta_model = ensemble_config["meta_model"]
         self.performance_history = ensemble_config.get("performance_history", [])
+        self.feature_names = ensemble_config.get("feature_names", None)  # Load feature names
 
         logger.info(f"Ensemble predictor loaded from {path}")
 

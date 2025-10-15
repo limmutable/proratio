@@ -15,7 +15,8 @@
       "Bash(awk:*)",
       "Bash(uv add:*)",
       "Bash(pip install:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(./venv/bin/python:*)"
     ],
     "deny": [],
     "ask": []

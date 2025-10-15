@@ -43,6 +43,8 @@ def load_and_prepare_data(
     """
     Load and prepare data for ensemble training.
 
+    Uses Freqtrade's downloaded data from user_data/data/binance/
+
     Args:
         pair: Trading pair
         timeframe: Timeframe for data
@@ -53,12 +55,45 @@ def load_and_prepare_data(
     """
     logger.info(f"[1/6] Loading data for {pair} ({timeframe})...")
 
-    loader = DataLoader()
-    df = loader.load_ohlcv(
-        exchange="binance", symbol=pair, timeframe=timeframe, limit=limit
-    )
+    # Load from Freqtrade data directory
+    # Convert pair format: BTC/USDT -> BTC_USDT
+    pair_filename = pair.replace("/", "_")
 
-    logger.info(f"✓ Loaded {len(df)} candles")
+    # Try feather format first (newer Freqtrade), then JSON
+    data_file_feather = project_root / f"user_data/data/binance/{pair_filename}-{timeframe}.feather"
+    data_file_json = project_root / f"user_data/data/binance/{pair_filename}-{timeframe}.json"
+
+    if data_file_feather.exists():
+        # Load feather format (Freqtrade 2025+)
+        df = pd.read_feather(data_file_feather)
+        # Rename columns to standard format
+        if 'date' in df.columns:
+            df.rename(columns={'date': 'timestamp'}, inplace=True)
+        df.set_index('timestamp', inplace=True)
+        logger.info(f"✓ Loaded {len(df)} candles from {data_file_feather.name} (feather format)")
+    elif data_file_json.exists():
+        # Load JSON format (older Freqtrade)
+        import json
+        with open(data_file_json) as f:
+            data = json.load(f)
+        df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
+        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df.set_index('timestamp', inplace=True)
+        logger.info(f"✓ Loaded {len(df)} candles from {data_file_json.name} (JSON format)")
+    else:
+        raise FileNotFoundError(
+            f"Data file not found: {data_file_feather.name} or {data_file_json.name}\n"
+            f"Please download data first with:\n"
+            f"  freqtrade download-data --pairs {pair} --timeframe {timeframe} "
+            f"--days 700 --userdir user_data"
+        )
+
+    # Limit to requested number of candles (most recent)
+    if len(df) > limit:
+        df = df.iloc[-limit:]
+
+    logger.info(f"  Date range: {df.index[0]} to {df.index[-1]}")
+
     return df
 
 
@@ -108,9 +143,12 @@ def train_ensemble_model(
     df_clean, features = pipeline.prepare_data(df_features, target_column=target_column)
 
     # Split data (time-ordered, no shuffling)
-    (X_train, y_train), (X_val, y_val), (X_test, y_test) = pipeline.split_data(
-        df_clean, features, target_column
-    )
+    df_train, df_val, df_test = pipeline.split_data(df_clean, features, target_column)
+
+    # Extract arrays
+    X_train, y_train = pipeline.get_arrays(df_train, features, target_column)
+    X_val, y_val = pipeline.get_arrays(df_val, features, target_column)
+    X_test, y_test = pipeline.get_arrays(df_test, features, target_column)
 
     logger.info(f"✓ Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
 
@@ -199,8 +237,11 @@ def train_ensemble_model(
     # [6/6] Save Model
     if save_path:
         logger.info(f"[6/6] Saving ensemble to {save_path}...")
+        # Store feature names for validation
+        ensemble.feature_names = features
         ensemble.save(save_path)
         logger.info("✓ Model saved")
+        logger.info(f"   Features saved: {len(features)} feature names")
 
     return ensemble, results
 
