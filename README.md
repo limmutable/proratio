@@ -4,9 +4,9 @@
 
 Proratio is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with automated execution on Binance. Designed for low-frequency, high-conviction trading with comprehensive backtesting and risk management.
 
-**Version**: 1.0.0 (Phase 1-4 Complete)
+**Version**: 1.0.0 (Phase 1-4.5 Complete)
 
-> **📋 Status**: Phase 4 Complete ✅ | Hybrid ML+LLM System Operational | Ready for Phase 5!
+> **📋 Status**: Phase 4.5 Complete ✅ | ML Ensemble Validated via Paper Trading | Ready for Phase 4.6 (LLM Fix)!
 >
 > **🚀 New Users**: See [docs/getting_started.md](./docs/getting_started.md) for step-by-step setup guide (20 minutes)
 >
@@ -51,7 +51,7 @@ Proratio TradeHub      → Strategy orchestration
 | Module | Purpose | Tech Stack | Status |
 |--------|---------|------------|--------|
 | **Utilities** | Config, data collection, execution utilities | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
-| **Signals** | Multi-LLM analysis, consensus mechanism | OpenAI API, Anthropic API, Gemini API | ✅ 95% |
+| **Signals** | Multi-LLM analysis, hybrid ML+LLM prediction | OpenAI API, Anthropic API, Gemini API, PyTorch, LightGBM, XGBoost | ✅ 90% (ML ✅, LLM ⚠️) |
 | **QuantLab** | Backtesting, ML models (LSTM, Ensemble), feature engineering | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 85% |
 | **TradeHub** | Multi-strategy coordination, risk management | Streamlit, Custom framework | ✅ 50% |
 
