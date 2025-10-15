@@ -159,43 +159,97 @@ class HybridMLLLMPredictor:
 
         Args:
             pair: Trading pair
-            ohlcv_data: OHLCV data with technical indicators
+            ohlcv_data: OHLCV data with technical indicators already populated
 
         Returns:
             MLPrediction with ensemble results
         """
         try:
-            # Prepare features for ensemble
-            features = self.ensemble.prepare_features(ohlcv_data)
-
-            # Get ensemble prediction
-            prediction = self.ensemble.predict(features)
-
-            # Parse prediction
-            direction = "up" if prediction["direction"] > 0 else "down"
-            confidence = abs(prediction["confidence"])
-            predicted_return = prediction.get("predicted_return", 0.0)
-
-            # Get individual model contributions
-            model_contributions = prediction.get("model_contributions", {})
-
-            # Calculate model agreement
-            if model_contributions:
-                predictions = list(model_contributions.values())
-                agreement = self._calculate_agreement(predictions)
-            else:
-                agreement = confidence
-
-            return MLPrediction(
-                direction=direction,
-                confidence=confidence,
-                predicted_return=predicted_return,
-                model_agreement=agreement,
-                contributing_models=model_contributions,
+            # Import feature engineering and target creation
+            from proratio_quantlab.ml.feature_engineering import (
+                FeatureEngineer,
+                create_target_labels,
             )
+
+            # Prepare dataframe with datetime index for temporal features
+            df = ohlcv_data.copy()
+            if not isinstance(df.index, pd.DatetimeIndex):
+                if 'date' in df.columns:
+                    df.set_index('date', inplace=True, drop=False)
+
+            # Add all features (including temporal)
+            fe = FeatureEngineer()
+            df_features = fe.add_all_features(df)
+
+            # Add target labels (creates target_price feature)
+            df_features = create_target_labels(df_features, target_type="regression")
+
+            # Get feature columns matching ensemble training
+            exclude_cols = ['date', 'timestamp', 'open', 'high', 'low', 'close', 'volume', 'target_return']
+            feature_cols = [col for col in df_features.columns if col not in exclude_cols and not col.startswith('__')]
+
+            # Align features with ensemble model's expected features
+            if hasattr(self.ensemble, 'feature_names') and self.ensemble.feature_names:
+                feature_cols = [f for f in self.ensemble.feature_names if f in feature_cols]
+
+            # Clean NaN and get last available row
+            df_clean = df_features.dropna()
+            if len(df_clean) < 24:  # LSTM needs min 24 samples
+                logger.warning(f"Insufficient clean data: {len(df_clean)} samples (need 24+)")
+                return MLPrediction(
+                    direction="neutral",
+                    confidence=0.0,
+                    predicted_return=0.0,
+                    model_agreement=0.0,
+                    contributing_models={},
+                )
+
+            # Get last N rows for LSTM sequence (use 50 to be safe)
+            X = df_clean[feature_cols].iloc[-50:].values
+
+            # Get ensemble prediction (returns array of predictions)
+            predictions = self.ensemble.predict(X)
+
+            # Use the last prediction (most recent)
+            if len(predictions) > 0:
+                predicted_return = predictions[-1]
+
+                # Determine direction and confidence from predicted return
+                direction = "up" if predicted_return > 0 else "down"
+                confidence = min(abs(predicted_return) / 5.0, 1.0)  # Scale to 0-1 (5% = 100% confidence)
+
+                # Get model contributions if available
+                model_contributions = {}
+                if hasattr(self.ensemble, 'get_model_contributions'):
+                    try:
+                        contributions_df = self.ensemble.get_model_contributions(X)
+                        if not contributions_df.empty:
+                            # Use last row (most recent)
+                            model_contributions = contributions_df.iloc[-1].to_dict()
+                    except:
+                        pass
+
+                return MLPrediction(
+                    direction=direction,
+                    confidence=confidence,
+                    predicted_return=predicted_return,
+                    model_agreement=confidence,  # Use confidence as proxy for agreement
+                    contributing_models=model_contributions,
+                )
+            else:
+                logger.warning("Ensemble returned no predictions")
+                return MLPrediction(
+                    direction="neutral",
+                    confidence=0.0,
+                    predicted_return=0.0,
+                    model_agreement=0.0,
+                    contributing_models={},
+                )
 
         except Exception as e:
             logger.error(f"Error getting ML prediction: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             # Return neutral prediction on error
             return MLPrediction(
                 direction="neutral",
@@ -239,7 +293,7 @@ class HybridMLLLMPredictor:
 
             # Get LLM consensus signal
             llm_signal = self.llm_orchestrator.generate_signal(
-                pair=pair, ohlcv_data=ohlcv_llm
+                pair=pair, timeframe=timeframe, ohlcv_data=ohlcv_llm
             )
 
             # Extract key factors from reasoning
