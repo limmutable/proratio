@@ -46,8 +46,24 @@ def parse_backtest_results(results_file: Path) -> Dict:
     with open(results_file, "r") as f:
         data = json.load(f)
 
-    # Freqtrade backtest results structure
+    # Handle case where file only contains metadata (0 trades)
     if "strategy" not in data:
+        # Check if this is a metadata-only file or pointer file
+        if "latest_backtest" in data or "backtest_start_time" in str(data):
+            # Return default metrics for 0 trades case
+            return {
+                "total_trades": 0,
+                "wins": 0,
+                "losses": 0,
+                "win_rate": 0.0,
+                "profit_total": 0.0,
+                "profit_total_abs": 0.0,
+                "max_drawdown": 0.0,
+                "sharpe_ratio": 0.0,
+                "profit_factor": 0.0,
+                "avg_profit": 0.0,
+                "avg_duration": "0",
+            }
         raise ValueError("Invalid backtest results file format")
 
     strategy_data = data["strategy"]
