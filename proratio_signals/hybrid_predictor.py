@@ -598,8 +598,6 @@ class HybridMLLLMPredictor:
             Formatted reasoning string
         """
         if "ENTER" in action:
-            direction = "UP" if ml_pred.direction == "up" else "DOWN"
-
             reasoning = f"""
 HYBRID SIGNAL: {action}
 ════════════════════════════════════════════════
