@@ -294,22 +294,17 @@ class HybridMLLLMPredictor:
         """
         try:
             # Prepare OHLCV data for LLM
-            from proratio_signals.llm_providers.base import OHLCVData
-
-            # Convert DataFrame to OHLCVData format
             # Determine timeframe from dataframe (default to 4h)
             timeframe = "4h"  # Could be passed as parameter
 
-            ohlcv_llm = OHLCVData(
-                pair=pair,
-                timeframe=timeframe,
-                data=ohlcv_data[["open", "high", "low", "close", "volume"]].copy(),
-                indicators=None,  # Could pass indicators here
-            )
+            # Extract only OHLCV columns for LLM analysis
+            # NOTE: generate_signal expects a DataFrame, not an OHLCVData object
+            # It will create the OHLCVData object internally
+            ohlcv_llm_data = ohlcv_data[["open", "high", "low", "close", "volume"]].copy()
 
             # Get LLM consensus signal
             llm_signal = self.llm_orchestrator.generate_signal(
-                pair=pair, timeframe=timeframe, ohlcv_data=ohlcv_llm
+                pair=pair, timeframe=timeframe, ohlcv_data=ohlcv_llm_data
             )
 
             # Extract key factors from reasoning
