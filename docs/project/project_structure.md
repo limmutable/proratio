@@ -1,7 +1,7 @@
 # Proratio Project Structure
 
-**Last Updated**: 2025-10-12
-**Version**: 0.8.0
+**Last Updated**: 2025-10-16
+**Version**: 0.9.2
 
 > **📋 Roadmap**: [roadmap.md](roadmap.md) | **📖 Documentation**: [../index.md](../index.md)
 
@@ -54,16 +54,35 @@ proratio/
 ├── 🔧 scripts/                   # Utility scripts
 │   ├── setup.sh                  # Initial setup
 │   ├── download_historical_data.py
-│   └── backtest_phase2_strategies.py
+│   ├── train_ensemble_model.py   # ML model training
+│   ├── start_ml_paper_trading.sh # Paper trading scripts
+│   ├── stop_ml_paper_trading.sh
+│   ├── monitor_ml_paper_trading.sh
+│   └── test_llm_integration.py   # LLM regression test
+│
+├── 📊 strategies/                # ⭐ NEW: Strategy Registry System (Phase 4.6)
+│   ├── registry.json             # Central strategy database
+│   ├── active/                   # Production-ready strategies
+│   │   ├── a014_hybrid-ml-llm/   # Hybrid ML+LLM (Phase 4.6 validated)
+│   │   ├── f662_grid-trading/    # Grid trading (73.7% win rate)
+│   │   └── 355c_mean-reversion/  # Mean reversion v2 (56% win rate)
+│   ├── experimental/             # Under development
+│   ├── archived/                 # Deprecated strategies
+│   │   ├── 8f5e_mean-reversion-v1/
+│   │   ├── c7f9_freqai/
+│   │   └── 6347_ai-enhanced/
+│   └── templates/                # Strategy templates
 │
 ├── 🗄️ user_data/                # Freqtrade user directory
-│   ├── strategies/               # Trading strategies
-│   │   ├── AIEnhancedStrategy.py
-│   │   ├── MeanReversionStrategy.py
-│   │   └── GridTradingStrategy.py
+│   ├── strategies/               # Freqtrade strategy adapters
+│   │   ├── HybridMLLLMStrategy.py
+│   │   ├── GridTradingStrategy.py
+│   │   └── MeanReversionAdapter.py
 │   ├── db/                       # SQLite databases (gitignored)
-│   │   └── tradesv3.dryrun.sqlite
 │   └── data/                     # Market data (gitignored)
+│
+├── 🤖 models/                    # ⭐ NEW: Trained ML models
+│   └── ensemble_model.pkl        # LSTM + LightGBM + XGBoost (2.9MB)
 │
 └── 📦 Proratio Modules
     ├── proratio_utilities/       # Execution engine & data
@@ -87,7 +106,8 @@ proratio_utilities/
 │   ├── trading_config.json       # Trading parameters
 │   └── freqtrade/                # Freqtrade configs
 │       ├── config_dry.json       # Paper trading
-│       └── config_live.json      # Live trading
+│       ├── config_live.json      # Live trading
+│       └── config_paper_ml_test.json  # ML paper trading
 │
 ├── data/
 │   ├── collectors.py             # CCXT data collection
@@ -95,9 +115,11 @@ proratio_utilities/
 │   ├── loaders.py                # Data loading utilities
 │   └── schema.sql                # Database schema
 │
-└── execution/
-    ├── freqtrade_wrapper.py      # Freqtrade integration
-    └── order_manager.py          # Order lifecycle
+├── execution/
+│   ├── freqtrade_wrapper.py      # Freqtrade integration
+│   └── order_manager.py          # Order lifecycle
+│
+└── strategy_registry.py          # ⭐ NEW: Strategy Registry API (Phase 4.6)
 ```
 
 **Status**: ✅ 100% Complete
@@ -110,9 +132,10 @@ proratio_utilities/
 ```
 proratio_signals/
 ├── orchestrator.py               # Multi-AI coordination
+├── hybrid_predictor.py           # ⭐ NEW: ML+LLM integration (Phase 4.0-4.6)
 ├── llm_providers/
 │   ├── base.py                   # Base provider interface
-│   ├── chatgpt.py                # OpenAI GPT-5 Nano
+│   ├── chatgpt.py                # OpenAI GPT-4
 │   ├── claude.py                 # Anthropic Claude Sonnet 4
 │   └── gemini.py                 # Google Gemini 2.0 Flash
 ├── prompts/
@@ -122,8 +145,8 @@ proratio_signals/
     └── ai_signal_generator.py
 ```
 
-**Status**: ✅ 100% Complete
-**Features**: Weighted voting (40/35/25%), dynamic reweighting, failure handling
+**Status**: ✅ 100% Complete (Phase 4.6 validated)
+**Features**: Weighted voting (40/35/25%), dynamic reweighting, failure handling, Hybrid ML+LLM consensus
 
 ---
 
@@ -141,14 +164,19 @@ proratio_quantlab/
 ├── ml/
 │   ├── freqai/                   # FreqAI integration (Phase 3.1)
 │   ├── lstm_predictor.py         # LSTM models (Phase 3.2)
-│   └── ensemble_predictor.py     # Ensemble learning (Phase 3.3)
+│   ├── ensemble_predictor.py     # Ensemble learning (Phase 3.3)
+│   └── feature_engineering.py    # 65+ technical features
+│
+├── validation/                   # ⭐ NEW: Strategy Validation Framework (Phase 1.4)
+│   ├── validate_backtest_results.py
+│   └── generate_validation_report.py
 │
 └── research/
     └── notebooks/                # Jupyter research environment
 ```
 
-**Status**: ✅ 85% Complete
-**Models**: LSTM, LightGBM, XGBoost, CatBoost, Ensemble
+**Status**: ✅ 90% Complete
+**Models**: LSTM, LightGBM, XGBoost, Ensemble (stacking), Feature Engineering (65+ indicators)
 
 ---
 
@@ -158,7 +186,7 @@ proratio_quantlab/
 ```
 proratio_tradehub/
 ├── strategies/
-│   ├── trend_following.py        # AI-enhanced trend
+│   ├── base_strategy.py          # Abstract base class
 │   ├── mean_reversion.py         # RSI + Bollinger Bands
 │   └── grid_trading.py           # Geometric/arithmetic grids
 │
@@ -177,7 +205,7 @@ proratio_tradehub/
 ```
 
 **Status**: ✅ 90% Complete
-**Strategies**: 3 base + AI-enhanced
+**Strategies**: See [strategies/registry.json](../../strategies/registry.json) for full list (3 active, 3 archived)
 
 ---
 
@@ -190,17 +218,19 @@ proratio_cli/
 ├── shell.py                      # Interactive shell mode
 ├── commands/
 │   ├── status.py                 # /status commands
-│   ├── strategy.py               # /strategy commands
+│   ├── strategy.py               # /strategy commands (⭐ Phase 4.6: Registry integration)
 │   ├── config.py                 # /config commands
 │   ├── data.py                   # /data commands
-│   └── trade.py                  # /trade commands
+│   ├── trade.py                  # /trade commands
+│   └── help_cmd.py               # /help commands
 └── utils/
     ├── checks.py                 # Health checks
     └── display.py                # Rich formatting
 ```
 
-**Status**: ✅ 100% Complete (Oct 11, 2025)
+**Status**: ✅ 100% Complete (Phase 4.6: Strategy Registry integrated)
 **Launch**: `./start.sh cli`
+**Enhanced Commands**: `/strategy list --archived`, `/strategy show <id>`
 
 ---
 
@@ -210,16 +240,21 @@ proratio_cli/
 |-------|--------|--------|----------|
 | **1.0** | Utilities | ✅ Complete | 100% |
 | **1.1** | Signals | ✅ Complete | 100% |
-| **1.2** | QuantLab (Backtesting) | ✅ Complete | 60% |
-| **1.2** | TradeHub (Risk) | ✅ Complete | 80% |
+| **1.2** | QuantLab (Backtesting) | ✅ Complete | 90% |
+| **1.2** | TradeHub (Risk) | ✅ Complete | 90% |
 | **1.3** | TradeHub (Dashboard) | ✅ Complete | 90% |
-| **1.4** | Paper Trading | 🚧 In Progress | 0% |
+| **1.4** | Strategy Validation | ✅ Complete | 100% |
 | **2.0** | TradeHub (Strategies) | ✅ Complete | 100% |
 | **3.1** | QuantLab (FreqAI) | ✅ Complete | 100% |
 | **3.2** | QuantLab (LSTM) | ✅ Complete | 100% |
 | **3.3** | QuantLab (Ensemble) | ✅ Complete | 100% |
-| **4.0** | CLI | ✅ Complete | 100% |
-| **4-10** | Advanced AI | 📋 Planned | 0% |
+| **3.5** | Technical Debt | ✅ Complete | 100% |
+| **4.0** | Hybrid ML+LLM | ✅ Complete | 100% |
+| **4.5** | ML Paper Trading | ✅ Complete | 100% |
+| **4.6** | LLM Integration Fix | ✅ Complete | 100% |
+| **Registry** | Strategy Registry | ✅ Complete | 100% |
+| **4.7** | Confidence Calibration | 🚧 Next | 0% |
+| **5-10** | Advanced AI | 📋 Planned | 0% |
 
 ---
 
@@ -227,13 +262,15 @@ proratio_cli/
 
 | Metric | Value |
 |--------|-------|
-| **Total Lines** | ~12,600 |
-| **Python Files** | 80+ |
-| **Tests** | 186+ passing |
+| **Total Lines** | ~14,500+ |
+| **Python Files** | 90+ |
+| **Tests** | 200+ passing |
 | **Modules** | 5 (Utilities, Signals, QuantLab, TradeHub, CLI) |
-| **Strategies** | 3 base + AI-enhanced |
-| **ML Models** | 4 (LSTM, LightGBM, XGBoost, Ensemble) |
-| **Documentation** | 16 active docs + 10 archived |
+| **Strategies** | 3 active + 3 archived (tracked in registry) |
+| **ML Models** | 4 (LSTM, LightGBM, XGBoost, Ensemble Stacking) |
+| **Trained Models** | 1 (ensemble_model.pkl - 2.9MB, trained on 4,386 candles) |
+| **Documentation** | 20+ active docs + 10 archived |
+| **Phase Progress** | Phase 1-4.6 Complete (92%), Registry Complete |
 
 ---
 
@@ -269,5 +306,30 @@ See [file_naming_standards.md](file_naming_standards.md) for complete guidelines
 
 ---
 
-**Last Updated**: 2025-10-12
-**Next Review**: After Phase 1.4 completion
+**Last Updated**: 2025-10-16
+**Next Review**: After Phase 4.7 completion (Confidence Calibration)
+
+---
+
+## ⭐ Recent Additions (Oct 16, 2025)
+
+### Strategy Registry System
+- Central `strategies/registry.json` database tracking all strategies
+- Random hash naming convention (`a014`, `f662`, `355c`, etc.)
+- Enhanced datetime tracking (created_datetime, last_edited)
+- Organized directory structure (active/experimental/archived/templates)
+- Python API: `proratio_utilities/strategy_registry.py`
+- CLI integration: `/strategy list --archived`, `/strategy show <id>`
+
+### Phase 4.6: LLM Integration Fix
+- Fixed `'OHLCVData' object has no attribute 'tail'` error
+- Modified `proratio_signals/hybrid_predictor.py`
+- Validated with 6-hour paper trading test (0 errors, all LLM providers working)
+- Full Hybrid ML+LLM mode now operational
+
+### Active Strategies (from Registry)
+1. **a014_hybrid-ml-llm** - Hybrid ML+LLM (Phase 4.6 validated)
+2. **f662_grid-trading** - Grid Trading (73.7% win rate)
+3. **355c_mean-reversion** - Mean Reversion v2 (56% win rate)
+
+See [roadmap.md](roadmap.md) for complete Phase 4.6 and Registry System details.

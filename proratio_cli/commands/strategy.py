@@ -5,92 +5,201 @@ Manage trading strategies, view details, and run backtests.
 
 Author: Proratio Team
 Date: 2025-10-11
+Updated: 2025-10-16 - Integrated with Strategy Registry System
 """
 
 import typer
 from pathlib import Path
 from rich.syntax import Syntax
+from rich.table import Table
 from proratio_cli.utils.display import (
     print_header,
     create_strategy_table,
     print_error,
     print_success,
+    print_info,
     console,
 )
+from proratio_utilities.strategy_registry import get_strategy_registry
 
 app = typer.Typer()
 
 
 @app.command()
-def list():
-    """List all available strategies."""
-    print_header("Available Strategies", "Freqtrade strategy files")
+def list(
+    status: str = typer.Option(None, "--status", "-s", help="Filter by status (active, archived, experimental)"),
+    category: str = typer.Option(None, "--category", "-c", help="Filter by category (ai-enhanced, grid, mean-reversion, etc.)"),
+    show_archived: bool = typer.Option(False, "--archived", "-a", help="Show archived strategies"),
+):
+    """List all available strategies from the Strategy Registry."""
+    registry = get_strategy_registry()
 
-    strategy_path = Path("user_data/strategies")
+    # Determine what to show
+    if show_archived:
+        status = "archived"
 
-    if not strategy_path.exists():
-        print_error("Strategy directory not found")
-        raise typer.Exit(1)
+    print_header(
+        "Strategy Registry",
+        f"Status: {status or 'all'} | Category: {category or 'all'}"
+    )
 
-    strategies = []
-    for strategy_file in strategy_path.glob("*.py"):
-        if (
-            not strategy_file.name.startswith("_")
-            and strategy_file.name != "__init__.py"
-        ):
-            # Parse strategy info
-            strategy_name = strategy_file.stem
-            strategy_type = "Unknown"
+    # Get strategies from registry
+    strategies = registry.list_strategies(status=status, category=category)
 
-            # Try to determine strategy type from name
-            if "AI" in strategy_name or "Enhanced" in strategy_name:
-                strategy_type = "AI-Enhanced"
-            elif "Mean" in strategy_name or "Reversion" in strategy_name:
-                strategy_type = "Mean Reversion"
-            elif "Grid" in strategy_name:
-                strategy_type = "Grid Trading"
-            elif "Trend" in strategy_name:
-                strategy_type = "Trend Following"
-            elif "FreqAI" in strategy_name:
-                strategy_type = "FreqAI ML"
+    if not strategies:
+        print_error(f"No strategies found with filters: status={status}, category={category}")
+        return
 
-            strategies.append(
-                {
-                    "name": strategy_name,
-                    "type": strategy_type,
-                    "status": "Active",
-                    "sharpe": 0.0,  # Would need to read from backtest results
-                }
-            )
+    # Create rich table
+    table = Table(show_header=True, header_style="bold cyan")
+    table.add_column("ID", style="dim")
+    table.add_column("Name")
+    table.add_column("Category")
+    table.add_column("Status")
+    table.add_column("Win Rate", justify="right")
+    table.add_column("Version")
+    table.add_column("Created")
 
-    if strategies:
-        table = create_strategy_table(strategies)
-        console.print(table)
-        console.print(f"\n[dim]Total: {len(strategies)} strategies[/dim]\n")
-    else:
-        print_error("No strategies found")
+    for strategy in strategies:
+        # Get performance metrics
+        perf = strategy.performance
+        win_rate = "N/A"
+
+        # Try backtest first, then paper trading
+        if perf.get("backtest") and perf["backtest"].get("win_rate"):
+            win_rate = f"{perf['backtest']['win_rate']:.1%}"
+        elif perf.get("paper_trading") and perf["paper_trading"].get("win_rate"):
+            win_rate = f"{perf['paper_trading']['win_rate']:.1%}"
+
+        # Status emoji
+        status_emoji = {
+            "active": "✅",
+            "experimental": "🧪",
+            "archived": "📦",
+            "paused": "⏸️"
+        }.get(strategy.status, "❓")
+
+        # Format created date (just date, not time)
+        created_date = strategy.created_datetime.split("T")[0]
+
+        table.add_row(
+            strategy.id.split("_")[0],  # Just the hash
+            strategy.name,
+            strategy.category,
+            f"{status_emoji} {strategy.status}",
+            win_rate,
+            strategy.version,
+            created_date,
+        )
+
+    console.print(table)
+
+    # Summary
+    counts = registry.get_strategy_count()
+    console.print(f"\n[dim]Total: {len(strategies)} strategies | Active: {counts['active']} | Archived: {counts['archived']} | Experimental: {counts['experimental']}[/dim]\n")
+
+    # Hints
+    if not show_archived and counts['archived'] > 0:
+        console.print("[dim]Tip: Use --archived to see archived strategies[/dim]")
+    console.print("[dim]Tip: Use 'strategy show <id>' to view strategy details[/dim]\n")
 
 
 @app.command()
 def show(
-    name: str = typer.Argument(..., help="Strategy name"),
-    lines: int = typer.Option(50, "--lines", "-n", help="Number of lines to show"),
+    strategy_id: str = typer.Argument(..., help="Strategy ID or hash (e.g., 'a014' or 'a014_hybrid-ml-llm')"),
+    show_code: bool = typer.Option(False, "--code", "-c", help="Show strategy source code"),
 ):
-    """Show strategy source code."""
-    strategy_path = Path(f"user_data/strategies/{name}.py")
+    """Show strategy details from the registry."""
+    registry = get_strategy_registry()
 
-    if not strategy_path.exists():
-        print_error(f"Strategy '{name}' not found")
+    # Try to find strategy - accept either full ID or just hash
+    strategy = None
+    if "_" not in strategy_id:
+        # Just a hash, find matching strategy
+        for s in registry.list_strategies():
+            if s.id.startswith(strategy_id):
+                strategy = s
+                break
+    else:
+        # Full ID
+        strategy = registry.get_strategy(strategy_id)
+
+    if not strategy:
+        print_error(f"Strategy '{strategy_id}' not found in registry")
+        console.print("\n[dim]Tip: Use 'strategy list' to see all strategies[/dim]\n")
         raise typer.Exit(1)
 
-    print_header(f"Strategy: {name}", str(strategy_path))
+    print_header(f"Strategy: {strategy.name}", f"ID: {strategy.id}")
 
-    with open(strategy_path, "r") as f:
-        code = f.read()
+    # Display metadata
+    console.print(f"[bold cyan]Metadata[/bold cyan]")
+    console.print(f"  Class Name: {strategy.class_name}")
+    console.print(f"  Status: {strategy.status}")
+    console.print(f"  Category: {strategy.category}")
+    console.print(f"  Version: {strategy.version}")
+    console.print(f"  Author: {strategy.author}")
+    console.print(f"  Created: {strategy.created_datetime}")
+    console.print(f"  Last Edited: {strategy.last_edited}")
+    console.print()
 
-    # Syntax highlighting
-    syntax = Syntax(code, "python", theme="monokai", line_numbers=True)
-    console.print(syntax)
+    console.print(f"[bold cyan]Description[/bold cyan]")
+    console.print(f"  {strategy.description}")
+    console.print()
+
+    console.print(f"[bold cyan]Tags[/bold cyan]")
+    console.print(f"  {', '.join(strategy.tags)}")
+    console.print()
+
+    # Parameters
+    console.print(f"[bold cyan]Parameters[/bold cyan]")
+    for key, value in strategy.parameters.items():
+        console.print(f"  {key}: {value}")
+    console.print()
+
+    # Performance
+    console.print(f"[bold cyan]Performance[/bold cyan]")
+    for test_type, metrics in strategy.performance.items():
+        if metrics:
+            console.print(f"  {test_type.title()}:")
+            for metric, value in metrics.items():
+                if value is not None:
+                    console.print(f"    {metric}: {value}")
+    console.print()
+
+    # Path info
+    console.print(f"[bold cyan]File Locations[/bold cyan]")
+    console.print(f"  Directory: {strategy.path['directory']}")
+    console.print(f"  Main File: {strategy.path['main_file']}")
+    if strategy.path.get('freqtrade_adapter'):
+        console.print(f"  Freqtrade Adapter: {strategy.path['freqtrade_adapter']}")
+    console.print()
+
+    # Notes
+    if strategy.notes:
+        console.print(f"[bold cyan]Notes[/bold cyan]")
+        console.print(f"  {strategy.notes}")
+        console.print()
+
+    # Archived info
+    if strategy.status == "archived" and strategy.archived_reason:
+        console.print(f"[bold yellow]Archived Information[/bold yellow]")
+        console.print(f"  Reason: {strategy.archived_reason}")
+        console.print(f"  Date: {strategy.archived_datetime}")
+        console.print()
+
+    # Show code if requested
+    if show_code:
+        strategy_file = Path(strategy.path['directory']) / strategy.path['main_file']
+        if strategy_file.exists():
+            console.print(f"[bold cyan]Source Code[/bold cyan]")
+            with open(strategy_file, "r") as f:
+                code = f.read()
+            syntax = Syntax(code, "python", theme="monokai", line_numbers=True)
+            console.print(syntax)
+        else:
+            print_error(f"Strategy file not found: {strategy_file}")
+    else:
+        console.print("[dim]Tip: Use --code to view source code[/dim]\n")
 
 
 @app.command()

@@ -1,6 +1,6 @@
 # Proratio: Core Concepts and Technical Details
 
-**Last Updated**: October 15, 2025
+**Last Updated**: October 16, 2025
 
 This document provides detailed explanations of Proratio's strategies, technologies, and trading concepts for readers with finance and analytical backgrounds.
 
@@ -169,7 +169,11 @@ These features help ML models understand market context beyond just price.
 
 ## Trading Strategies Explained
 
-### 1. AI-Enhanced Strategy (Hybrid ML+LLM)
+**Note**: All strategies are tracked in the central Strategy Registry ([strategies/registry.json](../strategies/registry.json)). Use `./start.sh strategy list` to see current active strategies.
+
+### 1. Hybrid ML+LLM Strategy (a014_hybrid-ml-llm)
+
+**Status**: ✅ Active | **ID**: a014 | **Category**: AI-Enhanced
 
 **Concept**: Combine quantitative ML predictions with qualitative AI analysis.
 
@@ -186,24 +190,15 @@ These features help ML models understand market context beyond just price.
 
 **When to use**: Markets with both clear technical patterns AND narrative context (news, sentiment).
 
-**Expected performance**: 65-70% win rate, Sharpe ratio 2.0-2.5
+**Performance**: Phase 4.6 validated - all 3 LLM providers (ChatGPT, Claude, Gemini) working correctly.
 
-### 2. Trend Following Strategy
+**Expected**: 65-70% win rate, Sharpe ratio 2.0-2.5
 
-**Concept**: "The trend is your friend" - ride existing momentum.
+**Implementation**: [strategies/active/a014_hybrid-ml-llm/strategy.py](../strategies/active/a014_hybrid-ml-llm/strategy.py)
 
-**How it works**:
-- Identifies trend direction using moving averages (20, 50, 200-period EMAs)
-- Enters when trend is confirmed (price above all moving averages = uptrend)
-- Uses ADX to confirm trend strength (ADX > 25 = strong trend)
-- Exits when trend reverses (price crosses below moving averages)
+### 2. Mean Reversion Strategy v2 (355c_mean-reversion)
 
-**When to use**: Trending markets (Bitcoin rallies, bear markets).
-
-**Pros**: High win rate during strong trends, simple logic
-**Cons**: Whipsawed (false signals) in sideways/choppy markets
-
-### 3. Mean Reversion Strategy
+**Status**: ✅ Active | **ID**: 355c | **Category**: Mean Reversion
 
 **Concept**: "What goes up must come down" - prices revert to average.
 
@@ -212,18 +207,25 @@ These features help ML models understand market context beyond just price.
 - **Buy signal**: RSI < 30 (oversold) AND price touches lower Bollinger Band
 - **Sell signal**: RSI > 70 (overbought) AND price touches upper Bollinger Band
 - Assumes price will bounce back to the middle (mean)
+- **Stop loss**: 3.5% (improved from v1's 2%)
 
 **When to use**: Range-bound, sideways markets.
+
+**Performance**: 56% win rate (improved from v1's 38%)
 
 **Pros**: Catches reversals, good in stable markets
 **Cons**: Fails in strong trends (keeps buying a falling knife)
 
-### 4. Grid Trading Strategy
+**Implementation**: [strategies/active/355c_mean-reversion/strategy.py](../strategies/active/355c_mean-reversion/strategy.py)
+
+### 3. Grid Trading Strategy (f662_grid-trading)
+
+**Status**: ✅ Active | **ID**: f662 | **Category**: Grid Trading
 
 **Concept**: Place buy/sell orders at regular price intervals.
 
 **How it works**:
-- Sets up a "grid" of price levels (e.g., every $100 for Bitcoin)
+- Sets up a "grid" of price levels (e.g., every 0.5% for cryptocurrency)
 - Places buy orders below current price, sell orders above
 - As price oscillates, trades execute automatically
 - Profits from price volatility regardless of direction
@@ -231,27 +233,51 @@ These features help ML models understand market context beyond just price.
 **Example**:
 ```
 Current price: $45,000
-Grid: $44,900, $44,800, $44,700 (buys) | $45,100, $45,200, $45,300 (sells)
+Grid spacing: 0.5% (10 grids)
+Grid: $44,775, $44,550, $44,325 (buys) | $45,225, $45,450, $45,675 (sells)
 
-Price drops to $44,700 → buy order executes
-Price rises to $45,200 → sell order executes (+$500 profit)
+Price drops to $44,550 → buy order executes
+Price rises to $45,450 → sell order executes (+$900 profit)
 ```
 
 **When to use**: Choppy, range-bound markets with high volatility.
 
+**Performance**: 73.7% win rate, Sharpe 0.8 (19 trades backtested)
+
 **Pros**: Profits from volatility, no trend prediction needed
 **Cons**: Risk of large loss in strong trends, capital intensive
 
-### 5. FreqAI Strategy (Legacy ML)
+**Implementation**: [strategies/active/f662_grid-trading/strategy.py](../strategies/active/f662_grid-trading/strategy.py)
 
-**Concept**: Use Freqtrade's built-in machine learning framework.
+---
 
-**How it works**:
-- Similar to Proratio's ensemble but uses Freqtrade's FreqAI module
-- Trains models on-the-fly during trading
-- Supports LightGBM, XGBoost, CatBoost
+### Archived Strategies
 
-**Status**: Legacy strategy, superseded by Hybrid ML+LLM approach.
+The following strategies have been superseded and are no longer active. They are kept for reference and historical analysis.
+
+#### Mean Reversion v1 (8f5e_mean-reversion-v1)
+**Status**: 📦 Archived (2025-09-20)
+**Reason**: Stop loss too tight (2%), replaced by v2 with 3.5% stop loss
+**Performance**: 38% win rate → Replaced by v2 with 56% win rate
+
+#### FreqAI Strategy (c7f9_freqai)
+**Status**: 📦 Archived (2025-10-16)
+**Reason**: Legacy ML approach replaced by custom ensemble (a014)
+**Note**: Used Freqtrade's FreqAI module, superseded by Hybrid ML+LLM strategy
+
+#### AI Enhanced Strategy (6347_ai-enhanced)
+**Status**: 📦 Archived (2025-10-16)
+**Reason**: Early prototype replaced by full Hybrid ML+LLM strategy (a014)
+**Note**: Initial AI integration experiment, evolved into current production system
+
+---
+
+### Strategy Development
+
+**Want to create a new strategy?**
+1. See [Strategy Development Guide](guides/strategy_development_guide.md)
+2. Use Strategy Registry: `./start.sh strategy list`
+3. Validate before deployment: `./start.sh strategy validate <name>`
 
 ---
 
