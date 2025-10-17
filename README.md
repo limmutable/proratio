@@ -4,11 +4,13 @@
 
 Proratio [pro-ra-tee-oh] is an intelligent trading system that combines multi-LLM analysis (ChatGPT, Claude, Gemini) with machine learning to trade cryptocurrencies on Binance. This is a personal development project exploring algorithmic trading and AI integration.
 
-**Version**: 1.0.0 (Phase 1-4.5 Complete)
+**Version**: 1.0.0 (Phase 1-4.7 Complete)
 
-> **📋 Status**: Phase 4.5 Complete ✅ | ML Ensemble Validated via Paper Trading | Ready for Phase 4.6 (LLM Fix)!
+> **📋 Status**: Phase 4.7 Complete ✅ | Confidence Analysis Done | Ready for Phase 4.8 (Extended Paper Trading)!
 >
 > **🚀 New Users**: See [docs/getting_started.md](./docs/getting_started.md) for step-by-step setup guide (20 minutes)
+>
+> **🖥️ Fresh Machine**: See [docs/guides/fresh_machine_setup.md](./docs/guides/fresh_machine_setup.md) for complete installation (30 minutes)
 >
 > For detailed project status and development plans, see [docs/project/roadmap.md](./docs/project/roadmap.md)
 
@@ -107,9 +109,9 @@ Proratio TradeHub      → Strategy orchestration
 | Module | Purpose | Tech Stack | Status |
 |--------|---------|------------|--------|
 | **Utilities** | Config, data collection, execution utilities | Freqtrade, CCXT, PostgreSQL | ✅ 95% |
-| **Signals** | Multi-LLM analysis, hybrid ML+LLM prediction | OpenAI API, Anthropic API, Gemini API, PyTorch, LightGBM, XGBoost | ✅ 90% (ML ✅, LLM ⚠️) |
-| **QuantLab** | Backtesting, ML models (LSTM, Ensemble), feature engineering | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 85% |
-| **TradeHub** | Multi-strategy coordination, risk management | Python, Custom framework | ✅ 50% |
+| **Signals** | Multi-LLM analysis, hybrid ML+LLM prediction | OpenAI API, Anthropic API, Gemini API, PyTorch, LightGBM, XGBoost | ✅ 95% (ML ✅, LLM ✅) |
+| **QuantLab** | Backtesting, ML models (LSTM, Ensemble), feature engineering, confidence analysis | PyTorch, LightGBM, XGBoost, scikit-learn, Jupyter | ✅ 90% |
+| **TradeHub** | Multi-strategy coordination, risk management, strategy registry | Python, Custom framework | ✅ 60% |
 
 ---
 
@@ -325,6 +327,7 @@ pytest --cov=proratio_signals --cov=proratio_tradehub --cov=proratio_quantlab --
 ### Core Documentation
 - **[Proratio Concepts](./docs/proratio_concepts.md)** - ⭐ Technical details for finance/analytical audiences
 - **[Getting Started](./docs/getting_started.md)** - Quick setup guide (20 minutes)
+- **[Fresh Machine Setup](./docs/guides/fresh_machine_setup.md)** - Complete installation for new machines (30 minutes)
 - **[Project Roadmap](./docs/project/roadmap.md)** - Complete development roadmap and Phase 4-10 plans
 - **[CLAUDE.md](./CLAUDE.md)** - Developer guide for Claude Code
 

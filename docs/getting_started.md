@@ -4,6 +4,8 @@
 
 Get your system running in **20 minutes** with this step-by-step guide.
 
+> **🖥️ Setting up on a fresh machine?** See [Fresh Machine Setup Guide](guides/fresh_machine_setup.md) for complete installation from scratch (30 minutes).
+
 ---
 
 ## 📋 What You'll Need
