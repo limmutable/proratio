@@ -31,6 +31,15 @@ def start(
     ),
 ):
     """Start trading bot."""
+    # Fix: Handle typer.Option objects when called from shell
+    import typer.models
+    if isinstance(strategy, typer.models.OptionInfo):
+        strategy = "ProRatioAdapter"
+    if isinstance(live, typer.models.OptionInfo):
+        live = False
+    if isinstance(dashboard, typer.models.OptionInfo):
+        dashboard = True
+
     mode = "live" if live else "dry-run"
     config_file = (
         "proratio_utilities/config/freqtrade/config_live.json"

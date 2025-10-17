@@ -34,6 +34,16 @@ def list(
     """List all available strategies from the Strategy Registry."""
     registry = get_strategy_registry()
 
+    # Fix: Handle typer.Option objects when called from shell (not CLI)
+    # This happens when shell.py calls strategy.list() directly
+    import typer.models
+    if isinstance(status, typer.models.OptionInfo):
+        status = None
+    if isinstance(category, typer.models.OptionInfo):
+        category = None
+    if isinstance(show_archived, typer.models.OptionInfo):
+        show_archived = False
+
     # Determine what to show
     if show_archived:
         status = "archived"
@@ -110,6 +120,11 @@ def show(
     show_code: bool = typer.Option(False, "--code", "-c", help="Show strategy source code"),
 ):
     """Show strategy details from the registry."""
+    # Fix: Handle typer.Option objects when called from shell
+    import typer.models
+    if isinstance(show_code, typer.models.OptionInfo):
+        show_code = False
+
     registry = get_strategy_registry()
 
     # Try to find strategy - accept either full ID or just hash
@@ -212,6 +227,15 @@ def backtest(
     """Run backtest for a strategy."""
     import subprocess
 
+    # Fix: Handle typer.Option objects when called from shell
+    import typer.models
+    if isinstance(timeframe, typer.models.OptionInfo):
+        timeframe = "4h"
+    if isinstance(days, typer.models.OptionInfo):
+        days = 90
+    if isinstance(dry_run, typer.models.OptionInfo):
+        dry_run = True
+
     print_header(f"Backtesting: {name}", f"{timeframe} timeframe, {days} days")
 
     strategy_path = Path(f"user_data/strategies/{name}.py")
@@ -270,6 +294,13 @@ def validate(
     import subprocess
     import json
     from datetime import datetime
+
+    # Fix: Handle typer.Option objects when called from shell
+    import typer.models
+    if isinstance(skip_backtest, typer.models.OptionInfo):
+        skip_backtest = False
+    if isinstance(skip_tests, typer.models.OptionInfo):
+        skip_tests = False
 
     strategy_path = Path(f"user_data/strategies/{name}.py")
 

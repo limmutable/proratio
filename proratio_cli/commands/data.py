@@ -25,6 +25,15 @@ def download(
     days: int = typer.Option(180, "--days", "-d", help="Number of days"),
 ):
     """Download historical data."""
+    # Fix: Handle typer.Option objects when called from shell (not CLI)
+    import typer.models
+    if isinstance(pairs, typer.models.OptionInfo):
+        pairs = "BTC/USDT,ETH/USDT"
+    if isinstance(timeframes, typer.models.OptionInfo):
+        timeframes = "1h,4h"
+    if isinstance(days, typer.models.OptionInfo):
+        days = 180
+
     print_header("Downloading Historical Data", f"{pairs} for {days} days")
 
     pair_list = pairs.split(",")
