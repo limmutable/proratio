@@ -1,8 +1,8 @@
 """
 Grid Trading Strategy - Freqtrade Adapter
 
-Places multiple buy/sell orders at predetermined price levels (grids) to profit from
-price volatility. Works best in ranging/sideways markets with high volatility.
+This is a thin wrapper that adapts the Proratio GridTradingStrategy
+to work with Freqtrade's IStrategy interface.
 
 Strategy Logic:
 - Define grid levels above and below current price
@@ -28,14 +28,26 @@ if str(project_root) not in sys.path:
 import talib.abstract as ta  # noqa: E402
 from freqtrade.strategy import IStrategy  # noqa: E402
 from pandas import DataFrame  # noqa: E402
+from proratio_tradehub.strategies import GridTradingStrategy  # noqa: E402
 
 
-class GridTradingStrategy(IStrategy):
+class GridTradingAdapter(IStrategy):
     """
-    Grid trading strategy that profits from price oscillations.
+    Freqtrade adapter for Proratio GridTradingStrategy.
 
-    Creates a grid of price levels and trades between them.
-    Buys at lower grids, sells at upper grids.
+    This is a thin wrapper that delegates core trading logic to the
+    framework-agnostic GridTradingStrategy from proratio_tradehub.
+
+    Entry Logic:
+    - Long: High volatility + ranging market + price in lower range (RSI 25-45)
+    
+    Exit Logic:
+    - Price reaches upper grid (RSI > 55 in upper range)
+    - Strong trend emerges
+    - Volatility drops
+
+    Timeframes: Best on 1h
+    Markets: High volatility, ranging/sideways markets
     """
 
     # Strategy metadata
@@ -87,21 +99,25 @@ class GridTradingStrategy(IStrategy):
 
     def __init__(self, config: dict) -> None:
         """
-        Initialize Grid Trading strategy.
+        Initialize Grid Trading adapter.
 
         Args:
             config: Freqtrade configuration dict
         """
         super().__init__(config)
 
-        # Grid state
-        self.grid_levels: Dict[str, list] = {}  # pair -> list of grid prices
-        self.grid_center: Dict[str, float] = {}  # pair -> center price
+        # Initialize core strategy
+        self.strategy = GridTradingStrategy(
+            name="GridTrading",
+            grid_spacing=self.grid_spacing,
+            num_grids_above=self.num_grids_above,
+            num_grids_below=self.num_grids_below,
+            grid_type=self.grid_type,
+            use_ai_volatility_check=False,  # Disable AI for now
+            min_volatility_threshold=self.min_volatility_threshold,
+        )
 
-        print("✓ Grid Trading Strategy initialized")
-        print(f"  Grid spacing: {self.grid_spacing:.1%}")
-        print(f"  Grids: {self.num_grids_below} below + {self.num_grids_above} above")
-        print(f"  Type: {self.grid_type}")
+        print(f"✓ Initialized {self.strategy}")
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -142,42 +158,7 @@ class GridTradingStrategy(IStrategy):
 
         return dataframe
 
-    def calculate_grid_levels(self, current_price: float, pair: str) -> tuple:
-        """
-        Calculate grid levels above and below current price.
 
-        Args:
-            current_price: Current market price
-            pair: Trading pair
-
-        Returns:
-            Tuple of (buy_levels, sell_levels)
-        """
-        buy_levels = []
-        sell_levels = []
-
-        if self.grid_type == "geometric":
-            # Geometric progression (equal percentage)
-            for i in range(1, self.num_grids_below + 1):
-                buy_levels.append(current_price * (1 - self.grid_spacing * i))
-
-            for i in range(1, self.num_grids_above + 1):
-                sell_levels.append(current_price * (1 + self.grid_spacing * i))
-        else:
-            # Arithmetic progression (equal dollar)
-            dollar_spacing = current_price * self.grid_spacing
-
-            for i in range(1, self.num_grids_below + 1):
-                buy_levels.append(current_price - dollar_spacing * i)
-
-            for i in range(1, self.num_grids_above + 1):
-                sell_levels.append(current_price + dollar_spacing * i)
-
-        # Store grid levels
-        self.grid_levels[pair] = buy_levels + [current_price] + sell_levels
-        self.grid_center[pair] = current_price
-
-        return buy_levels, sell_levels
 
     def populate_entry_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
         """
@@ -196,12 +177,10 @@ class GridTradingStrategy(IStrategy):
             DataFrame with 'enter_long' column added
         """
         pair = metadata["pair"]
-        current_price = dataframe["close"].iloc[-1]
-
-        # Initialize grids if not exists
-        if pair not in self.grid_levels:
-            # Calculate and store grid levels (buy_levels and sell_levels stored in self.grid_levels)
-            self.calculate_grid_levels(current_price, pair)
+        
+        # Initialize columns
+        dataframe["enter_long"] = 0
+        dataframe["enter_tag"] = ""
 
         # Market conditions suitable for grid trading
         market_conditions = (
@@ -229,6 +208,7 @@ class GridTradingStrategy(IStrategy):
 
         # Combine conditions
         dataframe.loc[market_conditions & grid_entry_conditions, "enter_long"] = 1
+        dataframe.loc[market_conditions & grid_entry_conditions, "enter_tag"] = "grid_trading_long"
 
         return dataframe
 
@@ -248,6 +228,10 @@ class GridTradingStrategy(IStrategy):
         Returns:
             DataFrame with 'exit_long' column added
         """
+        # Initialize columns
+        dataframe["exit_long"] = 0
+        dataframe["exit_tag"] = ""
+        
         # Exit conditions
         exit_conditions = (
             # Price in upper range (reached sell grid)
@@ -261,6 +245,7 @@ class GridTradingStrategy(IStrategy):
         )
 
         dataframe.loc[exit_conditions, "exit_long"] = 1
+        dataframe.loc[exit_conditions, "exit_tag"] = "grid_trading_exit"
 
         return dataframe
 
