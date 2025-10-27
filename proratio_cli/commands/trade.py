@@ -9,6 +9,7 @@ Date: 2025-10-11
 
 import typer
 import subprocess
+import json
 from proratio_cli.utils.display import (
     print_header,
     print_success,
@@ -16,6 +17,7 @@ from proratio_cli.utils.display import (
     print_warning,
     console,
 )
+from proratio_utilities.config import load_and_hydrate_config
 
 app = typer.Typer()
 
@@ -56,6 +58,14 @@ def start(
             console.print("[yellow]Cancelled[/yellow]")
             raise typer.Exit()
 
+    # Load and hydrate config with secrets from .env
+    try:
+        hydrated_config = load_and_hydrate_config(config_file)
+        config_json = json.dumps(hydrated_config)
+    except Exception as e:
+        print_error(f"Failed to load configuration: {e}")
+        raise typer.Exit(1)
+
     cmd = [
         "freqtrade",
         "trade",
@@ -64,13 +74,14 @@ def start(
         "--userdir",
         "user_data",
         "--config",
-        config_file,
+        "-",  # Read config from stdin
     ]
 
     console.print(f"\n[dim]Running: {' '.join(cmd)}[/dim]\n")
 
     try:
-        subprocess.run(cmd)
+        # Pass hydrated config via stdin
+        subprocess.run(cmd, input=config_json, text=True)
         print_success("Trading bot stopped")
     except KeyboardInterrupt:
         print_warning("Trading interrupted by user")
