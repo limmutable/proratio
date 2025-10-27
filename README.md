@@ -174,6 +174,90 @@ See [CLI Guide](./docs/cli_guide.md) for complete reference
 
 ---
 
+## ⚙️ Configuration Management
+
+Proratio uses a **single source of truth** for configuration: all secrets and environment-specific settings are managed in your `.env` file. JSON configuration files are treated as **templates** and are dynamically hydrated at runtime.
+
+### How It Works
+
+1. **Secrets in `.env` only** - API keys, tokens, passwords never stored in JSON files
+2. **Dynamic hydration** - Configuration templates are injected with secrets at runtime
+3. **Git-safe templates** - JSON files contain no secrets, safe to commit
+4. **Environment isolation** - Switch between dry-run/live/test by changing `.env`
+
+### Configuration Files
+
+```
+.env                          # Your secrets (NEVER commit!)
+.env.example                  # Template to copy (safe to commit)
+
+proratio_utilities/config/freqtrade/
+  ├── config_dry.json         # Paper trading template
+  ├── config_freqai.json      # FreqAI ML template
+  └── ...                     # Other config templates
+```
+
+### Required Environment Variables
+
+```bash
+# Exchange (Required)
+BINANCE_API_KEY=your_key_here
+BINANCE_API_SECRET=your_secret_here
+
+# Trading Mode (Required)
+TRADING_MODE=dry_run  # or 'live'
+
+# AI/LLM Keys (Optional - for AI signals)
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=...
+
+# API Server / FreqUI (Optional)
+API_SERVER_JWT_SECRET=
+API_SERVER_WS_TOKEN=
+API_SERVER_USERNAME=freqtrader
+API_SERVER_PASSWORD=
+
+# Telegram (Optional)
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+```
+
+### Usage
+
+The configuration system automatically validates required settings and injects secrets:
+
+```python
+from proratio_utilities.config import load_and_hydrate_config
+
+# Load config with secrets injected from .env
+config = load_and_hydrate_config('proratio_utilities/config/freqtrade/config_dry.json')
+
+# Validation happens automatically - raises ValueError if keys missing
+# Logging tracks what's being injected (see logs for audit trail)
+```
+
+**CLI and scripts handle this automatically** - you don't need to call this directly:
+
+```bash
+# CLI uses hydrated config automatically
+./start.sh trade start --strategy ProRatioAdapter
+
+# Scripts use hydrated config via helper
+./scripts/run_paper_trading.sh
+```
+
+### Security Features
+
+✅ **Secrets never written to disk** - Hydrated config exists only in memory  
+✅ **Git-safe templates** - JSON files contain no secrets  
+✅ **Validation** - Ensures required keys are set before starting  
+✅ **Audit logging** - Tracks configuration hydration in logs  
+
+For more details, see [Configuration Consolidation Spec](./specs/001-name-refactor-config/completion_report.md)
+
+---
+
 ## 📊 Usage Examples
 
 ### Generate AI Signals

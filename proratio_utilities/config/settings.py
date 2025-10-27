@@ -35,6 +35,12 @@ class Settings(BaseSettings):
     telegram_bot_token: Optional[str] = Field(default=None, env="TELEGRAM_BOT_TOKEN")
     telegram_chat_id: Optional[str] = Field(default=None, env="TELEGRAM_CHAT_ID")
 
+    # API Server (FreqUI)
+    api_server_jwt_secret: str = Field(default="", env="API_SERVER_JWT_SECRET")
+    api_server_ws_token: str = Field(default="", env="API_SERVER_WS_TOKEN")
+    api_server_username: str = Field(default="freqtrader", env="API_SERVER_USERNAME")
+    api_server_password: str = Field(default="", env="API_SERVER_PASSWORD")
+
     # Environment Settings
     trading_mode: str = Field(default="dry_run", env="TRADING_MODE")  # dry_run or live
     data_refresh_interval: int = Field(

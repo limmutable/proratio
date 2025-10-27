@@ -1,0 +1,109 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop, 001-name-refactor-config ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: proratio
+          POSTGRES_PASSWORD: proratio_password
+          POSTGRES_DB: proratio
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+    
+    - name: Create test .env file
+      run: |
+        cat > .env << EOF
+        # Test environment configuration - DO NOT use real API keys!
+        BINANCE_API_KEY=test_binance_key_do_not_use_real_keys
+        BINANCE_API_SECRET=test_binance_secret_do_not_use_real_keys
+        BINANCE_TESTNET=true
+        
+        OPENAI_API_KEY=test_openai_key
+        ANTHROPIC_API_KEY=test_anthropic_key
+        GEMINI_API_KEY=test_gemini_key
+        
+        DATABASE_URL=postgresql://proratio:proratio_password@localhost:5432/proratio
+        REDIS_URL=redis://localhost:6379/0
+        
+        TELEGRAM_BOT_TOKEN=
+        TELEGRAM_CHAT_ID=
+        
+        API_SERVER_JWT_SECRET=test_jwt_secret
+        API_SERVER_WS_TOKEN=test_ws_token
+        API_SERVER_USERNAME=test_user
+        API_SERVER_PASSWORD=test_password
+        
+        TRADING_MODE=dry_run
+        DATA_REFRESH_INTERVAL=300
+        DEBUG=false
+        LOG_LEVEL=INFO
+        EOF
+    
+    - name: Run pytest
+      run: |
+        pytest tests/ -v --tb=short --maxfail=5
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+    
+    - name: Run pytest with coverage
+      if: success()
+      run: |
+        pytest tests/ --cov=proratio_utilities --cov=proratio_signals --cov=proratio_quantlab --cov=proratio_tradehub --cov-report=xml --cov-report=term
+      env:
+        PYTHONPATH: ${{ github.workspace }}
+    
+    - name: Upload coverage reports
+      if: success()
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false

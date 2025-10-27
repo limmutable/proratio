@@ -94,9 +94,17 @@ echo "=============================================="
 echo ""
 
 # Run Freqtrade
-freqtrade trade \
+python -c "
+import json
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from proratio_utilities.config.loader import load_and_hydrate_config
+config = load_and_hydrate_config('proratio_utilities/config/freqtrade/config_dry.json')
+print(json.dumps(config))
+" | freqtrade trade \
   --strategy SimpleTestStrategy \
-  --config proratio_utilities/config/freqtrade/config_dry.json \
+  --config - \
   --userdir user_data
 
 # On exit
