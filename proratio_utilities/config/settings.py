@@ -29,6 +29,11 @@ class Settings(BaseSettings):
         default="postgresql://proratio:proratio_password@localhost:5432/proratio",
         env="DATABASE_URL",
     )
+    validation_db_url: Optional[str] = Field(
+        default=None,
+        env="VALIDATION_DB_URL",
+        description="Database URL for validation results storage. If None, uses DATABASE_URL.",
+    )
     redis_url: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")
 
     # Telegram

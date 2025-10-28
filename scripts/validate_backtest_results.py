@@ -3,13 +3,31 @@
 Backtest Results Validator
 
 Validates backtest results against defined criteria to ensure strategy quality.
+Stores validation results in database for historical tracking.
+
+Feature: 001-test-validation-dashboard (User Story 3)
 """
 
 import argparse
 import json
 import sys
+import subprocess
+import logging
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
+from datetime import datetime
+
+from proratio_utilities.data.validation_repository import (
+    ValidationRepository,
+    DatabaseConnectionError,
+    DatabaseWriteError,
+)
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 # Validation criteria
 VALIDATION_CRITERIA = {
@@ -20,6 +38,109 @@ VALIDATION_CRITERIA = {
     "min_profit_factor": 1.0,  # Profit factor > 1 means profitable
     "max_avg_loss_pct": 5.0,  # Average loss per trade < 5%
 }
+
+
+def get_git_commit_hash() -> Optional[str]:
+    """
+    Get current git commit hash.
+
+    Returns:
+        40-character commit hash, or None if git is not available or not a git repo.
+
+    User Story 3 (T030): Git commit hash capture with graceful handling
+    """
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=True,
+        )
+        commit_hash = result.stdout.strip()
+
+        # Verify format (40 hex characters)
+        if len(commit_hash) == 40 and all(c in "0123456789abcdef" for c in commit_hash):
+            logger.info(f"Git commit hash: {commit_hash[:8]}...")
+            return commit_hash
+        else:
+            logger.warning(f"Invalid git commit hash format: {commit_hash}")
+            return None
+
+    except subprocess.TimeoutExpired:
+        logger.warning("Git command timed out - skipping commit hash")
+        return None
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"Not a git repository or git not available: {e}")
+        return None
+    except FileNotFoundError:
+        logger.warning("Git command not found - skipping commit hash")
+        return None
+    except Exception as e:
+        logger.warning(f"Unexpected error getting git commit hash: {e}")
+        return None
+
+
+def store_validation_results(
+    strategy: str, metrics: Dict, passed: bool
+) -> Optional[int]:
+    """
+    Store validation results in database.
+
+    Args:
+        strategy: Strategy name
+        metrics: Validation metrics dictionary
+        passed: Whether validation passed
+
+    Returns:
+        Database ID of inserted record, or None if storage failed
+
+    User Story 3 (T031-T034): Database storage with error handling
+    """
+    try:
+        # Initialize repository
+        repo = ValidationRepository()
+
+        # Get git commit hash (gracefully handle if not available)
+        git_commit_hash = get_git_commit_hash()
+
+        # Prepare metrics for storage
+        # Convert win_rate from percentage to decimal if needed
+        win_rate = metrics.get("win_rate", 0.0)
+        total_profit_pct = metrics.get("profit_total", 0.0)
+        max_drawdown = abs(metrics.get("max_drawdown", 0.0)) * -1  # Store as negative
+        sharpe_ratio = metrics.get("sharpe_ratio", 0.0)
+        profit_factor = metrics.get("profit_factor", 0.0)
+
+        # Insert into database
+        result_id = repo.insert_validation_result(
+            strategy_name=strategy,
+            timestamp=datetime.utcnow(),
+            total_trades=metrics.get("total_trades", 0),
+            win_rate=win_rate if win_rate > 0 else None,
+            total_profit_pct=total_profit_pct,
+            max_drawdown=max_drawdown if max_drawdown != 0 else None,
+            sharpe_ratio=sharpe_ratio if sharpe_ratio != 0 else None,
+            profit_factor=profit_factor if profit_factor > 0 else None,
+            git_commit_hash=git_commit_hash,
+        )
+
+        logger.info(f"✓ Validation result stored in database (ID: {result_id})")
+        return result_id
+
+    except DatabaseConnectionError as e:
+        logger.warning(f"Could not connect to database: {e}")
+        logger.warning("Validation will continue with file-based results only")
+        return None
+    except DatabaseWriteError as e:
+        logger.error(f"Failed to write validation result to database: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Unexpected error storing validation result: {e}")
+        import traceback
+
+        traceback.print_exc()
+        return None
 
 
 def find_latest_backtest_results(strategy: str) -> Path:
@@ -272,6 +393,16 @@ def main():
 
         # Print report
         print_validation_report(args.strategy, metrics, checks, passed)
+
+        # Store results in database (non-blocking)
+        # User Story 3 (T033): Database write with error handling
+        logger.info("Storing validation results in database...")
+        result_id = store_validation_results(args.strategy, metrics, passed)
+
+        if result_id:
+            logger.info(f"Database storage successful (Record ID: {result_id})")
+        else:
+            logger.warning("Database storage failed - results saved to file only")
 
         # Exit with appropriate code
         sys.exit(0 if passed else 1)
